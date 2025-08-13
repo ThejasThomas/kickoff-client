@@ -1,4 +1,5 @@
-import { TextField } from "@mui/material";
+import type { Theme } from "@emotion/react";
+import { TextField, type SxProps } from "@mui/material";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
@@ -6,7 +7,7 @@ interface MuiTextFieldProps {
   id: string;
   name: string;
   type?: string;
-  label: string;
+  label?: string;
   disabled?: boolean;
   placeholder?: string;
   value: string | number;
@@ -16,6 +17,9 @@ interface MuiTextFieldProps {
   helperText?: string;
   isPassword?: boolean;
   className?: string;
+  fullWidth?: boolean;
+  variant?: "outlined" | "filled" | "standard";
+  sx?: SxProps<Theme>;
 }
 
 export const MuiTextField: React.FC<MuiTextFieldProps> = ({
@@ -31,6 +35,8 @@ export const MuiTextField: React.FC<MuiTextFieldProps> = ({
   onBlur,
   error,
   helperText,
+  fullWidth,
+  variant,
   isPassword = false,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -48,36 +54,38 @@ export const MuiTextField: React.FC<MuiTextFieldProps> = ({
       onBlur={onBlur}
       error={error}
       helperText={helperText}
-      fullWidth
-      variant="outlined"
-      InputProps={{
-        endAdornment: isPassword ? (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="p-2 text-gray-500 hover:text-black focus:outline-none"
-            aria-label="Toggle password visibility"
-          >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
-          </button>
-        ) : null,
-        sx:
-          type === "number"
-            ? {
-                "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                  {
-                    WebkitAppearance: "none",
-                    margin: 0,
+      fullWidth={fullWidth}
+      variant={variant ?? "outlined"}
+      slotProps={{
+        input: {
+          endAdornment: isPassword ? (
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="p-2 text-gray-500 hover:text-black focus:outline-none"
+              aria-label="Toggle password visibility"
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          ) : null,
+          sx:
+            type === "number"
+              ? {
+                  "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button":
+                    {
+                      WebkitAppearance: "none",
+                      margin: 0,
+                    },
+                  "&[type=number]": {
+                    MozAppearance: "textfield",
                   },
-                "& input[type=number]": {
-                  MozAppearance: "textfield",
-                },
-              }
-            : {},
+                }
+              : {},
+        },
       }}
       sx={{
         "& .MuiOutlinedInput-root": {

@@ -1,14 +1,13 @@
 import { useToaster } from "../../hooks/ui/useToaster";
 import { useAppDispatch } from "../../store/store";
-// import { duration } from "moment/moment"
 import { motion } from "framer-motion";
 import SignIn from "@/components/auth/SignIn";
 import { useLoginMutation } from "@/hooks/auth/useLogin";
-// import { data } from "react-router-dom";
 import type { IAdmin, ILoginData } from "@/types/User";
 import { adminLogin } from "@/store/slices/admin_slice";
 import { useNavigate } from "react-router-dom";
-// import { error } from "console";
+import { AnimatePresence  } from "framer-motion"
+
 
 export const AdminAuth = () => {
   const { mutate: loginAdmin, isPending } = useLoginMutation();
@@ -34,6 +33,7 @@ export const AdminAuth = () => {
 
   return (
     <>
+    <AnimatePresence mode="wait">
       <motion.div
         key={"login"}
         initial={{ opacity: 0, y: 20 }}
@@ -48,6 +48,7 @@ export const AdminAuth = () => {
           isLoading={isPending}
         />
       </motion.div>
+      </AnimatePresence>
     </>
   );
 };

@@ -4,7 +4,7 @@ export const turfOwnerSchema =Yup.object({
     email:Yup.string()
     .email('Invalid email address')
     .required('Email is required'),
-    phoneNumber:Yup.string()
+    phoneNumber:Yup.string().required('Phone number is required')
     .matches(/^[0-9]+$/, "Must be only digits")
     .min(10,'Must be 10 digits'),
     password: Yup.string()
