@@ -1,3 +1,5 @@
+import ForgotPassword from "@/components/auth/ForgotPassword"
+import ResetPassword from "@/components/auth/ResetPassword"
 import { ClientLayout } from "@/components/layouts/ClientLayout"
 import { ClientAuth } from "@/pages/client/ClientAuth"
 import { NoAuthRoute } from "@/utils/protected/PublicRoute"
@@ -13,6 +15,26 @@ const ClientRoutes =() =>{
                 element={<ClientLayout/>
                     
                 }>
+            </Route>
+
+            <Route
+            path="/forgot-password"
+            element={
+                <NoAuthRoute
+                element={<ForgotPassword role="client" signInPath="/"/>}
+                />
+            }
+              >
+
+            </Route>
+
+            <Route
+             path="/reset-password/:token"
+                element={
+                    <NoAuthRoute
+                    element={<ResetPassword role="client" signInPath="/"/>}/>
+                }>
+
             </Route>
             
         </Routes>

@@ -67,25 +67,26 @@ const ClientSignUp = ({
 	};
 
 	// --- OTP Verification ---
-	const handleVerifyOTP = (otp: string) => {
-		if (!userData.email) {
-			errorToast("Email is missing. Try again.");
-			return;
-		}
-		verifyOTP(
-			{ email: userData.email, otp },
-			{
-				onSuccess: () => {
-					successToast("OTP verified successfully!");
-					setIsOTPModalOpen(false);
-					onSubmit(userData as User);
-				},
-				onError: (err: any) => {
-					errorToast(err.response?.data?.message || "Invalid OTP");
-				},
-			}
-		);
-	};
+	const handleVerifyOTP = async (otp: string):Promise<boolean> => {
+  if (!userData.email) {
+    errorToast("Email is missing. Try again.");
+    return false;
+  }
+  try {
+    await verifyOTP({ email: userData.email, otp });
+    successToast("OTP verified successfully!");
+    setIsOTPModalOpen(false);
+    onSubmit(userData as User);
+    return true;
+  } catch (err) {
+  errorToast(
+    (err as any)?.response?.data?.message || 
+    (err as Error)?.message || 
+    "Invalid OTP"
+  );
+  return false;
+}
+};
 
 	const formik = useFormik<ClientSignupFormValues>({
 	initialValues: {
