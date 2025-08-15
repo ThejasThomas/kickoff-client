@@ -12,7 +12,7 @@ import type { IClient, ILoginData, ITurfOwner } from "@/types/User"
 import type { CredentialResponse } from "@react-oauth/google"
 import { AnimatePresence , motion } from "framer-motion"
 import { useState } from "react"
-import { data, useNavigate } from "react-router-dom"
+import {  useNavigate } from "react-router-dom"
 
 export const TurfOwnerAuth =()=>{
     const [isLogin,setIsLogin]=useState(false)

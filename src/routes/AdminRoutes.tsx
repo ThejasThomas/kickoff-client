@@ -1,6 +1,8 @@
 import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
 import { AdminAuth } from "@/pages/admin/AdminAuth";
+import AdminLayout from "@/pages/admin/AdminLayout";
+import VendorVerification from "@/pages/admin/sub-pages/VendorVerification";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";
 
@@ -22,6 +24,14 @@ const AdminRoutes = () => {
           <NoAuthRoute
             element={<ResetPassword role="admin" signInPath="/admin" />}
           />
+        }
+      />
+      <Route
+        path="/owner-verification"
+        element={
+          <AdminLayout>
+            <VendorVerification />
+          </AdminLayout>
         }
       />
     </Routes>

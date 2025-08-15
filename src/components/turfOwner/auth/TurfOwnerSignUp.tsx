@@ -9,7 +9,7 @@ import { useFormik } from "formik";
 import { useState } from "react";
 // import { GoogleAuthButton } from "@/components/auth/GoogleAuth";
 // import MuiButton from "@/components/common/buttons/MuiButton";
-import { LocationInputField } from "@/components/common/fields/LocationInputField";
+// import { LocationInputField } from "@/components/common/fields/LocationInputField";
 // import { MuiTextField } from "@/components/common/fields/MuiTextField";
 import { useVerifyOTPMutation } from "@/hooks/auth/useVerifyOtp";
 import OTPModal from "@/components/modals/OTPModal";
@@ -87,32 +87,33 @@ export const TurfOwnerSignUp = ({
     ITurfOwner & { password: string; confirmPassword: string }
   >({
     initialValues: {
-      turfName: "",
+      userId:"",
+      ownerName: "",
       email: "",
       phoneNumber: "",
       password: "",
       confirmPassword: "",
-      geoLocation: {
-        type: "Point",
-        coordinates: [],
-      },
-      location: {
-        name: "",
-        displayName: "",
-        zipCode: "",
-      },
+      // geoLocation: {
+      //   type: "Point",
+      //   coordinates: [],
+      // },
+      // location: {
+      //   name: "",
+      //   displayName: "",
+      //   zipCode: "",
+      // },
     },
     validationSchema: turfOwnerSchema,
     onSubmit: (values) => {
-      if (
-        values.geoLocation?.coordinates?.length === 0 ||
-        !values.location?.zipCode ||
-        !values.location?.name ||
-        !values.location?.displayName
-      ) {
-        errorToast("Please select a proper location");
-        return;
-      }
+      // if (
+      //   values.geoLocation?.coordinates?.length === 0 ||
+      //   !values.location?.zipCode ||
+      //   !values.location?.name ||
+      //   !values.location?.displayName
+      // ) {
+      //   errorToast("Please select a proper location");
+      //   return;
+      // }
       setUserData({
         ...values,
         status: "pending",
@@ -121,23 +122,23 @@ export const TurfOwnerSignUp = ({
     },
   });
 
-  const handleLocationSelect = (location: {
-    name: string;
-    zipCode: string;
-    displayName: string;
-    latitude: number | null;
-    longitude: number | null;
-  }) => {
-    formik.setFieldValue("geoLocation", {
-      type: "Point",
-      coordinates: [location.longitude, location.latitude],
-    });
-    formik.setFieldValue("location", {
-      name: location.name,
-      displayName: location.displayName,
-      zipCode: location.zipCode,
-    });
-  };
+  // const handleLocationSelect = (location: {
+  //   name: string;
+  //   zipCode: string;
+  //   displayName: string;
+  //   latitude: number | null;
+  //   longitude: number | null;
+  // }) => {
+  //   formik.setFieldValue("geoLocation", {
+  //     type: "Point",
+  //     coordinates: [location.longitude, location.latitude],
+  //   });
+  //   formik.setFieldValue("location", {
+  //     name: location.name,
+  //     displayName: location.displayName,
+  //     zipCode: location.zipCode,
+  //   });
+  // };
 
   const backgroundImageSrc = SignUpImg
 
@@ -232,16 +233,16 @@ export const TurfOwnerSignUp = ({
               </div>
               <input
                 type="text"
-                name="turfName"
-                placeholder="Enter your turf name"
-                value={formik.values.turfName}
+                name="ownerName"
+                placeholder="Enter your name"
+                value={formik.values.ownerName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 pl-10 pr-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all duration-300"
               />
-              {formik.touched.turfName && formik.errors.turfName && (
+              {formik.touched.ownerName && formik.errors.ownerName && (
                 <p className="text-red-300 text-xs mt-1">
-                  {formik.errors.turfName}
+                  {formik.errors.ownerName}
                 </p>
               )}
             </div>
@@ -354,7 +355,7 @@ export const TurfOwnerSignUp = ({
             </div>
 
             {/* Location Field */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden">
                 <LocationInputField
                   onSelect={handleLocationSelect}
@@ -366,12 +367,12 @@ export const TurfOwnerSignUp = ({
                   }}
                 />
               </div>
-              {formik.values.location?.name && formik.errors.location && (
+              {/* {formik.values.location?.name && formik.errors.location && (
                 <p className="text-red-300 text-xs mt-1">
                   Please select a valid location
                 </p>
-              )}
-            </div>
+              )} */}
+            {/* </div> */} */
 
             <div className="text-center pt-2">
               <span className="text-white/80 text-sm">
