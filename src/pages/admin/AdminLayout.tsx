@@ -14,8 +14,8 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', route: '/dashboard' },
-  { icon: Users, label: 'Clients', route: '/clients' },
-  { icon: UserCheck, label: 'Owners', route: '/owners' },
+  { icon: Users, label: 'Clients', route: '/admin/users-management' },
+  { icon: UserCheck, label: 'Owners', route: '/admin/owner-management' },
   { icon: Shield, label: 'Owners Verification', route: '/admin/owner-verification' }
 ]
 

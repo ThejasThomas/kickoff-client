@@ -48,7 +48,7 @@ export const adminService = {
            email?:string,
     ):Promise<IAxiosResponse> => {
         try {
-            const response = await adminAxiosInstance.patch('/status',{
+            const response = await adminAxiosInstance.patch('/admin/status',{
                 entityType,
                 entityId,
                 status,
