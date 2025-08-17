@@ -41,7 +41,7 @@ export const adminService = {
     },
 
     updateEntityStatus:async (
-           entityType:"user" | "turfOwner",
+           entityType:"client" | "turfOwner",
            entityId:string,
            status:userStatus | turfOwnerStatus ,
            reason?: string,

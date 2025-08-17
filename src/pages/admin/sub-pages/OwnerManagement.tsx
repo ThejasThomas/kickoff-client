@@ -43,7 +43,7 @@ export default function OwnerManagement() {
       });
       const turfOwners: OwnerData[] = (response.users as ITurfOwner[]).map(
         (user) => ({
-          _id: user.userId,
+          _id: user._id,
           username: user.ownerName || "Unknown Owner",
           email: user.email,
           phoneNumber: user.phoneNumber || "N/A",

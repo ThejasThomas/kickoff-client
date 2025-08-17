@@ -84,7 +84,7 @@ export default function UserManagement() {
         try {
           const newStatus = user.status === "active" ? "blocked" : "active";
           const response = await adminService.updateEntityStatus(
-            "user",
+            "client",
             user._id,
             newStatus
           );
@@ -122,7 +122,7 @@ export default function UserManagement() {
   ): Promise<ApiResponse<Users>> => {
     try {
       const response = await adminService.getAllUSers({
-        role: "user",
+        role: "client",
         page: params.page,
         limit: params.limit,
         search: params.search,

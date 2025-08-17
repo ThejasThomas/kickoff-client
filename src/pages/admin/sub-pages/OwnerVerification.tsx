@@ -41,7 +41,7 @@ export default function VendorVerification() {
       });
       const turfOwners: TurfOwner[] = (response.users as ITurfOwner[]).map(
         (user) => ({
-          _id: user.userId,
+          _id:user._id,
           username: user.ownerName|| 'Unknown Owner',
           email: user.email,
           status: user.status || 'pending',
@@ -114,6 +114,7 @@ export default function VendorVerification() {
 
     try {
       setIsSubmittingReject(true);
+      console.log('iddddd here',selectedOwnerId)
       const res = await adminService.updateEntityStatus(
         "turfOwner",
         selectedOwnerId,

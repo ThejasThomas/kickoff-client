@@ -38,6 +38,7 @@ export interface IClient extends User {
 }
 
 export interface ITurfOwner extends Omit<User, "fullName"> {
+  _id: string
   userId: string;
 
   ownerName?: string;
@@ -63,7 +64,7 @@ export interface ITurfOwner extends Omit<User, "fullName"> {
   // }
 }
 export interface GetUsersParams {
-  role?: "user" | "turfOwner";
+  role?: "client" | "turfOwner";
   page?: number;
   limit?: number;
   search?: string;
