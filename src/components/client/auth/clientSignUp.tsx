@@ -11,6 +11,7 @@ import { useVerifyOTPMutation } from "@/hooks/auth/useVerifyOtp"
 import OTPModal from "@/components/modals/OTPModal"
 import { GoogleAuthButton } from "@/components/auth/GoogleAuth"
 import SignUpImg from '../../../assets/common/kickoff-auth-image.jpg'
+import { useNavigate } from "react-router-dom"
 
 interface SignUpProps {
   userType: UserRoles
@@ -29,9 +30,12 @@ interface ClientSignupFormValues {
 }
 
 const ClientSignUp = ({ onSubmit, setLogin, isLoading, handleGoogleAuth }: SignUpProps) => {
+  const navigate = useNavigate()
   const [isOTPModalOpen, setIsOTPModalOpen] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [userData, setUserData] = useState<Partial<User>>({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const { successToast, errorToast } = useToaster()
 
   const { mutate: sendVerificationOTP, isPending: isSendOtpPending } = useSendOTPMutation()
@@ -58,16 +62,27 @@ const ClientSignUp = ({ onSubmit, setLogin, isLoading, handleGoogleAuth }: SignU
       errorToast("Email is missing. Try again.")
       return false
     }
-    try {
-      await verifyOTP({ email: userData.email, otp })
-      successToast("OTP verified successfully!")
-      setIsOTPModalOpen(false)
-      onSubmit(userData as User)
-      return true
-    } catch (err) {
-      errorToast((err as any)?.response?.data?.message || (err as Error)?.message || "Invalid OTP")
-      return false
-    }
+    
+    const email = userData.email as string; // Type assertion since we've checked it's not undefined
+    
+    return new Promise((resolve) => {
+      verifyOTP(
+        { email, otp },
+        {
+          onSuccess: (data) => {
+            successToast("OTP verified successfully!")
+            setIsOTPModalOpen(false)
+            onSubmit(userData as User)
+            resolve(true)
+          },
+          onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message || error?.message || "Invalid OTP"
+            errorToast(errorMessage)
+            resolve(false)
+          }
+        }
+      )
+    })
   }
 
   const formik = useFormik<ClientSignupFormValues>({
@@ -219,6 +234,7 @@ const ClientSignUp = ({ onSubmit, setLogin, isLoading, handleGoogleAuth }: SignU
               )}
             </div>
 
+            {/* Password field with toggle */}
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -226,19 +242,36 @@ const ClientSignUp = ({ onSubmit, setLogin, isLoading, handleGoogleAuth }: SignU
                 </svg>
               </div>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Create password"
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 pl-10 pr-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all duration-300"
+                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 pl-10 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all duration-300"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors duration-200"
+              >
+                {showPassword ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
               {formik.touched.password && formik.errors.password && (
                 <p className="text-red-300 text-xs mt-1">{formik.errors.password}</p>
               )}
             </div>
 
+            {/* Confirm Password field with toggle */}
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -246,14 +279,30 @@ const ClientSignUp = ({ onSubmit, setLogin, isLoading, handleGoogleAuth }: SignU
                 </svg>
               </div>
               <input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
                 placeholder="Confirm password"
                 value={formik.values.confirmPassword}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 pl-10 pr-4 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all duration-300"
+                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 pl-10 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all duration-300"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors duration-200"
+              >
+                {showConfirmPassword ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
               {formik.touched.confirmPassword && formik.errors.confirmPassword && (
                 <p className="text-red-300 text-xs mt-1">{formik.errors.confirmPassword}</p>
               )}

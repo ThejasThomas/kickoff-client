@@ -13,7 +13,7 @@ import { useState } from "react";
 // import { MuiTextField } from "@/components/common/fields/MuiTextField";
 import { useVerifyOTPMutation } from "@/hooks/auth/useVerifyOtp";
 import OTPModal from "@/components/modals/OTPModal";
-import { Eye, EyeOff, Lock, Mail, MapPin, Phone } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, MapPin, Phone } from 'lucide-react';
 import SignUpImg from '../../../assets/common/kickoff-auth-image.jpg'
 
 interface SignUpProps {
@@ -87,6 +87,7 @@ export const TurfOwnerSignUp = ({
     ITurfOwner & { password: string; confirmPassword: string }
   >({
     initialValues: {
+      _id:"",
       userId:"",
       ownerName: "",
       email: "",
@@ -146,7 +147,7 @@ export const TurfOwnerSignUp = ({
     <>
       {/* <PublicHeader /> */}
       <div
-        className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+        className="min-h-screen flex items-center justify-center p-2 relative overflow-hidden"
         style={{
           backgroundImage: `url('${backgroundImageSrc}')`,
           backgroundSize: "cover",
@@ -192,7 +193,7 @@ export const TurfOwnerSignUp = ({
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-lg bg-teal-500/20 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 relative z-10 max-h-[90vh] overflow-y-auto"
+          className="w-full max-w-lg bg-teal-500/20 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-6 relative z-10"
           style={{
             background:
               "linear-gradient(135deg, rgba(20, 184, 166, 0.25) 0%, rgba(5, 150, 105, 0.25) 100%)",
@@ -201,7 +202,7 @@ export const TurfOwnerSignUp = ({
               "0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
           }}
         >
-          <div className="text-center mb-6">
+          <div className="text-center mb-5">
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -225,7 +226,7 @@ export const TurfOwnerSignUp = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={formik.handleSubmit} className="space-y-4">
+          <form onSubmit={formik.handleSubmit} className="space-y-3">
             {/* Turf Name */}
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60">
