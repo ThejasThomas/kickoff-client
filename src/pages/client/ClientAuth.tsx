@@ -46,7 +46,6 @@ export const ClientAuth = ()=>{
 	};
 
     const handleSignUpSubmit =(data:Omit<User,'role'>)=> {
-        console.log('...data retrieved',data)
         registerClient(
             {...data,role:'client'},
             {

@@ -114,7 +114,6 @@ export default function VendorVerification() {
 
     try {
       setIsSubmittingReject(true);
-      console.log('iddddd here',selectedOwnerId)
       const res = await adminService.updateEntityStatus(
         "turfOwner",
         selectedOwnerId,

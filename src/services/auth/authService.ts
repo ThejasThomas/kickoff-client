@@ -19,7 +19,6 @@ export const signin =async (user:ILoginData):Promise<IAuthResponse> =>{
 }
 
 export const sendOtp = async (email: string): Promise<IAxiosResponse> => {
-	console.log('email in the frontend in service',email)
 	const response = await authAxiosInstance.post<IAxiosResponse>("/send-otp", {
 		email,
 	});
