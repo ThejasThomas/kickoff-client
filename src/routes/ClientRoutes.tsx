@@ -2,7 +2,7 @@ import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
 import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ClientAuth } from "@/pages/client/ClientAuth";
-import ClientHomePage from "@/pages/client/ClientHomePAge";
+import ClientHomePage from "@/pages/client/ClientHomePage";
 import { protectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";

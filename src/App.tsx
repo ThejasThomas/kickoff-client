@@ -14,7 +14,7 @@ function App() {
       <Routes>
         <Route path="/*" element={<ClientRoutes />} />
         <Route path='/turfowner/*'
-        element={
+        element={  
          <Suspense fallback={<LoadingUi/>}>
           <TurfOwnerRoutes/>
          </Suspense> 
