@@ -10,7 +10,10 @@ interface NoAuthRouteProps {
 const getAciveSession =(state:RootState) => {
     if(state.client.client)
         return {role:state.client.client.role,type:'client'}
-    // if(state.turfOwner.turfOwner)
+    if(state.turfOwner.turfOwner)
+        return {role:state.turfOwner.turfOwner.role,type:'turfOwner'}
+    if(state.admin.admin)
+        return {role:state.admin.admin.role,type:'admin'}
 }
 
 export const NoAuthRoute =({element}:NoAuthRouteProps)=>{
@@ -18,7 +21,9 @@ export const NoAuthRoute =({element}:NoAuthRouteProps)=>{
 
     if(session) {
         const roleRedirects:Record<string, string>={
-            client:'/home'
+            client:'/home',
+            turfOwner:'turfOwner/home',
+            admin:'/admin/dashboard'
         }
         return <Navigate to={roleRedirects[session.type]||'unauthorized'}/>
     }

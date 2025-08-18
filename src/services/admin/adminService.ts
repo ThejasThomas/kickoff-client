@@ -1,11 +1,25 @@
 import { adminAxiosInstance } from "@/api/admin_axios";
 import type { ApiResponse } from "@/types/api.type";
-import type { IAxiosResponse } from "@/types/Response";
+import type { IAuthResponse, IAxiosResponse } from "@/types/Response";
 import type { GetAllUsersResponse, GetUsersParams, turfOwnerStatus, userStatus } from "@/types/User";
 import { getErrorMessage } from "@/utils/errros/errorHandler";
 import { ErrorIcon } from "react-hot-toast";
 
+
+
+export const refreshAdminSession =async ():Promise<IAuthResponse> => {
+    const response =await adminAxiosInstance.get<IAuthResponse>(
+        '/admin/refresh-session'
+    )
+    return response.data;
+}
+
 export const adminService = {
+
+
+
+
+
     getAllUSers:async<T =any>({
         role,
         page=1,

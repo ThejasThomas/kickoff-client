@@ -1,27 +1,33 @@
-import ForgotPassword from "@/components/auth/ForgotPassword"
-import ResetPassword from "@/components/auth/ResetPassword"
-import { TurfOwnerAuth } from "@/pages/turfOwner/TurfOwnerAuth"
-import { NoAuthRoute } from "@/utils/protected/PublicRoute"
-import { Route, Routes } from "react-router-dom"
+import ForgotPassword from "@/components/auth/ForgotPassword";
+import ResetPassword from "@/components/auth/ResetPassword";
+import { TurfOwnerAuth } from "@/pages/turfOwner/TurfOwnerAuth";
+import TurfOwnerHomePage from "@/pages/turfOwner/TurfOwnerHomePage";
+import { protectedRoute } from "@/utils/protected/ProtectedRoute";
+import { NoAuthRoute } from "@/utils/protected/PublicRoute";
+import { Route, Routes } from "react-router-dom";
 
-
-
-const TurfOwnerRoutes=()=>{
-    return(
-        <Routes>
-
-            <Route index element={<NoAuthRoute element={<TurfOwnerAuth/>}/>}/>
-            <Route
-            path="/forgot-password"
+const TurfOwnerRoutes = () => {
+  return (
+    <Routes>
+      <Route index element={<NoAuthRoute element={<TurfOwnerAuth />} />} />
+      <Route
+        path="/home"
+        element={protectedRoute({
+          element: <TurfOwnerHomePage />,
+          allowedRoles: ["turfOwner"],
+        })}
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <NoAuthRoute
             element={
-                <NoAuthRoute
-                element={<ForgotPassword role="turfOwner" signInPath="/turfOwner"/>}
-                />
+              <ForgotPassword role="turfOwner" signInPath="/turfOwner" />
             }
-              >
-
-            </Route>
-            <Route
+          />
+        }
+      ></Route>
+      <Route
         path="/reset-password/:token"
         element={
           <NoAuthRoute
@@ -29,9 +35,8 @@ const TurfOwnerRoutes=()=>{
           />
         }
       />
-
-        </Routes>
-    )
-}
+    </Routes>
+  );
+};
 
 export default TurfOwnerRoutes;

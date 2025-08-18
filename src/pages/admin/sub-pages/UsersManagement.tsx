@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 
 interface Users extends ExtendableItem {
   _id: string;
-  username: string;
+  fullName: string;
   email: string;
   phone: string;
   status: "active" | "blocked";
@@ -35,7 +35,7 @@ export default function UserManagement() {
           <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
             <User className="text-gray-400" size={20} />
           </div>
-          <span className="font-medium truncate">{user.username}</span>
+          <span className="font-medium truncate">{user.fullName}</span>
         </div>
       ),
     },
@@ -132,7 +132,7 @@ export default function UserManagement() {
       // Map the response data to match Users interface
       const users: Users[] = response.users.map((user: any) => ({
         _id: user._id,
-        username: user.username || user.name || "Unknown User",
+        fullName: user.fullName || user.name || "Unknown User",
         email: user.email,
         phone: user.phone || user.phoneNumber || "",
         status: user.status === "blocked" ? "blocked" : "active",

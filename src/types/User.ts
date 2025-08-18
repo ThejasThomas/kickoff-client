@@ -37,7 +37,7 @@ export interface IClient extends User {
   };
 }
 
-export interface ITurfOwner extends Omit<User, "fullName"> {
+export interface ITurfOwner extends Omit<User, "fullName" | "userId"> {
   _id: string
   userId: string;
 
