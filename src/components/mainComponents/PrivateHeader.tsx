@@ -31,7 +31,7 @@ export function PrivateHeader({
 
             <div>
                 <p>Right Section</p>
-                <p>User Info: {user?.fullName} ({user?.role})</p>
+                {/* <p>User Info: {user?.fullName} ({user?.role})</p> */}
                 {/* <button onClick={onLogout}>Logout</button> */}
             </div>
         </header>

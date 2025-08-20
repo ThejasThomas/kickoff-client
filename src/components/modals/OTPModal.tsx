@@ -22,7 +22,7 @@ import {
 interface OTPModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onVerify: (otp: string) => void;
+  onVerify: (otp: string) => Promise<boolean>;
   onResend: () => void;
   isSending: boolean;
 }
@@ -38,6 +38,8 @@ export default function OTPModal({
   const [isVerifying, setIsVerifying] = useState(false);
   const [timer, setTimer] = useState(30);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [error, setError] = useState("");
+
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -53,85 +55,94 @@ export default function OTPModal({
 
   useEffect(() => {
     if (isOpen) {
+      setOtp("");
+      setError("");
       setTimer(30);
       setIsTimerRunning(true);
+      setIsVerifying(false);
     }
   }, [isOpen]);
 
   const handleVerify = () => {
-    setIsVerifying(true);
+  setIsVerifying(true);
+  setError("");
+  try {
     onVerify(otp);
-    setTimeout(() => {
-      setIsVerifying(false);
-    }, 500);
-  };
+  } catch {
+    setError("OTP verification failed. Please try again.");
+    setOtp("");
+  }
+  setIsVerifying(false);
+};
+
 
   const handleResend = () => {
+    setOtp("");
+    setError("");
     onResend();
     setTimer(30);
     setIsTimerRunning(true);
   };
 
-  return (
+ return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md z-50 bg-white">
+      <DialogContent className="sm:max-w-md z-50 bg-white rounded-lg shadow-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
             Verification Code
           </DialogTitle>
-          <DialogDescription className="text-center">
-            We have sent a verification code to your email. Please enter the
-            code below.
+          <DialogDescription className="text-center text-gray-600">
+            We sent a verification code to your email. Please enter it below.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col items-center gap-6 py-4">
+        <div className="flex flex-col items-center gap-6 py-6 px-4">
           <InputOTP maxLength={4} value={otp} onChange={setOtp}>
-            <InputOTPGroup className="gap-2">
-              {[...Array(4)].map((_, index) => (
+            <InputOTPGroup className="gap-3">
+              {[...Array(4)].map((_, i) => (
                 <InputOTPSlot
-                  key={index}
-                  index={index}
-                  className="w-11 h-11 text-center text-xl bg-white border-2 border-gray-300 rounded-lg focus:outline-none"
+                  key={i}
+                  index={i}
+                  className="w-14 h-14 text-center text-xl bg-gray-50 border-2 border-gray-300 rounded-md focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 transition"
                 />
               ))}
             </InputOTPGroup>
           </InputOTP>
 
-          <div className="text-sm text-center">
+          {error && (
+            <p className="text-red-600 font-medium text-sm animate-pulse">
+              {error}
+            </p>
+          )}
+
+          <div className="text-sm text-center text-gray-700">
             Didn't receive the code?{" "}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={handleResend}
-                    disabled={isSending || isTimerRunning}
-                    className="text-[#F9A826] cursor-pointer font-medium disabled:opacity-50"
-                  >
-                    {isSending ? "Sending..." : "Resend"}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent
-                  className="bg-gray-400 data-[side=top]:before:hidden data-[side=bottom]:before:hidden data-[side=left]:before:hidden data-[side=right]:before:hidden"
-                  side="bottom"
-                >
-                  {isTimerRunning ? `Resend in ${timer}s` : "Click to resend"}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {isTimerRunning ? (
+              <span className="text-yellow-500 font-semibold">
+                Resend available in {timer}s
+              </span>
+            ) : (
+              <button
+                onClick={handleResend}
+                disabled={isSending}
+                className="text-yellow-500 font-semibold hover:text-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {isSending ? "Sending..." : "Resend"}
+              </button>
+            )}
           </div>
 
           <Button
             onClick={handleVerify}
             disabled={otp.length !== 4 || isVerifying}
-            className="w-full border-2 border-black text-black bg-transparent hover:bg-black hover:text-white transition-colors duration-200 font-medium rounded-md"
+            className="w-full border-2 border-black text-black bg-transparent hover:bg-yellow-400 hover:text-black transition-colors duration-300 font-semibold rounded-md"
           >
             {isVerifying ? "Verifying..." : "Verify"}
           </Button>
         </div>
       </DialogContent>
 
-      {/* Dark overlay behind the modal */}
+      {/* Dark overlay */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 z-40" aria-hidden="true" />
       )}

@@ -9,7 +9,7 @@ import { Sidebar } from "../mainComponents/Sidebar"
 
 export const ClientLayout =()=>{
     const [isSideBarVisible,setIsSideBarVisible]=useState(false)
-    const {successToast,errorToast} =useToaster();
+    // const {successToast,errorToast} =useToaster();
     const dispatch=useAppDispatch()
     const navigate=useNavigate();
     const location =useLocation();
@@ -31,12 +31,12 @@ export const ClientLayout =()=>{
 
     return(
         <div>
-            <PrivateHeader 
+            {/* <PrivateHeader 
             className="z-4"
             user={user}
             // onLogout={handleLogout}
-            onSidebarToggle={setIsSideBarVisible(!isSideBarVisible)}
-            />
+            // onSidebarToggle={setIsSideBarVisible(!isSideBarVisible)}
+            /> */}
 
             <Sidebar
             role='client'

@@ -11,7 +11,7 @@ import type { CredentialResponse } from "@react-oauth/google";
 // import { error } from "console";
 import { AnimatePresence,motion } from "framer-motion";
 import { useState } from "react"
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 export const ClientAuth = ()=>{
@@ -46,7 +46,6 @@ export const ClientAuth = ()=>{
 	};
 
     const handleSignUpSubmit =(data:Omit<User,'role'>)=> {
-        console.log('...data retrieved',data)
         registerClient(
             {...data,role:'client'},
             {
