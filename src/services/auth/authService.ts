@@ -1,4 +1,6 @@
 import { authAxiosInstance } from "@/api/auth_axios";
+import { clientAxiosInstance } from "@/api/client_axios";
+import { turfOwnerAxiosInstance } from "@/api/turfOwner_axios";
 import type { IAuthResponse, IAxiosResponse } from "@/types/Response";
 import type { ILoginData, UserDTO } from "@/types/User";
 
@@ -16,6 +18,16 @@ export const signin =async (user:ILoginData):Promise<IAuthResponse> =>{
         user
     );
     return response.data;
+}
+
+export const logoutClient =async ():Promise<IAxiosResponse> => {
+	const response = await clientAxiosInstance.post('/client/logout')
+	return response.data;
+}
+
+export const logoutTurfOwner =async ():Promise<IAxiosResponse>=>{
+	const response = await turfOwnerAxiosInstance.post('turfOwner/logout')
+	return response.data;
 }
 
 export const sendOtp = async (email: string): Promise<IAxiosResponse> => {

@@ -22,7 +22,9 @@ export interface ILoginData {
   role: UserRoles;
 }
 
-export interface IAdmin extends User {}
+export interface IAdmin extends User {
+  
+}
 
 export interface IClient extends User {
   googleId?: string;

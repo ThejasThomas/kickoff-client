@@ -36,10 +36,9 @@ export default function OTPModal({
 }: OTPModalProps) {
   const [otp, setOtp] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [error, setError] = useState("");
-
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -57,34 +56,33 @@ export default function OTPModal({
     if (isOpen) {
       setOtp("");
       setError("");
-      setTimer(30);
+      setTimer(60);
       setIsTimerRunning(true);
       setIsVerifying(false);
     }
   }, [isOpen]);
 
   const handleVerify = () => {
-  setIsVerifying(true);
-  setError("");
-  try {
-    onVerify(otp);
-  } catch {
-    setError("OTP verification failed. Please try again.");
-    setOtp("");
-  }
-  setIsVerifying(false);
-};
-
+    setIsVerifying(true);
+    setError("");
+    try {
+      onVerify(otp);
+    } catch {
+      setError("OTP verification failed. Please try again.");
+      setOtp("");
+    }
+    setIsVerifying(false);
+  };
 
   const handleResend = () => {
     setOtp("");
     setError("");
     onResend();
-    setTimer(30);
+    setTimer(60);
     setIsTimerRunning(true);
   };
 
- return (
+  return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md z-50 bg-white rounded-lg shadow-lg">
         <DialogHeader>

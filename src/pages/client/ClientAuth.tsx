@@ -49,7 +49,9 @@ export const ClientAuth = ()=>{
         registerClient(
             {...data,role:'client'},
             {
-                onSuccess:(data) =>successToast(data.message),
+                onSuccess:(data) =>{successToast(data.message)
+                    navigate('/')
+                },
                 onError:(error:any) =>errorToast(error.response.data.message),
             }
         )
