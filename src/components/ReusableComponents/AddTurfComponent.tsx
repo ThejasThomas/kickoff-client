@@ -2,16 +2,18 @@ import React, { useState } from "react";
 import { X, MapPin, Phone, Upload, Trash2, Plus } from "lucide-react";
 import { useFormik } from "formik";
 import { turfSchema } from "@/utils/validations/turf_register_validation";
-import * as Yup from "yup";
 import type { LocationCoordinates, Turf } from "@/types/Turf";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import FormField from "@/hooks/common/form-field";
 import TurfLocationPicker from "../turfOwner/TurfDetails/map-location-picker";
+import { uploadImageToCloudinarySigned } from "@/services/cloudinary/cloudinary";
+import { useImageUploader } from "@/hooks/common/ImageUploader";
 
 interface ImageType {
   file?: File;
   preview: string;
   id: number;
+  cloudinaryUrl?: string; // Made optional with ?
+  isUploading?: boolean;  // Made optional with ?
 }
 
 interface AddTurfModalProps {
@@ -29,7 +31,9 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
     lat: 12.9716,
     lng: 77.5946,
   });
-  const [images, setImages] = useState<ImageType[]>([]);
+  const { images, handleImageUpload, removeImage, setImages } =
+    useImageUploader("turf-images", 10);  
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [availableOptions, setAvailableOptions] = useState({
     amenities: [
       "Parking",
@@ -51,7 +55,6 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
 
   const formik = useFormik({
     initialValues: {
-      // ownerId: "",
       turfName: "",
       description: "",
       address: "",
@@ -66,14 +69,19 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
       status: "active",
     },
     validationSchema: turfSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       if (images.length === 0) {
         alert("Please upload at least one image");
         return;
       }
 
+      const uploadedImages = images.filter(img => img.cloudinaryUrl);
+      if (uploadedImages.length !== images.length) {
+        alert("Please wait for all images to finish uploading");
+        return;
+      }
+
       const turfData: Turf = {
-        // ownerId: values.ownerId,
         turfName: values.turfName,
         description: values.description,
         location: {
@@ -89,7 +97,7 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
           },
         },
         amenities: values.amenities,
-        images: images.map((img) => img.preview),
+        images: uploadedImages.map((img) => img.cloudinaryUrl!),
         contactNumber: values.contactNumber,
         pricePerHour: values.pricePerHour,
         courtType: values.courtType,
@@ -98,41 +106,89 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
         updatedAt: new Date(),
       };
 
-      console.log("Submitting turf data with coordinates:", {
-        lat: parseFloat(values.latitude),
-        lng: parseFloat(values.longitude),
-        coordinates: turfData.location.coordinates
-      });
+      console.log("Submitting turf data:")
 
       onSubmit(turfData);
       handleClose();
     },
   });
 
-// console.log("Form validation status:", {
-//   isValid: formik.isValid,
-//   errors: formik.errors,
-//   touched: formik.touched,
-//   imagesCount: images.length
-// });
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []) as File[];
-    if (images.length + files.length <= 10) {
-      const newImages = files.map((file) => ({
-        file,
-        preview: URL.createObjectURL(file),
-        id: Date.now() + Math.random(),
-      }));
+  // Fixed handleImageUpload function
+  // const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const files = event.target.files;
+  //   if (!files || files.length === 0) return;
 
-      setImages((prev) => [...prev, ...newImages]);
-    } else {
-      alert("Maximum 10 images allowed");
-    }
-  };
+  //   const maxImages = 10;
+  //   const remainingSlots = maxImages - images.length;
 
-  const removeImage = (imageId: number) => {
-    setImages((prev) => prev.filter((img) => img.id !== imageId));
-  };
+  //   if (files.length > remainingSlots) {
+  //     alert(`You can only upload ${remainingSlots} more image(s). Maximum is ${maxImages}.`);
+  //     return;
+  //   }
+
+  //   setIsUploadingImages(true);
+
+  //   // Create preview images first
+  //   const newImages: ImageType[] = Array.from(files).map((file, index) => ({
+  //     file,
+  //     preview: URL.createObjectURL(file),
+  //     id: Date.now() + index,
+  //     isUploading: true,
+  //     cloudinaryUrl: undefined,
+  //   }));
+
+  //   // Add images to state
+  //   setImages(prev => [...prev, ...newImages]);
+
+  //   // Upload each image to Cloudinary
+  //   for (const image of newImages) {
+  //     try {
+  //       console.log(`Uploading image ${image.id}...`);
+        
+  //       const publicId = await uploadImageToCloudinarySigned(
+  //         image.file!,
+  //         "turf-images"
+  //       );
+
+  //       if (publicId) {
+  //         // Construct the full Cloudinary URL
+  //         const cloudName = import.meta.env.VITE_CLOUD_NAME;
+  //         const fullUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}`;
+          
+  //         // Update the specific image with the Cloudinary URL
+  //         setImages(prev => 
+  //           prev.map(img => 
+  //             img.id === image.id 
+  //               ? { ...img, cloudinaryUrl: fullUrl, isUploading: false }
+  //               : img
+  //           )
+  //         );
+          
+  //         console.log(`Image ${image.id} uploaded successfully:`, fullUrl);
+  //       } else {
+  //         throw new Error("Failed to get public_id from Cloudinary");
+  //       }
+  //     } catch (error) {
+  //       console.error(`Failed to upload image ${image.id}:`, error);
+        
+  //       // Remove the failed image
+  //       setImages(prev => prev.filter(img => img.id !== image.id));
+  //       alert(`Failed to upload an image. Please try again.`);
+  //     }
+  //   }
+
+  //   setIsUploadingImages(false);
+  //   // Clear the input so the same files can be selected again if needed
+  //   event.target.value = '';
+  // };
+
+  // const removeImage = (imageId: number) => {
+  //   const imageToRemove = images.find(img => img.id === imageId);
+  //   if (imageToRemove?.preview) {
+  //     URL.revokeObjectURL(imageToRemove.preview);
+  //     removeImage(imageId);
+  //   }
+  // };
 
   const addNewAmenity = () => {
     const newAmenity = customInputs.newAmenity.trim();
@@ -194,6 +250,13 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
   };
 
   const handleClose = () => {
+    // Clean up object URLs to prevent memory leaks
+    images.forEach(img => {
+      if (img.preview) {
+        URL.revokeObjectURL(img.preview);
+      }
+    });
+
     formik.resetForm();
     setImages([]);
     setCustomInputs({
@@ -208,6 +271,13 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
     return formik.touched[fieldName] && formik.errors[fieldName]
       ? formik.errors[fieldName]
       : null;
+  };
+
+  // Check if form can be submitted
+  const canSubmit = () => {
+    const hasValidImages = images.length > 0 && 
+                          images.every(img => img.cloudinaryUrl && !img.isUploading);
+    return formik.isValid && hasValidImages && !isUploadingImages;
   };
 
   if (!isOpen) return null;
@@ -253,20 +323,25 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
             {/* Images Upload */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Images (At least 1 required) *
+                Images *
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-500 transition-colors">
                 <input
                   type="file"
                   multiple
                   accept="image/*"
-                  onChange={handleImageUpload}
+                  onChange={(e)=>handleImageUpload(e.target.files)}
                   className="hidden"
                   id="image-upload"
                 />
-                <label htmlFor="image-upload" className="cursor-pointer">
+                <label 
+                  htmlFor="image-upload" 
+                  className={'cursor-pointer'}
+                >
                   <Upload className="mx-auto mb-2 text-gray-400" size={48} />
-                  <p className="text-gray-600">Click to upload images</p>
+                  <p className="text-gray-600">
+                    {isUploadingImages ? "Uploading images..." : "Click to upload images"}
+                  </p>
                   <p className="text-sm text-gray-400 mt-1">
                     Upload up to 10 images
                   </p>
@@ -275,17 +350,34 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
 
               {images.length > 0 && (
                 <div className="grid grid-cols-4 gap-4 mt-4">
-                  {images.map((img, index) => (
+                  {images.map((img) => (
                     <div key={img.id} className="relative group">
                       <img
                         src={img.preview}
-                        alt={`Upload ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
+                        alt=""
+                        className={`w-full h-24 object-cover rounded-lg ${
+                          img.isUploading ? 'opacity-50' : ''
+                        }`}
                       />
+                      
+                      {/* Upload status indicators */}
+                      {img.isUploading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                          <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      )}
+                      
+                      {img.isUploading && (
+                        <div className="absolute top-1 left-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      )}
+                      
                       <button
                         type="button"
                         onClick={() => removeImage(img.id)}
                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        disabled={img.isUploading}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -293,12 +385,9 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
                   ))}
                 </div>
               )}
-              {images.length === 0 && (
-                <p className="text-red-500 text-sm mt-1">
-                  At least one image is required
-                </p>
-              )}
-            </div>
+              </div>
+              
+              
 
             {/* Location Section */}
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
@@ -309,7 +398,6 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Address Fields */}
                 <div className="grid grid-cols-1 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -374,7 +462,6 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
                   </div>
                 </div>
 
-                {/* Map Component */}
                 <div className="mt-6">
                   <TurfLocationPicker
                     coordinates={coordinates}
@@ -385,7 +472,6 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
                   />
                 </div>
 
-                {/* Hidden coordinates display for debugging */}
                 <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
                   Current Coordinates: Lat: {coordinates.lat.toFixed(6)}, Lng: {coordinates.lng.toFixed(6)}
                 </div>
@@ -537,7 +623,6 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
                 ))}
               </div>
 
-              {/* Add New Amenity */}
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -600,15 +685,14 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
             <div className="sticky bottom-0 bg-white pt-6 border-t border-gray-200">
               <button
                 type="submit"
-                disabled={
-                   !formik.isValid || images.length === 0
-                }
+                disabled={!canSubmit()}
                 className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 {formik.isSubmitting
                   ? "Submitting..."
                   : "Submit Turf Registration"}
               </button>
+              
             </div>
           </div>
         </form>
@@ -616,5 +700,6 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
     </div>
   );
 };
+
 
 export default AddTurfModal;

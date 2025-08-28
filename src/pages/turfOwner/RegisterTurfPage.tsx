@@ -9,34 +9,35 @@ const RegisterTurfPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {mutate:addTurf,isPending}=useAddTurfMutation()
 
-   const handleSubmit = async (turfData: Turf) => {
-    console.log("Submitting turf data:", turfData);
-    
-    addTurf(turfData, {
-      onSuccess: (response:ITurfResponse) => {
-        console.log("Turf added successfully:", response);
-        if (response.success) {
-          alert("Turf registered successfully!");
-          setIsModalOpen(false);
-        } else {
-          alert(response.message || "Failed to register turf. Please try again.");
-        }
-      },
-      onError: (error: any) => {
-        console.error("Error submitting turf:", error);
-        
-        if (error.response?.status === 400) {
-          alert("Invalid data provided. Please check your inputs.");
-        } else if (error.response?.status === 401) {
-          alert("Please login to continue.");
-        } else if (error.response?.status === 500) {
-          alert("Server error. Please try again later.");
-        } else {
-          alert("Failed to register turf. Please check your connection and try again.");
-        }
+  const handleSubmit = async (turfData: Turf) => {
+  console.log("Submitting turf data:", turfData);
+
+  addTurf(turfData, {
+    onSuccess: (response: ITurfResponse) => {
+      console.log("Turf added successfully:", response);
+      if (response.success) {
+        alert("Turf registered successfully!");
+        setIsModalOpen(false);
+      } else {
+        alert(response.message || "Failed to register turf. Please try again.");
       }
-    });
-  };
+    },
+    onError: (error: any) => {
+      console.error("Error submitting turf:", error);
+
+      if (error.response?.status === 400) {
+        alert("Invalid data provided. Please check your inputs.");
+      } else if (error.response?.status === 401) {
+        alert("Please login to continue.");
+      } else if (error.response?.status === 500) {
+        alert("Server error. Please try again later.");
+      } else {
+        alert("Failed to register turf. Please check your connection and try again.");
+      }
+    },
+  });
+};
+
  return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
       <div className="container mx-auto px-4 py-20">
