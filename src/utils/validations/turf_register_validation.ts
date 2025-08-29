@@ -1,19 +1,19 @@
 import * as Yup from "yup";
 
 export const turfSchema = Yup.object().shape({
-  turfName: Yup.string()
+  turfName: Yup.string().trim()
     .min(3, "Turf name must be at least 3 characters")
     .max(100, "Turf name cannot exceed 100 characters")
     .required("Turf name is required"),
 
-  description: Yup.string()
+  description: Yup.string().trim()
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description cannot exceed 1000 characters")
     .required("Description is required"),
 
-  address: Yup.string().required("Address is required"),
-  city: Yup.string().required("City is required"),
-  state: Yup.string().optional(),
+  address: Yup.string().trim().required("Address is required"),
+  city: Yup.string().trim().required("City is required"),
+  state: Yup.string().trim().optional(),
 
   latitude: Yup.string()
     .required("Latitude is required")
@@ -30,7 +30,7 @@ export const turfSchema = Yup.object().shape({
     .of(Yup.string().url("Each image must be a valid URL"))
     .min(1, "At least one image is required"),
 
-  contactNumber: Yup.string()
+  contactNumber: Yup.string().trim()
     .matches(/^[0-9]{10}$/, "Contact number must be exactly 10 digits")
     .required("Contact number is required"),
 
@@ -38,11 +38,11 @@ export const turfSchema = Yup.object().shape({
     .oneOf(["active", "inactive"], "Status must be active or inactive")
     .required("Status is required"),
 
-  pricePerHour: Yup.string()
+  pricePerHour: Yup.string().trim()
     .matches(/^\d+(\.\d{1,2})?$/, "Price must be a valid number")
     .required("Price per hour is required"),
 
-  courtType: Yup.string()
+  courtType: Yup.string().trim()
     .matches(
       /^\d+x\d+$/,
       "Court size must be in format 'widthxlength' (e.g., 5x5)"

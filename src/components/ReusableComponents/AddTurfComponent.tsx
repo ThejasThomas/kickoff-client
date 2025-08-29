@@ -1,38 +1,37 @@
-import React, { useState } from "react";
-import { X, MapPin, Phone, Upload, Trash2, Plus } from "lucide-react";
+"use client";
+
+import type React from "react";
+import { useState, useRef } from "react";
+import { MapPin, Phone, Trash2, Plus, ArrowLeft } from "lucide-react";
 import { useFormik } from "formik";
 import { turfSchema } from "@/utils/validations/turf_register_validation";
 import type { LocationCoordinates, Turf } from "@/types/Turf";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TurfLocationPicker from "../turfOwner/TurfDetails/map-location-picker";
-import { uploadImageToCloudinarySigned } from "@/services/cloudinary/cloudinary";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
 
 interface ImageType {
   file?: File;
   preview: string;
   id: number;
-  cloudinaryUrl?: string; // Made optional with ?
-  isUploading?: boolean;  // Made optional with ?
+  cloudinaryUrl?: string;
+  isUploading?: boolean;
 }
 
-interface AddTurfModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface AddTurfPageProps {
   onSubmit: (data: Turf) => void;
+  onCancel?: () => void;
 }
 
-const AddTurfModal: React.FC<AddTurfModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-}) => {
+const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
   const [coordinates, setCoordinates] = useState<LocationCoordinates>({
     lat: 12.9716,
     lng: 77.5946,
   });
+  const MAX_IMAGES = 10;
+  const addInputRef = useRef<HTMLInputElement | null>(null);
   const { images, handleImageUpload, removeImage, setImages } =
-    useImageUploader("turf-images", 10);  
+    useImageUploader("turf-images", MAX_IMAGES);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [availableOptions, setAvailableOptions] = useState({
     amenities: [
@@ -47,7 +46,6 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
     ],
     courtTypes: ["5x5", "6x6", "7x7", "11x11"],
   });
-
   const [customInputs, setCustomInputs] = useState({
     newAmenity: "",
     newCourtType: "",
@@ -74,8 +72,7 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
         alert("Please upload at least one image");
         return;
       }
-
-      const uploadedImages = images.filter(img => img.cloudinaryUrl);
+      const uploadedImages = images.filter((img) => img.cloudinaryUrl);
       if (uploadedImages.length !== images.length) {
         alert("Please wait for all images to finish uploading");
         return;
@@ -91,8 +88,8 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
           coordinates: {
             type: "Point",
             coordinates: [
-              parseFloat(values.longitude),
-              parseFloat(values.latitude),
+              Number.parseFloat(values.longitude),
+              Number.parseFloat(values.latitude),
             ],
           },
         },
@@ -106,291 +103,280 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
         updatedAt: new Date(),
       };
 
-      console.log("Submitting turf data:")
-
       onSubmit(turfData);
-      handleClose();
     },
   });
 
-  // Fixed handleImageUpload function
-  // const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const files = event.target.files;
-  //   if (!files || files.length === 0) return;
-
-  //   const maxImages = 10;
-  //   const remainingSlots = maxImages - images.length;
-
-  //   if (files.length > remainingSlots) {
-  //     alert(`You can only upload ${remainingSlots} more image(s). Maximum is ${maxImages}.`);
-  //     return;
-  //   }
-
-  //   setIsUploadingImages(true);
-
-  //   // Create preview images first
-  //   const newImages: ImageType[] = Array.from(files).map((file, index) => ({
-  //     file,
-  //     preview: URL.createObjectURL(file),
-  //     id: Date.now() + index,
-  //     isUploading: true,
-  //     cloudinaryUrl: undefined,
-  //   }));
-
-  //   // Add images to state
-  //   setImages(prev => [...prev, ...newImages]);
-
-  //   // Upload each image to Cloudinary
-  //   for (const image of newImages) {
-  //     try {
-  //       console.log(`Uploading image ${image.id}...`);
-        
-  //       const publicId = await uploadImageToCloudinarySigned(
-  //         image.file!,
-  //         "turf-images"
-  //       );
-
-  //       if (publicId) {
-  //         // Construct the full Cloudinary URL
-  //         const cloudName = import.meta.env.VITE_CLOUD_NAME;
-  //         const fullUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}`;
-          
-  //         // Update the specific image with the Cloudinary URL
-  //         setImages(prev => 
-  //           prev.map(img => 
-  //             img.id === image.id 
-  //               ? { ...img, cloudinaryUrl: fullUrl, isUploading: false }
-  //               : img
-  //           )
-  //         );
-          
-  //         console.log(`Image ${image.id} uploaded successfully:`, fullUrl);
-  //       } else {
-  //         throw new Error("Failed to get public_id from Cloudinary");
-  //       }
-  //     } catch (error) {
-  //       console.error(`Failed to upload image ${image.id}:`, error);
-        
-  //       // Remove the failed image
-  //       setImages(prev => prev.filter(img => img.id !== image.id));
-  //       alert(`Failed to upload an image. Please try again.`);
-  //     }
-  //   }
-
-  //   setIsUploadingImages(false);
-  //   // Clear the input so the same files can be selected again if needed
-  //   event.target.value = '';
-  // };
-
-  // const removeImage = (imageId: number) => {
-  //   const imageToRemove = images.find(img => img.id === imageId);
-  //   if (imageToRemove?.preview) {
-  //     URL.revokeObjectURL(imageToRemove.preview);
-  //     removeImage(imageId);
-  //   }
-  // };
-
-  const addNewAmenity = () => {
-    const newAmenity = customInputs.newAmenity.trim();
-    if (newAmenity && !availableOptions.amenities.includes(newAmenity)) {
-      setAvailableOptions((prev) => ({
-        ...prev,
-        amenities: [...prev.amenities, newAmenity],
-      }));
-      setCustomInputs((prev) => ({ ...prev, newAmenity: "" }));
-    }
-  };
-
-  const addNewCourtType = () => {
-    const newCourtType = customInputs.newCourtType.trim();
-    if (newCourtType && !availableOptions.courtTypes.includes(newCourtType)) {   
-      setAvailableOptions((prev) => ({
-        ...prev,
-        courtTypes: [...prev.courtTypes, newCourtType],
-      }));
-      setCustomInputs((prev) => ({ ...prev, newCourtType: "" }));
-    }
-  };
+  const getFieldError = (fieldName: keyof typeof formik.values) =>
+    formik.touched[fieldName] && formik.errors[fieldName]
+      ? formik.errors[fieldName]
+      : null;
 
   const handleCustomInputChange = (
     field: keyof typeof customInputs,
     value: string
-  ) => {
-    setCustomInputs((prev) => ({ ...prev, [field]: value }));
+  ) => setCustomInputs((prev) => ({ ...prev, [field]: value }));
+
+  const addNewAmenity = () => {
+    const v = customInputs.newAmenity.trim();
+    if (v && !availableOptions.amenities.includes(v)) {
+      setAvailableOptions((p) => ({ ...p, amenities: [...p.amenities, v] }));
+      setCustomInputs((p) => ({ ...p, newAmenity: "" }));
+    }
+  };
+
+  const addNewCourtType = () => {
+    const v = customInputs.newCourtType.trim();
+    if (v && !availableOptions.courtTypes.includes(v)) {
+      setAvailableOptions((p) => ({ ...p, courtTypes: [...p.courtTypes, v] }));
+      setCustomInputs((p) => ({ ...p, newCourtType: "" }));
+    }
   };
 
   const toggleAmenity = (amenity: string) => {
-    const currentAmenities = formik.values.amenities;
-    const newAmenities = currentAmenities.includes(amenity)
-      ? currentAmenities.filter((a) => a !== amenity)
-      : [...currentAmenities, amenity];
-
-    formik.setFieldValue("amenities", newAmenities);
+    const current = formik.values.amenities;
+    const next = current.includes(amenity)
+      ? current.filter((a) => a !== amenity)
+      : [...current, amenity];
+    formik.setFieldValue("amenities", next);
   };
 
   const handleLocationChange = (coords: LocationCoordinates) => {
-    console.log("Location changed:", coords);
     setCoordinates(coords);
     formik.setFieldValue("longitude", coords.lng.toString());
     formik.setFieldValue("latitude", coords.lat.toString());
   };
 
-  const handleAddressChange = (addressData: { address: string; city: string; state: string }) => {
-    console.log("Address data from map:", addressData);
-    
-    if (addressData.address) {
+  const handleAddressChange = (addressData: {
+    address: string;
+    city: string;
+    state: string;
+  }) => {
+    if (addressData.address)
       formik.setFieldValue("address", addressData.address);
-    }
-    if (addressData.city) {
-      formik.setFieldValue("city", addressData.city);
-    }
-    if (addressData.state) {
-      formik.setFieldValue("state", addressData.state);
-    }
+    if (addressData.city) formik.setFieldValue("city", addressData.city);
+    if (addressData.state) formik.setFieldValue("state", addressData.state);
   };
 
-  const handleClose = () => {
-    // Clean up object URLs to prevent memory leaks
-    images.forEach(img => {
-      if (img.preview) {
-        URL.revokeObjectURL(img.preview);
-      }
+  const handleCancel = () => {
+    images.forEach((img) => {
+      if (img.preview) URL.revokeObjectURL(img.preview);
     });
-
     formik.resetForm();
     setImages([]);
-    setCustomInputs({
-      newAmenity: "",
-      newCourtType: "",
-    });
+    setCustomInputs({ newAmenity: "", newCourtType: "" });
     setCoordinates({ lat: 12.9716, lng: 77.5946 });
-    onClose();
+    if (onCancel) onCancel();
+    else if (typeof window !== "undefined") window.history.back();
   };
 
-  const getFieldError = (fieldName: keyof typeof formik.values) => {
-    return formik.touched[fieldName] && formik.errors[fieldName]
-      ? formik.errors[fieldName]
-      : null;
-  };
-
-  // Check if form can be submitted
   const canSubmit = () => {
-    const hasValidImages = images.length > 0 && 
-                          images.every(img => img.cloudinaryUrl && !img.isUploading);
+    const hasValidImages =
+      images.length > 0 &&
+      images.every((img) => img.cloudinaryUrl && !img.isUploading);
     return formik.isValid && hasValidImages && !isUploadingImages;
   };
 
-  if (!isOpen) return null;
-
+  // Color system: green (primary), blue (accent), neutrals (white, gray)
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-800">Add Your Turf</h2>
-            <button
-              onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X size={24} />
-            </button>
-          </div>
+    <main className="min-h-screen bg-gray-50">
+      <header className="bg-green-600 text-white shadow-sm">
+        <div className="mx-auto max-w-5xl px-4 py-4 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-3 py-2 hover:bg-white/20 transition-colors"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-5 w-5 text-white" />
+            <span className="text-sm">Back</span>
+          </button>
+          <h1 className="ml-2 text-xl font-semibold">Add Your Turf</h1>
         </div>
+      </header>
 
-        <form onSubmit={formik.handleSubmit}>
-          <div className="p-6 space-y-6">
-            {/* Turf Name */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Turf Name *
-              </label>
-              <input
-                type="text"
-                name="turfName"
-                value={formik.values.turfName}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter turf name"
-              />
-              {getFieldError("turfName") && (
-                <p className="text-red-500 text-sm mt-1">
-                  {getFieldError("turfName")}
-                </p>
-              )}
-            </div>
+      <div className="bg-blue-50/70 border-y border-blue-100">
+        <div className="mx-auto max-w-5xl px-4 py-3 flex flex-wrap gap-2">
+          <a
+            href="#details"
+            className="text-blue-700 text-sm px-3 py-1 rounded-full bg-white border border-blue-200 hover:bg-blue-50"
+          >
+            Details
+          </a>
+          <a
+            href="#images"
+            className="text-blue-700 text-sm px-3 py-1 rounded-full bg-white border border-blue-200 hover:bg-blue-50"
+          >
+            Images
+          </a>
+          <a
+            href="#location"
+            className="text-blue-700 text-sm px-3 py-1 rounded-full bg-white border border-blue-200 hover:bg-blue-50"
+          >
+            Location
+          </a>
+          <a
+            href="#contact"
+            className="text-blue-700 text-sm px-3 py-1 rounded-full bg-white border border-blue-200 hover:bg-blue-50"
+          >
+            Contact
+          </a>
+          <a
+            href="#pricing"
+            className="text-blue-700 text-sm px-3 py-1 rounded-full bg-white border border-blue-200 hover:bg-blue-50"
+          >
+            Pricing & Court
+          </a>
+          <a
+            href="#amenities"
+            className="text-blue-700 text-sm px-3 py-1 rounded-full bg-white border border-blue-200 hover:bg-blue-50"
+          >
+            Amenities
+          </a>
+          <a
+            href="#status"
+            className="text-blue-700 text-sm px-3 py-1 rounded-full bg-white border border-blue-200 hover:bg-blue-50"
+          >
+            Status
+          </a>
+        </div>
+      </div>
 
-            {/* Images Upload */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Images *
-              </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-500 transition-colors">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={(e)=>handleImageUpload(e.target.files)}
-                  className="hidden"
-                  id="image-upload"
-                />
-                <label 
-                  htmlFor="image-upload" 
-                  className={'cursor-pointer'}
-                >
-                  <Upload className="mx-auto mb-2 text-gray-400" size={48} />
-                  <p className="text-gray-600">
-                    {isUploadingImages ? "Uploading images..." : "Click to upload images"}
-                  </p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Upload up to 10 images
-                  </p>
-                </label>
-              </div>
+      <section className="mx-auto max-w-5xl px-4 py-6">
+        <form onSubmit={formik.handleSubmit} className="space-y-6">
+          {/* Turf Name */}
+          <div
+            id="details"
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-green-600"
+          >
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Turf Name *
+            </label>
+            <input
+              type="text"
+              name="turfName"
+              value={formik.values.turfName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Enter turf name"
+            />
+            {getFieldError("turfName") && (
+              <p className="text-red-500 text-sm mt-1">
+                {getFieldError("turfName")}
+              </p>
+            )}
+          </div>
 
-              {images.length > 0 && (
-                <div className="grid grid-cols-4 gap-4 mt-4">
-                  {images.map((img) => (
-                    <div key={img.id} className="relative group">
+          {/* Images Upload */}
+          <div
+            id="images"
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-blue-500"
+          >
+            <label className="block text-sm font-semibold text-gray-700 mb-3 text-center">
+              Add Images
+            </label>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {Array.from({ length: MAX_IMAGES }).map((_, idx) => {
+                const img = images[idx] as ImageType | undefined;
+                const isAddSlot =
+                  idx === images.length && images.length < MAX_IMAGES;
+                const isPlaceholder =
+                  idx > images.length || images.length === MAX_IMAGES;
+
+                // Filled slot with image
+                if (img) {
+                  return (
+                    <div
+                      key={`img-${img.id}`}
+                      className="relative group h-36 rounded-xl overflow-hidden border border-gray-200"
+                    >
                       <img
-                        src={img.preview}
-                        alt=""
-                        className={`w-full h-24 object-cover rounded-lg ${
-                          img.isUploading ? 'opacity-50' : ''
+                        src={
+                          img.preview ||
+                          "/placeholder.svg?height=144&width=192&query=uploaded image preview"
+                        }
+                        alt="Uploaded image preview"
+                        className={`w-full h-full object-cover ${
+                          img.isUploading ? "opacity-50" : ""
                         }`}
                       />
-                      
-                      {/* Upload status indicators */}
                       {img.isUploading && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
-                          <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                          <div className="w-6 h-6 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
                         </div>
                       )}
-                      
-                      {img.isUploading && (
-                        <div className="absolute top-1 left-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
-                        </div>
-                      )}
-                      
                       <button
                         type="button"
                         onClick={() => removeImage(img.id)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        disabled={img.isUploading}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-60"
+                        disabled={!!img.isUploading}
+                        aria-label="Remove image"
+                        title="Remove"
                       >
                         <Trash2 size={16} />
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
-              </div>
-              
-              
+                  );
+                }
 
-            {/* Location Section */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+                // Next available slot with + add button
+                if (isAddSlot) {
+                  return (
+                    <div
+                      key={`add-${idx}`}
+                      className="h-36 rounded-xl border-2 border-dashed border-gray-300 bg-white flex items-center justify-center hover:border-blue-400 hover:bg-blue-50/40 transition-colors"
+                    >
+                      {/* single-file input for this add slot */}
+                      <input
+                        ref={addInputRef}
+                        id="image-upload-next"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            handleImageUpload(e.target.files); // hook already handles FileList
+                            // allow selecting the same file again later
+                            e.currentTarget.value = "";
+                          }
+                        }}
+                      />
+                      <label
+                        htmlFor="image-upload-next"
+                        className="cursor-pointer flex flex-col items-center justify-center text-gray-600"
+                      >
+                        <Plus className="h-7 w-7 text-gray-700" />
+                        <span className="mt-1 text-xs">Add</span>
+                      </label>
+                    </div>
+                  );
+                }
+
+                // Future placeholder slots (disabled)
+                return (
+                  <div
+                    key={`ph-${idx}`}
+                    className="h-36 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/60"
+                    aria-hidden
+                  />
+                );
+              })}
+            </div>
+
+            {/* Helper text */}
+            <p className="text-xs text-gray-500 mt-2">
+              Upload up to {MAX_IMAGES} images
+            </p>
+          </div>
+
+          {/* Location Section */}
+          <div
+            id="location"
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-blue-500"
+          >
+            <Card className="shadow-sm border border-gray-100 bg-white">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center text-xl text-gray-800">
                   <MapPin className="w-5 h-5 mr-2 text-green-600" />
@@ -439,7 +425,6 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
                         </p>
                       )}
                     </div>
-
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         State
@@ -462,7 +447,7 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-4">
                   <TurfLocationPicker
                     coordinates={coordinates}
                     onLocationChange={handleLocationChange}
@@ -473,233 +458,255 @@ const AddTurfModal: React.FC<AddTurfModalProps> = ({
                 </div>
 
                 <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
-                  Current Coordinates: Lat: {coordinates.lat.toFixed(6)}, Lng: {coordinates.lng.toFixed(6)}
+                  Current Coordinates: Lat: {coordinates.lat.toFixed(6)}, Lng:{" "}
+                  {coordinates.lng.toFixed(6)}
                 </div>
               </CardContent>
             </Card>
+          </div>
 
-            {/* Contact Number */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Contact Number *
-              </label>
-              <div className="relative">
-                <Phone
-                  className="absolute left-3 top-3 text-gray-400"
-                  size={20}
-                />
-                <input
-                  type="tel"
-                  name="contactNumber"
-                  value={formik.values.contactNumber}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="9876543210"
-                />
-              </div>
-              {getFieldError("contactNumber") && (
-                <p className="text-red-500 text-sm mt-1">
-                  {getFieldError("contactNumber")}
-                </p>
-              )}
+          {/* Contact Number */}
+          <div
+            id="contact"
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-green-600"
+          >
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Contact Number *
+            </label>
+            <div className="relative">
+              <Phone
+                className="absolute left-3 top-3 text-gray-400"
+                size={20}
+              />
+              <input
+                type="tel"
+                name="contactNumber"
+                value={formik.values.contactNumber}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="9876543210"
+              />
             </div>
+            {getFieldError("contactNumber") && (
+              <p className="text-red-500 text-sm mt-1">
+                {getFieldError("contactNumber")}
+              </p>
+            )}
+          </div>
 
-            {/* Price and Court Type */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Price per Hour *
-                </label>
-                <input
-                  type="text"
-                  name="pricePerHour"
-                  value={formik.values.pricePerHour}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="500"
-                />
-                {getFieldError("pricePerHour") && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {getFieldError("pricePerHour")}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Court Type *
-                </label>
-                <select
-                  name="courtType"
-                  value={formik.values.courtType}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Select court type</option>
-                  {availableOptions.courtTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-                {getFieldError("courtType") && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {getFieldError("courtType")}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Add New Court Type */}
-            <div>
+          {/* Price and Court Type */}
+          <div id="pricing" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div className="-mt-6 -mx-6 mb-4 h-1 rounded-t-xl bg-green-600/80" />
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Add Custom Court Type
+                Price per Hour *
               </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={customInputs.newCourtType}
-                  onChange={(e) =>
-                    handleCustomInputChange("newCourtType", e.target.value)
-                  }
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="Add new court type (e.g., 8x8)"
-                  onKeyPress={(e) => e.key === "Enter" && addNewCourtType()}
-                />
-                <button
-                  type="button"
-                  onClick={addNewCourtType}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1"
-                >
-                  <Plus size={16} />
-                  Add
-                </button>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Description *
-              </label>
-              <textarea
-                name="description"
-                value={formik.values.description}
+              <input
+                type="text"
+                name="pricePerHour"
+                value={formik.values.pricePerHour}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Describe your turf, facilities, and what makes it special..."
-                rows={4}
+                placeholder="500"
               />
-              {getFieldError("description") && (
+              {getFieldError("pricePerHour") && (
                 <p className="text-red-500 text-sm mt-1">
-                  {getFieldError("description")}
+                  {getFieldError("pricePerHour")}
                 </p>
               )}
             </div>
 
-            {/* Amenities */}
-            <div>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div className="-mt-6 -mx-6 mb-4 h-1 rounded-t-xl bg-blue-500/80" />
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Amenities (At least 1 required) *
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                {availableOptions.amenities.map((amenity) => (
-                  <button
-                    key={amenity}
-                    type="button"
-                    onClick={() => toggleAmenity(amenity)}
-                    className={`p-3 rounded-lg border-2 transition-colors text-left ${
-                      formik.values.amenities.includes(amenity)
-                        ? "border-green-500 bg-green-50 text-green-700"
-                        : "border-gray-200 hover:border-green-300"
-                    }`}
-                  >
-                    {amenity}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={customInputs.newAmenity}
-                  onChange={(e) =>
-                    handleCustomInputChange("newAmenity", e.target.value)
-                  }
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="Add new amenity"
-                  onKeyPress={(e) => e.key === "Enter" && addNewAmenity()}
-                />
-                <button
-                  type="button"
-                  onClick={addNewAmenity}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1"
-                >
-                  <Plus size={16} />
-                  Add
-                </button>
-              </div>
-
-              {getFieldError("amenities") && (
-                <p className="text-red-500 text-sm mt-1">
-                  {getFieldError("amenities")}
-                </p>
-              )}
-
-              {formik.values.amenities.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {formik.values.amenities.map((amenity, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
-                    >
-                      {amenity}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Status *
+                Court Type *
               </label>
               <select
-                name="status"
-                value={formik.values.status}
+                name="courtType"
+                value={formik.values.courtType}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="">Select court type</option>
+                {availableOptions.courtTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
               </select>
+              {getFieldError("courtType") && (
+                <p className="text-red-500 text-sm mt-1">
+                  {getFieldError("courtType")}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Add New Court Type */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-green-600">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Add Custom Court Type
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={customInputs.newCourtType}
+                onChange={(e) =>
+                  handleCustomInputChange("newCourtType", e.target.value)
+                }
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Add new court type (e.g., 8x8)"
+                onKeyPress={(e) => e.key === "Enter" && addNewCourtType()}
+              />
+              <button
+                type="button"
+                onClick={addNewCourtType}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1"
+              >
+                <Plus size={16} />
+                Add
+              </button>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              name="description"
+              value={formik.values.description}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Describe your turf, facilities, and what makes it special..."
+              rows={4}
+            />
+            {getFieldError("description") && (
+              <p className="text-red-500 text-sm mt-1">
+                {getFieldError("description")}
+              </p>
+            )}
+          </div>
+
+          {/* Amenities */}
+          <div
+            id="amenities"
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-green-600"
+          >
+            <label className="block text-sm font-semibold text-gray-700">
+              Amenities (At least 1 required) *
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-2">
+              {availableOptions.amenities.map((amenity) => (
+                <button
+                  key={amenity}
+                  type="button"
+                  onClick={() => toggleAmenity(amenity)}
+                  className={`p-3 rounded-lg border-2 transition-colors text-left ${
+                    formik.values.amenities.includes(amenity)
+                      ? "border-green-600 bg-green-50 text-green-800 shadow-sm"
+                      : "border-gray-200 hover:border-green-300 hover:bg-green-50"
+                  }`}
+                >
+                  {amenity}
+                </button>
+              ))}
             </div>
 
-            {/* Submit Button */}
-            <div className="sticky bottom-0 bg-white pt-6 border-t border-gray-200">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={customInputs.newAmenity}
+                onChange={(e) =>
+                  handleCustomInputChange("newAmenity", e.target.value)
+                }
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Add new amenity"
+                onKeyPress={(e) => e.key === "Enter" && addNewAmenity()}
+              />
+              <button
+                type="button"
+                onClick={addNewAmenity}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1"
+              >
+                <Plus size={16} />
+                Add
+              </button>
+            </div>
+
+            {getFieldError("amenities") && (
+              <p className="text-red-500 text-sm">
+                {getFieldError("amenities")}
+              </p>
+            )}
+
+            {formik.values.amenities.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formik.values.amenities.map((amenity, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                  >
+                    {amenity}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Status */}
+          <div
+            id="status"
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-blue-500"
+          >
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Status *
+            </label>
+            <select
+              name="status"
+              value={formik.values.status}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            {getFieldError("status") && (
+              <p className="text-red-500 text-sm mt-1">
+                {getFieldError("status")}
+              </p>
+            )}
+          </div>
+          <div className="sticky bottom-0 w-full border-t border-t-green-200 bg-green-50/90">
+            <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-4 py-3 rounded-lg border border-gray-300 text-gray-800 bg-white hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
               <button
                 type="submit"
                 disabled={!canSubmit()}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+                className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold shadow-sm hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {formik.isSubmitting
                   ? "Submitting..."
                   : "Submit Turf Registration"}
               </button>
-              
             </div>
           </div>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
-
-export default AddTurfModal;
+export default AddTurfPage;

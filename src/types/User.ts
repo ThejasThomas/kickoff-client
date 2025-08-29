@@ -1,3 +1,4 @@
+import type { ITurf } from "./Turf";
 import type { UserRoles } from "./UserRoles";
 
 type statusTypes = "active" | "pending" | "blocked";
@@ -74,12 +75,27 @@ export interface GetUsersParams {
   excludeStatus?: string | string[];
 }
 
+export interface GetTurfsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  excludeStatus?: string[];
+}
+
 export interface GetAllUsersResponse<T = any> {
   success: boolean;
   users: User[] | ITurfOwner[];
   totalPages: number;
   currentPage: number;
   message?: string;
+}
+export interface GetAllTurfsResponse {
+  success: boolean;
+  message: string;
+  turfs: ITurf[];
+  totalPages: number;
+  currentPage: number;
 }
 
 export type UserDTO = IAdmin | IClient | ITurfOwner;

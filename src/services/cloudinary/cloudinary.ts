@@ -1,7 +1,7 @@
 const BASE_URL =import.meta.env.VITE_PRIVATE_API_URL
 export const getCloudinarySignature =async(folder:string)=>{
   console.log('hey bro')
-const response=await fetch(`${BASE_URL}/api/cloudinary/signature?folder=${encodeURIComponent(folder)}`,{
+const response=await fetch(`${BASE_URL}/api/cloudinary/turfOwner/signature?folder=${encodeURIComponent(folder)}`,{
     method:'GET',
     credentials:'include'
 })

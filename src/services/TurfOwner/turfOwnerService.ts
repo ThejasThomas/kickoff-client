@@ -4,7 +4,7 @@ import type { Turf } from "@/types/Turf";
 
 export const refreshTurfOwnerSession = async (): Promise<IAuthResponse> =>{
     const response = await turfOwnerAxiosInstance.get<IAuthResponse> (
-        'turfOwner/refresh-session'
+        'turfowner/refresh-session'
     )
     return response.data;
 }

@@ -23,11 +23,8 @@ const sidebarItems: SidebarItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", route: "/admin/dashboard" },
   { icon: Users, label: "Clients", route: "/admin/users-management" },
   { icon: UserCheck, label: "Owners", route: "/admin/owner-management" },
-  {
-    icon: Shield,
-    label: "Owners Verification",
-    route: "/admin/owner-verification",
-  },
+  {icon: Shield,label: "Owners Verification",route: "/admin/owner-verification"},
+  {icon:Shield,label:"Turfs Verification",route:"/admin/turfs-management"},
 ];
 
 interface AdminLayoutProps {

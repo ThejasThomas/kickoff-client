@@ -1,4 +1,4 @@
-export interface Turf {
+export interface ITurf {
   ownerId?: string;
   turfName: string;
   description: string;
