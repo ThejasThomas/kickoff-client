@@ -18,7 +18,7 @@ interface SidebarProps {
   handleLogout?: () => void;
   className?: string;
   role?: "admin" | "client" | "turfOwner";
-  sidebarItems: SidebarItemType[]; // required
+  sidebarItems?: SidebarItemType[]; // required
   title?: string;
   showLogoutButton?: boolean;
 }
@@ -63,10 +63,11 @@ export function Sidebar({
 
   const sidebarOpen = isVisible ?? isOpen ?? false;
 
+  const items = sidebarItems ?? [];
   // determine active item
-  const activeIndex = sidebarItems.findIndex((item) =>
-    location.pathname.startsWith(item.path)
-  );
+  const activeIndex = items.findIndex((item) =>
+  location.pathname.startsWith(item.path)
+)
 
   return (
     <>
@@ -114,7 +115,7 @@ export function Sidebar({
             {/* Navigation */}
             <nav className="flex-1 mt-1 px-3 overflow-y-auto">
               <div className="space-y-1 py-2">
-                {sidebarItems.map((item, index) => (
+                {items.map((item, index) => (
                   <SidebarItem
                     key={`${item.path}-${index}`}
                     item={item}

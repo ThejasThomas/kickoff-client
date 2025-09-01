@@ -1,15 +1,15 @@
 
 import type React from "react"
 import { useAddTurfMutation } from "@/hooks/turfOwner/addTurf"
-import type { Turf } from "@/types/Turf"
 import type { ITurfResponse } from "@/types/Response"
 import AddTurfPage from "@/components/ReusableComponents/AddTurfComponent"
+import type { NewTurf } from "@/types/Turf"
 
 const AddTurfPageContainer: React.FC = () => {
   const { mutate: addTurf, isPending } = useAddTurfMutation()
 
-  const handleSubmit = async (turfData: Turf) => {
-    console.log('hey bro its clicked')
+  const handleSubmit = async (turfData: NewTurf) => {
+    console.log('statussssssss',turfData.status)
     addTurf(turfData, {
       onSuccess: (response: ITurfResponse) => {
         if (response.success) {

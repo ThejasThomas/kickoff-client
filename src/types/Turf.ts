@@ -1,4 +1,4 @@
-export interface ITurf {
+export interface ITurfBase {
   ownerId?: string;
   turfName: string;
   description: string;
@@ -7,7 +7,7 @@ export interface ITurf {
     city: string;
     state?: string;
     coordinates: {
-      type:string;
+      type: string;
       coordinates: [number, number];
     };
   };
@@ -15,20 +15,21 @@ export interface ITurf {
   amenities: string[];
   images: string[];
   contactNumber: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "approved" | "rejected"|"pending"
   createdAt?: Date;
   updatedAt?: Date;
   pricePerHour: string;
   courtType: string;
 }
 
-
-export interface TurfFormValues {
-  
-}
-
+export interface TurfFormValues {}
 
 export interface LocationCoordinates {
-  lat:number
-  lng:number
+  lat: number;
+  lng: number;
 }
+export interface ITurf extends ITurfBase {
+  _id: string;
+}
+
+export type NewTurf = ITurfBase & { _id?: string };

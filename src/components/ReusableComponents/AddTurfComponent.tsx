@@ -1,11 +1,9 @@
-"use client";
-
 import type React from "react";
 import { useState, useRef } from "react";
 import { MapPin, Phone, Trash2, Plus, ArrowLeft } from "lucide-react";
 import { useFormik } from "formik";
 import { turfSchema } from "@/utils/validations/turf_register_validation";
-import type { LocationCoordinates, Turf } from "@/types/Turf";
+import type {  LocationCoordinates, NewTurf } from "@/types/Turf";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TurfLocationPicker from "../turfOwner/TurfDetails/map-location-picker";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
@@ -19,7 +17,7 @@ interface ImageType {
 }
 
 interface AddTurfPageProps {
-  onSubmit: (data: Turf) => void;
+  onSubmit: (data: NewTurf) => void;
   onCancel?: () => void;
 }
 
@@ -78,7 +76,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
         return;
       }
 
-      const turfData: Turf = {
+      const turfData: NewTurf = {
         turfName: values.turfName,
         description: values.description,
         location: {
@@ -98,7 +96,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
         contactNumber: values.contactNumber,
         pricePerHour: values.pricePerHour,
         courtType: values.courtType,
-        status: values.status as "active" | "inactive",
+        status: values.status as "pending",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -674,8 +672,8 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
               onBlur={formik.handleBlur}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="pending">Active</option>
+              <option value="pending">Inactive</option>
             </select>
             {getFieldError("status") && (
               <p className="text-red-500 text-sm mt-1">
