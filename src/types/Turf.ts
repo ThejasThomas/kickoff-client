@@ -15,7 +15,7 @@ export interface ITurfBase {
   amenities: string[];
   images: string[];
   contactNumber: string;
-  status: "active" | "inactive" | "approved" | "rejected"|"pending"
+  status: "active" | "inactive" | "approved" | "rejected"|"pending"| "blocked"
   createdAt?: Date;
   updatedAt?: Date;
   pricePerHour: string;

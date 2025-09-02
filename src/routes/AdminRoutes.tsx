@@ -5,7 +5,8 @@ import { AdminAuth } from "@/pages/admin/AdminAuth";
 import AdminDashboard from "@/pages/admin/sub-pages/AdminDashboard";
 import OwnerManagement from "@/pages/admin/sub-pages/OwnerManagement";
 import VendorVerification from "@/pages/admin/sub-pages/OwnerVerification";
-import Turfs from "@/pages/admin/sub-pages/TurfsVerification";
+import TurfsManagement from "@/pages/admin/sub-pages/TurfsManagement";
+import TurfVerification from "@/pages/admin/sub-pages/TurfsVerification";
 import UserManagement from "@/pages/admin/sub-pages/UsersManagement";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
@@ -35,7 +36,8 @@ const AdminRoutes = () => {
       <Route path="/owner-verification" element={ProtectedRoute({element: <AdminLayout><VendorVerification /></AdminLayout>,allowedRoles: ["admin"]})}/>
       <Route path="/owner-management" element={ProtectedRoute({ element: <AdminLayout><OwnerManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
       <Route path="/users-management" element={ ProtectedRoute({element:<AdminLayout><UserManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
-      <Route path="/turfs-management" element={ProtectedRoute({element:<AdminLayout><Turfs/></AdminLayout>,allowedRoles:["admin"]})}/>
+      <Route path="/turfs-verification" element={ProtectedRoute({element:<AdminLayout><TurfVerification/></AdminLayout>,allowedRoles:["admin"]})}/>
+      <Route path="/turfs-management" element={ProtectedRoute({element:<AdminLayout><TurfsManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
 
       
     </Routes>
