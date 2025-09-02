@@ -10,7 +10,6 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { PrivateHeader } from "../mainComponents/PrivateHeader";
 import { Sidebar } from "../mainComponents/Sidebar";
 import { sidebarItems } from "../turfOwner/Sidebar/SidebarItems";
-import { BarChart, Users } from "lucide-react";
 import { logoutTurfOwner } from "@/services/auth/authService";
 
 interface TurfOwnerLayoutProps {
@@ -18,7 +17,6 @@ interface TurfOwnerLayoutProps {
 }
 
 export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = ({
-  title = 'Turf Management',
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { successToast } = useToaster();

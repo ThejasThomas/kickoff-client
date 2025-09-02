@@ -3,10 +3,11 @@ import ResetPassword from "@/components/auth/ResetPassword";
 import TurfOwnerLayout from "@/components/layouts/TurfOwnerLayout";
 import RegisterTurfPage from "@/pages/turfOwner/RegisterTurfPage";
 import { TurfOwnerAuth } from "@/pages/turfOwner/TurfOwnerAuth";
-import TurfOwnerHomePage from "@/pages/turfOwner/TurfOwnerHomePage";
+import { OwnerProfile } from "@/pages/turfOwner/components/OwnerProfile";
+import TurfOwnerHomePage from "@/pages/turfOwner/components/TurfOwnerHomePage";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
-import { Route, Routes } from "react-router-dom";
+import {  Route, Routes } from "react-router-dom";
 
 const TurfOwnerRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const TurfOwnerRoutes = () => {
       <Route index element={<NoAuthRoute element={<TurfOwnerAuth />} />} />
       <Route  element={<ProtectedRoute allowedRoles={['turfOwner']} element={<TurfOwnerLayout/>}/>}>
         <Route path="/home" element={<TurfOwnerHomePage/>}></Route>
+        <Route path="/profile" element={<OwnerProfile onSave={(data)=>{console.log('profile saved',data)}}/>}></Route>
         <Route path="/add-turf" element={<RegisterTurfPage/>}></Route>
 
       

@@ -43,28 +43,15 @@ export interface IClient extends User {
 export interface ITurfOwner extends Omit<User, "fullName" | "userId"> {
   _id: string
   userId: string;
-
+  profileImage?: string|File
   ownerName?: string;
-  // description?:string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pinCode?: string;
   googleId?: string;
-  // distance?:number;
-  // amenities?: {
-  //     Parking:boolean;
-  //     ChangingRooms:boolean;
-  //     DrinkingWater:boolean;
-  //     WashingRooms:boolean;
-  //     Wifi:boolean;
-  // },
   rejectionReason?: string;
-  // geoLocation?: {
-  //     type?:'Point';
-  //     coordinates?:number[];
-  // }
-  // location?: {
-  //     name?:string;
-  //     displayName?:string;
-  //     zipCode?:string;
-  // }
+  
 }
 export interface GetUsersParams {
   role?: "client" | "turfOwner";

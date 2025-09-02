@@ -1,4 +1,4 @@
-import type { Turf } from "./Turf";
+import type { ITurfBase } from "./Turf";
 import type { IAdmin, IClient, ITurfOwner, UserDTO } from "./User";
 
 export interface IAxiosResponse {
@@ -27,5 +27,5 @@ export type IAdminResponse = {
 export type ITurfResponse = {
   success:boolean;
   message:string;
-  turf:Turf
+  turf:ITurfBase
 }
