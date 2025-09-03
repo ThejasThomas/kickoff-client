@@ -65,7 +65,7 @@ export const OwnerProfile = ({
   const profileImagePreview = images[0]?.cloudinaryUrl || 
     (profileData?.profileImage && typeof profileData.profileImage === 'string' ? profileData.profileImage : null);
 
-  const profileSchema = turfOwnerSchema.concat(Yup.object({
+  const profileSchema =(Yup.object({
     address: Yup.string()
       .trim()
       .min(5, "Address must be at least 5 characters")
@@ -101,9 +101,12 @@ export const OwnerProfile = ({
       status: profileData?.status || "pending",
       profileImage: profileData?.profileImage || undefined,
     },
+    
     validationSchema: profileSchema,
     enableReinitialize: true,
+    validateOnMount: true,
     onSubmit: async (values) => {
+      console.log('hey broh')
       try {
         let finalImage = profileImagePreview;
 
@@ -115,9 +118,9 @@ export const OwnerProfile = ({
           ...values,
           profileImage: finalImage || undefined,
         };
-        const updatedOwner = await updateTurfOwnerProfile(ownerData)
+        const response = await updateTurfOwnerProfile(ownerData)
 
-        onSave(updatedOwner);
+        onSave(response.user);
         setIsEditing(false);
         successToast("Profile updated successfully!");
       } catch (err) {
@@ -136,6 +139,12 @@ export const OwnerProfile = ({
       formik.setFieldValue("profileImage", e.target.files[0]);
     }
   };
+
+  console.log("Formik values:", formik.values)
+console.log("Formik errors:", formik.errors)
+console.log("Formik touched:", formik.touched)
+console.log("Formik isValid:", formik.isValid)
+console.log("Formik dirty:", formik.dirty)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 p-4">
@@ -436,14 +445,15 @@ export const OwnerProfile = ({
               
               <motion.button
                 type="submit"
-                disabled={isLoading || !formik.isValid}
+                disabled={isLoading || !(formik.isValid && formik.dirty)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="px-6 py-3 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg hover:from-teal-600 hover:to-green-700 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
+                ) :
+                 (
                   <Save className="w-4 h-4" />
                 )}
                 Save Profile
