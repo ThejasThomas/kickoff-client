@@ -10,8 +10,12 @@ import {
 import type React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { data, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useLogout } from "@/hooks/auth/useLogout";
+import { logoutAdmin } from "@/services/auth/authService";
+import { adminLogout } from "@/store/slices/admin_slice";
+import { useToaster } from "@/hooks/ui/useToaster";
 
 interface SidebarItem {
   icon: React.ComponentType<{ className?: string; size?: number }>;
@@ -23,10 +27,18 @@ const sidebarItems: SidebarItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", route: "/admin/dashboard" },
   { icon: Users, label: "Clients", route: "/admin/users-management" },
   { icon: UserCheck, label: "Owners", route: "/admin/owner-management" },
-  {icon: Shield,label: "Owners Verification",route: "/admin/owner-verification"},
-    {icon: Shield,label: "Turfs Management",route: "/admin/turfs-management"},
+  {
+    icon: Shield,
+    label: "Owners Verification",
+    route: "/admin/owner-verification",
+  },
+  { icon: Shield, label: "Turfs Management", route: "/admin/turfs-management" },
 
-  {icon:Shield,label:"Turfs verification",route:"/admin/turfs-verification"},
+  {
+    icon: Shield,
+    label: "Turfs verification",
+    route: "/admin/turfs-verification",
+  },
 ];
 
 interface AdminLayoutProps {
@@ -35,9 +47,11 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const dispatch = useDispatch();
+  const { successToast, errorToast } = useToaster();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { mutate: logoutReq } = useLogout(logoutAdmin);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -48,6 +62,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       (item) => item.route === location.pathname
     );
     return currentItem?.label || "Dashboard";
+  };
+
+  const handleLogout = () => {
+    logoutReq(undefined, {
+      onSuccess: (data) => {
+        dispatch(adminLogout());
+        navigate("/admin");
+        successToast(data.message);
+      },
+      onError: (err: any) => {
+        errorToast(err.response.data.message);
+      },
+    });
   };
 
   const handleSidebarNavigation = (route: string) => {
@@ -132,6 +159,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   })}
                 </ul>
               </nav>
+              <div className="mt-auto">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center p-3 text-gray-300 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200"
+                >
+                  <X className="w-5 h-5 mr-3 text-gray-400" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </motion.aside>
         )}

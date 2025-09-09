@@ -1,4 +1,3 @@
-"use client";
 import { motion } from "framer-motion";
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import RejectionModal from "@/components/ReusableComponents/RejectionModal";

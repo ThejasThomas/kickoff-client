@@ -1,4 +1,4 @@
-import type { ITurfBase } from "./Turf";
+import type { ITurf, ITurfBase } from "./Turf";
 import type { IAdmin, IClient, ITurfOwner, UserDTO } from "./User";
 
 export interface IAxiosResponse {
@@ -28,4 +28,12 @@ export type ITurfResponse = {
   success:boolean;
   message:string;
   turf:ITurfBase
+  
+}
+export type ITurffResponse =  {
+ success:boolean;
+  message:string;
+  turfs:ITurf[]
+  totalPages:number;
+  currentPage:number
 }

@@ -1,3 +1,4 @@
+import { adminAxiosInstance } from "@/api/admin_axios";
 import { authAxiosInstance } from "@/api/auth_axios";
 import { clientAxiosInstance } from "@/api/client_axios";
 import { turfOwnerAxiosInstance } from "@/api/turfOwner_axios";
@@ -27,6 +28,11 @@ export const logoutClient =async ():Promise<IAxiosResponse> => {
 
 export const logoutTurfOwner =async ():Promise<IAxiosResponse>=>{
 	const response = await turfOwnerAxiosInstance.post('turfOwner/logout')
+	return response.data;
+}
+
+export const logoutAdmin =async ():Promise<IAxiosResponse>=>{
+	const response = await adminAxiosInstance.post('/admin/logout')
 	return response.data;
 }
 

@@ -14,8 +14,6 @@ const AddTurfPageContainer: React.FC = () => {
       onSuccess: (response: ITurfResponse) => {
         if (response.success) {
           alert("Turf registered successfully!")
-          // Optionally navigate back or to dashboard
-          // window.history.back()
         } else {
           alert(response.message || "Failed to register turf. Please try again.")
         }

@@ -17,7 +17,6 @@ import { useToaster } from "@/hooks/ui/useToaster";
 import type { ITurfOwner } from "@/types/User";
 import * as Yup from "yup";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
-import { turfOwnerSchema } from "@/utils/validations/turfOwner_signup_validation";
 import { getTurfOwnerProfile, updateTurfOwnerProfile } from "@/services/TurfOwner/turfOwnerService";
 
 interface TurfOwnerProfileProps {

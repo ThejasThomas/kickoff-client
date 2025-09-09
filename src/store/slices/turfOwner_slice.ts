@@ -1,7 +1,6 @@
 import { refreshTurfOwnerSession } from "@/services/TurfOwner/turfOwnerService";
 import type { ITurfOwner } from "@/types/User";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { string } from "yup";
 
 interface TurfOwnerState {
     turfOwner:ITurfOwner |null;

@@ -1,7 +1,6 @@
-import { adminLogout } from "@/store/slices/admin_slice";
-import { store } from "@/store/store";
+
 import axios from "axios";
-import toast from "react-hot-toast";
+
 
 const BACKEND_URL = import.meta.env.VITE_PRIVATE_API_URL;
 
