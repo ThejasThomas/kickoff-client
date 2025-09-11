@@ -5,5 +5,4 @@ export const CLIENT_ROUTE ={
     GET_TURF:`${BASE_URL.CLIENT}/getturfs`,
     REFRESH_TOKEN:`${BASE_URL.CLIENT}/refresh-token`,
     LOGOUT:`${BASE_URL.CLIENT}/logout`,
-
 }

@@ -52,7 +52,7 @@ export const OwnerProfile = ({
         const data = await getTurfOwnerProfile();
         setProfileData(data);
       } catch (err) {
-        errorToast("Failed to fetch profile");
+        // errorToast("Failed to fetch profile");
       }
     };
 

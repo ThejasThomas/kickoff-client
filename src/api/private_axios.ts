@@ -20,8 +20,10 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+    console.log('originalReq',originalRequest)
 
     const urlPart = originalRequest?.url?.split("/")[1] || "";
+    console.log(urlPart)
     let role: "_cl" | "_ad" | "_ow" | "" = "";
 
     switch (urlPart) {
