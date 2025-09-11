@@ -23,7 +23,6 @@ export const ClientAuth = ()=>{
 
     const {mutate:loginClient,isPending:isLoginPending} =useLoginMutation();
     const {mutate:registerClient,isPending} =useRegisterMutation();
-    // const {mutate:g}
 
     const {errorToast,successToast} =useToaster();
     const googleAuth = (credentialResponse: CredentialResponse) => {

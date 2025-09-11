@@ -11,13 +11,14 @@ import {
   Mail,
   Phone,
   MapPin,
-  Home
+  Home,
+  RefreshCw
 } from 'lucide-react';
 import { useToaster } from "@/hooks/ui/useToaster";
 import type { ITurfOwner } from "@/types/User";
 import * as Yup from "yup";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
-import { getTurfOwnerProfile, updateTurfOwnerProfile } from "@/services/TurfOwner/turfOwnerService";
+import { getTurfOwnerProfile, updateTurfOwnerProfile, retryAdminApproval } from "@/services/TurfOwner/turfOwnerService";
 
 interface TurfOwnerProfileProps {
   initialData?: Partial<ITurfOwner>;
@@ -39,11 +40,10 @@ export const OwnerProfile = ({
   isLoading = false 
 }: TurfOwnerProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isRetryLoading, setIsRetryLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const { successToast, errorToast } = useToaster();
   const { images, handleImageUpload, removeImage } = useImageUploader("turfOwners", 1);
-
   const [profileData, setProfileData] = useState<Partial<ITurfOwner>>(initialData || {});
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export const OwnerProfile = ({
   const profileImagePreview = images[0]?.cloudinaryUrl || 
     (profileData?.profileImage && typeof profileData.profileImage === 'string' ? profileData.profileImage : null);
 
-  const profileSchema =(Yup.object({
+  const profileSchema = Yup.object({
     address: Yup.string()
       .trim()
       .min(5, "Address must be at least 5 characters")
@@ -84,7 +84,17 @@ export const OwnerProfile = ({
       .trim()
       .matches(/^[0-9]{6}$/, "Pin code must be exactly 6 digits")
       .required("Pin code is required"),
-  }));
+    ownerName: Yup.string()
+      .trim()
+      .min(2, "Owner name must be at least 2 characters")
+      .required("Owner name is required"),
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is required"),
+    phoneNumber: Yup.string()
+      .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
+      .required("Phone number is required"),
+  });
 
   const formik = useFormik<ProfileFormData>({
     initialValues: {
@@ -100,12 +110,10 @@ export const OwnerProfile = ({
       status: profileData?.status || "pending",
       profileImage: profileData?.profileImage || undefined,
     },
-    
     validationSchema: profileSchema,
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async (values) => {
-      console.log('hey broh')
       try {
         let finalImage = profileImagePreview;
 
@@ -117,8 +125,7 @@ export const OwnerProfile = ({
           ...values,
           profileImage: finalImage || undefined,
         };
-        const response = await updateTurfOwnerProfile(ownerData)
-
+        const response = await updateTurfOwnerProfile(ownerData);
         onSave(response.user);
         setIsEditing(false);
         successToast("Profile updated successfully!");
@@ -139,11 +146,24 @@ export const OwnerProfile = ({
     }
   };
 
-  console.log("Formik values:", formik.values)
-console.log("Formik errors:", formik.errors)
-console.log("Formik touched:", formik.touched)
-console.log("Formik isValid:", formik.isValid)
-console.log("Formik dirty:", formik.dirty)
+  const handleRetryApproval = async () => {
+    try {
+      setIsRetryLoading(true);
+      const response = await retryAdminApproval(formik.values.userId);
+      setProfileData({ ...profileData, status: response.status });
+      successToast("Approval request sent successfully!");
+    } catch (err) {
+      errorToast("Failed to send approval request");
+    } finally {
+      setIsRetryLoading(false);
+    }
+  };
+
+  const isProfileComplete = formik.isValid && formik.values.ownerName && 
+    formik.values.email && formik.values.phoneNumber && 
+    formik.values.address && formik.values.city && 
+    formik.values.state && formik.values.pinCode && 
+    profileImagePreview;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 p-4">
@@ -422,43 +442,62 @@ console.log("Formik dirty:", formik.dirty)
             </div>
           </motion.div>
 
-          {/* Save Button */}
-          {isEditing && (
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="flex justify-end gap-4"
-            >
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setIsEditing(false);
-                  formik.resetForm();
-                }}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
-              >
-                Cancel
-              </motion.button>
-              
-              <motion.button
-                type="submit"
-                disabled={isLoading || !(formik.isValid && formik.dirty)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-6 py-3 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg hover:from-teal-600 hover:to-green-700 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) :
-                 (
-                  <Save className="w-4 h-4" />
-                )}
-                Save Profile
-              </motion.button>
-            </motion.div>
-          )}
+          {/* Buttons */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="flex justify-end gap-4"
+          >
+            {isEditing ? (
+              <>
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setIsEditing(false);
+                    formik.resetForm();
+                  }}
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
+                >
+                  Cancel
+                </motion.button>
+                
+                <motion.button
+                  type="submit"
+                  disabled={isLoading || !(formik.isValid && formik.dirty)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-6 py-3 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg hover:from-teal-600 hover:to-green-700 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  Save Profile
+                </motion.button>
+              </>
+            ) : (
+              isProfileComplete && formik.values.status !== 'approved' && (
+                <motion.button
+                  type="button"
+                  disabled={isRetryLoading}
+                  onClick={handleRetryApproval}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isRetryLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  Retry Admin Approval
+                </motion.button>
+              )
+            )}
+          </motion.div>
         </form>
       </div>
     </div>

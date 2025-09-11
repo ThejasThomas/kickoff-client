@@ -1,4 +1,6 @@
-import { adminAxiosInstance } from "@/api/admin_axios";
+// import { adminAxiosInstance } from "@/api/admin_axios";
+import { axiosInstance } from "@/api/private_axios";
+import { ADMIN_ROUTES } from "@/constants/admin_route";
 import type { IAuthResponse, IAxiosResponse } from "@/types/Response";
 import type {
   GetAllTurfsResponse,
@@ -11,8 +13,8 @@ import type {
 import { getErrorMessage } from "@/utils/errros/errorHandler";
 
 export const refreshAdminSession = async (): Promise<IAuthResponse> => {
-  const response = await adminAxiosInstance.get<IAuthResponse>(
-    "/admin/refresh-session"
+  const response = await axiosInstance.get<IAuthResponse>(
+    ADMIN_ROUTES.REFRESH_SESSION
   );
   return response.data;
 };
@@ -27,8 +29,8 @@ export const adminService = {
     excludeStatus,
   }: GetUsersParams): Promise<GetAllUsersResponse<T>> => {
     try {
-      const response = await adminAxiosInstance.get<GetAllUsersResponse<T>>(
-        "/admin/users",
+      const response = await axiosInstance.get<GetAllUsersResponse<T>>(
+        ADMIN_ROUTES.USERS,
         {
           params: {
             role,
@@ -60,8 +62,8 @@ export const adminService = {
     excludeStatus,
   }: GetTurfsParams): Promise<GetAllTurfsResponse> => {
     try {
-      const response = await adminAxiosInstance.get<GetAllTurfsResponse>(
-        "/admin/turfs",
+      const response = await axiosInstance.get<GetAllTurfsResponse>(
+        ADMIN_ROUTES.TURFS,
         {
           params: {
             page,
@@ -92,7 +94,7 @@ export const adminService = {
     email?: string
   ): Promise<IAxiosResponse> => {
     try {
-      const response = await adminAxiosInstance.patch("/admin/status", {
+      const response = await axiosInstance.patch(ADMIN_ROUTES.STATUS, {
         entityType,
         entityId,
         status,

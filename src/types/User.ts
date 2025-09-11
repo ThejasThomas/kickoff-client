@@ -1,7 +1,7 @@
 import type { ITurf } from "./Turf";
 import type { UserRoles } from "./UserRoles";
 
-type statusTypes = "active" | "pending" | "blocked";
+type statusTypes = "active" | "pending" | "blocked"|"updated"|"rejected"|"approved"
 
 export type userStatus = "active" | "blocked";
 export type turfOwnerStatus = "pending" | "approved" | "rejected" | "blocked";
