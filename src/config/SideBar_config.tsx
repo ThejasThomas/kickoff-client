@@ -1,4 +1,3 @@
-// src/config/SideBar_config.ts
 import { Home } from "lucide-react";
 
 const navItem = {

@@ -8,7 +8,7 @@ interface protectedRouteProps {
   allowedRoles: string[];
 }
 
-export const protectedRoute = ({
+export const ProtectedRoute = ({
   element,
   allowedRoles,
 }: protectedRouteProps) => {

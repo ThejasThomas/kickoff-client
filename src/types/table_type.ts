@@ -1,5 +1,4 @@
-import type { BlobOptions } from "buffer";
-import type { Variable } from "lucide-react";
+
 import type React from "react";
 
 export interface BaseItem {
@@ -22,7 +21,7 @@ export interface TableAction<T> {
     onClick:(item: T) => void | Promise<void>
     condition?:(Item:T) => boolean
     refreshAfter:boolean
-    variant?: 'default' | 'danger' | 'warning' | 'success'
+    variant?: 'default' | 'danger' | 'warning' | 'success'| 'info'
     seperator?: boolean
     className?:string
 }

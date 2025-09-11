@@ -1,4 +1,8 @@
 import { authAxiosInstance } from "@/api/auth_axios";
+import { axiosInstance } from "@/api/private_axios";
+import { ADMIN_ROUTES } from "@/constants/admin_route";
+import { CLIENT_ROUTE } from "@/constants/client_route";
+import { OWNER_ROUTE } from "@/constants/owner_route";
 import type { IAuthResponse, IAxiosResponse } from "@/types/Response";
 import type { ILoginData, UserDTO } from "@/types/User";
 
@@ -16,6 +20,21 @@ export const signin =async (user:ILoginData):Promise<IAuthResponse> =>{
         user
     );
     return response.data;
+}
+
+export const logoutClient =async ():Promise<IAxiosResponse> => {
+	const response = await axiosInstance.post(CLIENT_ROUTE.LOGOUT)
+	return response.data;
+}
+
+export const logoutTurfOwner =async ():Promise<IAxiosResponse>=>{
+	const response = await axiosInstance.post(OWNER_ROUTE.LOGOUT)
+	return response.data;
+}
+
+export const logoutAdmin =async ():Promise<IAxiosResponse>=>{
+	const response = await axiosInstance.post(ADMIN_ROUTES.LOGOUT)
+	return response.data;
 }
 
 export const sendOtp = async (email: string): Promise<IAxiosResponse> => {

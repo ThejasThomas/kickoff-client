@@ -16,7 +16,7 @@ export const clientSignupSchema = Yup.object().shape({
 
   phoneNumber: Yup.string()
     .trim()
-    .matches(/^\+?[1-9]\d{9,14}$/, "Invalid phone number")
+    .matches(/^\+?[1-9]\d{9}$/, "Invalid phone number")
     .required("Phone number is required"),
 
   password: Yup.string()

@@ -1,12 +1,14 @@
 import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
+import AdminLayout from "@/components/layouts/AdminLayout";
 import { AdminAuth } from "@/pages/admin/AdminAuth";
-import AdminLayout from "@/pages/admin/AdminLayout";
 import AdminDashboard from "@/pages/admin/sub-pages/AdminDashboard";
 import OwnerManagement from "@/pages/admin/sub-pages/OwnerManagement";
 import VendorVerification from "@/pages/admin/sub-pages/OwnerVerification";
+import TurfsManagement from "@/pages/admin/sub-pages/TurfsManagement";
+import TurfVerification from "@/pages/admin/sub-pages/TurfsVerification";
 import UserManagement from "@/pages/admin/sub-pages/UsersManagement";
-import { protectedRoute } from "@/utils/protected/ProtectedRoute";
+import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";
 
@@ -30,10 +32,12 @@ const AdminRoutes = () => {
           />
         }
       />
-        <Route path="/dashboard" element={protectedRoute({element: <AdminLayout><AdminDashboard/></AdminLayout>,allowedRoles: ["admin"]})}/>
-      <Route path="/owner-verification" element={protectedRoute({element: <AdminLayout><VendorVerification /></AdminLayout>,allowedRoles: ["admin"]})}/>
-      <Route path="/owner-management" element={protectedRoute({ element: <AdminLayout><OwnerManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
-      <Route path="/users-management" element={ protectedRoute({element:<AdminLayout><UserManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
+        <Route path="/dashboard" element={ProtectedRoute({element: <AdminLayout><AdminDashboard/></AdminLayout>,allowedRoles: ["admin"]})}/>
+      <Route path="/owner-verification" element={ProtectedRoute({element: <AdminLayout><VendorVerification /></AdminLayout>,allowedRoles: ["admin"]})}/>
+      <Route path="/owner-management" element={ProtectedRoute({ element: <AdminLayout><OwnerManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
+      <Route path="/users-management" element={ ProtectedRoute({element:<AdminLayout><UserManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
+      <Route path="/turfs-verification" element={ProtectedRoute({element:<AdminLayout><TurfVerification/></AdminLayout>,allowedRoles:["admin"]})}/>
+      <Route path="/turfs-management" element={ProtectedRoute({element:<AdminLayout><TurfsManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
 
       
     </Routes>
