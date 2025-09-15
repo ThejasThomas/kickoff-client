@@ -1,9 +1,13 @@
 import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
 import TurfOwnerLayout from "@/components/layouts/TurfOwnerLayout";
+import MyTurfPage from "@/pages/turfOwner/MyTurfPage";
 import RegisterTurfPage from "@/pages/turfOwner/RegisterTurfPage";
 import { TurfOwnerAuth } from "@/pages/turfOwner/TurfOwnerAuth";
+import { EditTurfWrapper } from "@/pages/turfOwner/components/EditTurfWrapper";
 import { OwnerProfile } from "@/pages/turfOwner/components/OwnerProfile";
+import { RequestProfileUpdate } from "@/pages/turfOwner/components/RequestUpdatePage";
+import { RetryUpdateTurfWrapper } from "@/pages/turfOwner/components/RetryUpdateTurfWrapper";
 import TurfOwnerHomePage from "@/pages/turfOwner/components/TurfOwnerHomePage";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
@@ -13,6 +17,18 @@ const TurfOwnerRoutes = () => {
   return (
     <Routes>
       <Route index element={<NoAuthRoute element={<TurfOwnerAuth />} />} />
+      <Route
+        path="/request-updatedpage"
+        element={
+          <RequestProfileUpdate
+            onSave={(data) => {
+              console.log("profile saved", data);
+            }}
+          />
+        }
+      />
+        <Route path="/retryedit-turf/:id" element={<RetryUpdateTurfWrapper />} />
+
       <Route
         element={
           <ProtectedRoute
@@ -33,6 +49,8 @@ const TurfOwnerRoutes = () => {
           }
         ></Route>
         <Route path="/add-turf" element={<RegisterTurfPage />}></Route>
+        <Route path="/my-turf" element={<MyTurfPage />}></Route>
+        <Route path="/edit-turf/:id" element={<EditTurfWrapper />} />
       </Route>
 
       <Route

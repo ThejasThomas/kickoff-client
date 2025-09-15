@@ -18,7 +18,7 @@ import { useToaster } from "@/hooks/ui/useToaster";
 import type { ITurfOwner } from "@/types/User";
 import * as Yup from "yup";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
-import { getTurfOwnerProfile, updateTurfOwnerProfile, retryAdminApproval } from "@/services/TurfOwner/turfOwnerService";
+import { getTurfOwnerProfile, retryAdminApproval, requestupdateProfile } from "@/services/TurfOwner/turfOwnerService";
 
 interface TurfOwnerProfileProps {
   initialData?: Partial<ITurfOwner>;
@@ -34,7 +34,7 @@ interface ProfileFormData extends ITurfOwner {
   pinCode?: string;
 }
 
-export const OwnerProfile = ({ 
+export const RequestProfileUpdate = ({ 
   initialData, 
   onSave, 
   isLoading = false 
@@ -125,7 +125,7 @@ export const OwnerProfile = ({
           ...values,
           profileImage: finalImage || undefined,
         };
-        const response = await updateTurfOwnerProfile(ownerData);
+        const response = await requestupdateProfile(ownerData);
         onSave(response.user);
         setIsEditing(false);
         successToast("Profile updated successfully!");

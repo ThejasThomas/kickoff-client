@@ -1,7 +1,7 @@
 import { axiosInstance } from "@/api/private_axios";
 import { OWNER_ROUTE } from "@/constants/owner_route";
-import type { IAuthResponse, ITurfOwnerResponse, ITurfResponse } from "@/types/Response";
-import type { ITurfBase } from "@/types/Turf";
+import type { GetMyTurfsParams, IAuthResponse, ITurffResponse, ITurfOwnerResponse, ITurfResponse } from "@/types/Response";
+import type { ITurf, ITurfBase, NewTurf } from "@/types/Turf";
 import type { ITurfOwner, turfOwnerStatus } from "@/types/User";
 
 export const refreshTurfOwnerSession = async (): Promise<IAuthResponse> =>{
@@ -17,6 +17,22 @@ export const getTurfOwnerProfile = async (): Promise<ITurfOwner> =>{
     )
     return response.data;
 }
+
+export const getTurfById = async (id: string): Promise<ITurf> => {
+  console.log('iddddddd',id)
+  const response = await axiosInstance.get<{success: boolean;turf:ITurf}>(
+    `${OWNER_ROUTE.GETURFBYID}/${id}`
+  )
+  return response.data.turf;
+}
+export const updateTurf = async(id: string, data: NewTurf &{isRetryUpdata?:boolean;retryToken?:string}): Promise<ITurf> => {
+  console.log('heyyy broooooooo',id)
+  const response = await axiosInstance.put<ITurf>(
+    `${OWNER_ROUTE.UPDATE_TURF}/${id}`,
+    data
+  );
+  return response.data;
+};
 export const addTurf =async (turfData:Partial<ITurfBase>) : Promise <ITurfResponse> => {
     const response = await axiosInstance.post<ITurfResponse> (
         OWNER_ROUTE.ADD_TURF,
@@ -33,6 +49,26 @@ export const updateTurfOwnerProfile = async (
     OWNER_ROUTE.UPDATE_PROFILE,
     turfData
   )
+  return response.data
+}
+
+export const requestupdateProfile = async (
+  turfData: ITurfOwner
+): Promise<ITurfOwnerResponse> => {
+  const response = await axiosInstance.put<ITurfOwnerResponse>(
+    OWNER_ROUTE.REQUESTUPDATEPROFILE,
+    turfData
+  )
+  return response.data
+}
+
+export const getMyTurfs = async (
+  params?: GetMyTurfsParams
+): Promise<ITurffResponse> => {
+  const response = await axiosInstance.get<ITurffResponse>(
+    OWNER_ROUTE.GET_MY_TURF,
+    { params } 
+  );
   return response.data
 }
 

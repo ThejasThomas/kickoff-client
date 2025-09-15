@@ -33,7 +33,7 @@ export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = ({
     logoutReq(undefined, {
       onSuccess: (data) => {
         dispatch(turfOwnerLogout());
-        navigate('/');
+        navigate('/turfowner');
         successToast(data.message);
       }
     });

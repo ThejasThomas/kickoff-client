@@ -326,7 +326,7 @@ export default function TurfManagement() {
     }
   };
 
-  const handleStatusChange = async (turfId: string, newStatus: TurfStatus) => {
+  const handleStatusChange = async (turfId: string, newStatus: TurfStatus,ownerId:string,reason?:string) => {
     if (newStatus === "all") return;
 
     try {
@@ -334,7 +334,9 @@ export default function TurfManagement() {
       const res = await adminService.updateEntityStatus(
         "turf",
         turfId,
-        newStatus
+        newStatus,
+        reason||undefined,
+        ownerId
       );
 
       if (res.success) {
@@ -378,24 +380,29 @@ export default function TurfManagement() {
     setConfirmationState((prev) => ({ ...prev, isOpen: false }));
   };
 
-  // Action confirmation handlers
   const handleApproveClick = (turf: ITurf) => {
+    console.log('ownerrrIdddd',turf.ownerId)
     if (!turf._id) return;
     openConfirmationModal(
       "Approve Turf",
       "Are you sure you want to approve this turf? This will make it visible to all users and allow bookings.",
       "success",
       "Approve",
-      () => handleStatusChange(turf._id!, "approved"),
+      () => handleStatusChange(turf._id!, "approved",turf.ownerId||"","Turf has been approved"),
       turf.turfName,
       <Check size={24} />
     );
   };
 
+
+    const [selectedOwnerId,setSelectedOwnerId] =useState<string | null>(null)
+
+
   const handleRejectClick = (turf: ITurf) => {
     if (!turf._id) return;
     setSelectedTurfId(turf._id);
     setSelectedTurfName(turf.turfName);
+    setSelectedOwnerId(turf.ownerId || null);
     setShowRejectModal(true);
   };
 
@@ -406,7 +413,7 @@ export default function TurfManagement() {
       "Are you sure you want to block this turf? This will immediately hide it from users and prevent new bookings.",
       "warning",
       "Block",
-      () => handleStatusChange(turf._id!, "blocked"),
+      () => handleStatusChange(turf._id!, "blocked",turf.ownerId||"","Turf has been blocked"),
       turf.turfName,
       <Ban size={24} />
     );
@@ -419,7 +426,7 @@ export default function TurfManagement() {
       "Are you sure you want to unblock this turf? This will approve it and make it visible to users again.",
       "info",
       "Unblock",
-      () => handleStatusChange(turf._id!, "approved"),
+      () => handleStatusChange(turf._id!, "approved",turf.ownerId||"","Turf has been unblocked"),
       turf.turfName,
       <RotateCcw size={24} />
     );
@@ -434,7 +441,8 @@ export default function TurfManagement() {
         "turf",
         selectedTurfId,
         "rejected",
-        reason
+        reason,
+        selectedOwnerId ||undefined
       );
 
       if (res.success) {

@@ -228,6 +228,8 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
     "Incomplete turf details",
     "Invalid location/address",
     "Suspicious or fraudulent listing",
+    "Pricing concerns",
+  "Safety compliance issues"
   ];
   const [showImagesModal, setShowImagesModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -245,6 +247,7 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
 
       const turfs: ITurf[] = response.turfs.map((turf: any) => ({
         _id: turf._id,
+        ownerId:turf.ownerId,
         turfName: turf.turfName || "Unknown Turf",
         description: turf.description || "",
         location: {
@@ -295,12 +298,15 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
     }
   };
 
-  const handleStatusChange = async (turfId: string, newStatus: turfStatus) => {
+  const handleStatusChange = async (turfId: string, newStatus: turfStatus,ownerId:string,reason?:string) => {
+    console.log('ownerrrrIdddddddds',ownerId)
     try {
       const res = await adminService.updateEntityStatus(
         "turf",
         turfId,
-        newStatus
+        newStatus,
+        reason,
+        ownerId
       );
 
       if (res.success) {
@@ -315,11 +321,16 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
     }
   };
 
-  const handleRejectClick = (turfId: string) => {
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string | undefined>(undefined);
+
+
+  const handleRejectClick = (turfId: string,ownerId?:string) => {
     setSelectedTurfId(turfId);
+    setSelectedOwnerId(ownerId)
     setShowRejectModal(true);
   };
 
+  
   const handleRejectSubmit = async (reason: string) => {
     if (!selectedTurfId) return;
 
@@ -329,13 +340,15 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
         "turf",
         selectedTurfId,
         "rejected",
-        reason
+        reason,
+        selectedOwnerId
       );
 
       if (res.success) {
         toast.success("Turf rejected successfully");
         setShowRejectModal(false);
         setSelectedTurfId(null);
+        setSelectedOwnerId(undefined);
         setRefreshKey((prev) => prev + 1);
       } else {
         toast.error(`Failed to reject turf: ${res.message}`);
@@ -351,12 +364,17 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
   const closeRejectModal = () => {
     setShowRejectModal(false);
     setSelectedTurfId(null);
+    setSelectedOwnerId(undefined);
   };
   const handleViewAmenities = (amenities: string[], turfName: string) => {
     setSelectedAmenities(amenities);
     setSelectedTurfName(turfName);
     setShowAmenitiesModal(true);
   };
+  const handleRefresh = () => {
+  setRefreshKey((prev) => prev + 1);
+};
+
 
   const closeAmenitiesModal = () => {
     setShowAmenitiesModal(false);
@@ -470,7 +488,7 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
       label: "Approve",
       icon: <Check size={12} />,
       onClick: (turf) =>{ if(!turf._id) return;
-         handleStatusChange(turf._id, "approved")},
+         handleStatusChange(turf._id, "approved",turf.ownerId||"")},
       condition: (turf) => turf.status !== "approved",
       variant: "success",
       refreshAfter: true,
@@ -479,7 +497,7 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
       label: "Reject",
       icon: <X size={12} />,
       onClick: (turf) =>{ if(!turf._id) return;
-         handleRejectClick(turf._id)},
+         handleRejectClick(turf._id,turf.ownerId)},
       condition: (turf) => turf.status !== "rejected",
       variant: "danger",
       refreshAfter: true,
@@ -494,6 +512,7 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
         columns={columns}
         actions={actions}
         fetchData={fetchTurfs}
+        onRefresh={handleRefresh}
         searchPlaceholder="Search turfs.."
         itemsPerPage={5}
         enableSearch

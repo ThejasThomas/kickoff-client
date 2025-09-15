@@ -15,7 +15,6 @@ import {
   Settings,
   Trophy,
   Star,
-  Shield,
   Zap,
   X,
 } from "lucide-react"

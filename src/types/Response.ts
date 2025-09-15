@@ -37,3 +37,10 @@ export type ITurffResponse =  {
   totalPages:number;
   currentPage:number
 }
+export type GetMyTurfsParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: "active" | "inactive" | "approved" | "rejected" | "pending" | "blocked";
+};
+

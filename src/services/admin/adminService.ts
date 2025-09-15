@@ -87,10 +87,12 @@ export const adminService = {
   },
 
   updateEntityStatus: async (
-    entityType: "client" | "turfOwner"|"turf",
+    entityType: "client" | "turfOwner" | "turf",
     entityId: string,
     status: userStatus | turfOwnerStatus,
     reason?: string,
+    ownerId?: string,
+
     email?: string
   ): Promise<IAxiosResponse> => {
     try {
@@ -99,6 +101,7 @@ export const adminService = {
         entityId,
         status,
         reason,
+        ownerId,
         email,
       });
       return response.data;
