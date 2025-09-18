@@ -20,6 +20,9 @@ export interface ITurfBase {
   updatedAt?: Date;
   pricePerHour: string;
   courtType: string;
+  openingTime?:string;
+  closingTime?:string;
+  slotDuration?:number;
 }
 
 export interface TurfFormValues {}

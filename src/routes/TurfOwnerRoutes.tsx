@@ -1,8 +1,10 @@
 import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
 import TurfOwnerLayout from "@/components/layouts/TurfOwnerLayout";
+import AddSlotsPage from "@/pages/turfOwner/AddSlots";
 import MyTurfPage from "@/pages/turfOwner/MyTurfPage";
 import RegisterTurfPage from "@/pages/turfOwner/RegisterTurfPage";
+import GenerateSlotsPage from "@/pages/turfOwner/SlotBookingPage";
 import { TurfOwnerAuth } from "@/pages/turfOwner/TurfOwnerAuth";
 import { EditTurfWrapper } from "@/pages/turfOwner/components/EditTurfWrapper";
 import { OwnerProfile } from "@/pages/turfOwner/components/OwnerProfile";
@@ -50,6 +52,8 @@ const TurfOwnerRoutes = () => {
         ></Route>
         <Route path="/add-turf" element={<RegisterTurfPage />}></Route>
         <Route path="/my-turf" element={<MyTurfPage />}></Route>
+        <Route path="/add-slots" element={<AddSlotsPage/>}></Route>
+        <Route path="/generate-slots/:id" element={<GenerateSlotsPage/>}></Route>
         <Route path="/edit-turf/:id" element={<EditTurfWrapper />} />
       </Route>
 

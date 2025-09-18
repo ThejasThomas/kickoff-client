@@ -11,5 +11,6 @@ export const OWNER_ROUTE = {
   UPDATE_PROFILE: `${BASE_URL.OWNER}/update-profile`,
   REQUESTUPDATEPROFILE:`${BASE_URL.OWNER}/request-update-profile`,
   RETRY_APPROVAL: `${BASE_URL.OWNER}/retry-approval`,
+  GENERATESLOTS:`${BASE_URL.OWNER}/generateSlots`,
   LOGOUT: `${BASE_URL.OWNER}/logout`,
 };

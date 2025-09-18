@@ -11,14 +11,13 @@ import {
   Mail,
   Phone,
   MapPin,
-  Home,
-  RefreshCw
+  Home
 } from 'lucide-react';
 import { useToaster } from "@/hooks/ui/useToaster";
 import type { ITurfOwner } from "@/types/User";
 import * as Yup from "yup";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
-import { getTurfOwnerProfile, updateTurfOwnerProfile, retryAdminApproval } from "@/services/TurfOwner/turfOwnerService";
+import { getTurfOwnerProfile, updateTurfOwnerProfile } from "@/services/TurfOwner/turfOwnerService";
 
 interface TurfOwnerProfileProps {
   initialData?: Partial<ITurfOwner>;
@@ -40,7 +39,6 @@ export const OwnerProfile = ({
   isLoading = false 
 }: TurfOwnerProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [isRetryLoading, setIsRetryLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { successToast, errorToast } = useToaster();
   const { images, handleImageUpload, removeImage } = useImageUploader("turfOwners", 1);
@@ -143,19 +141,6 @@ export const OwnerProfile = ({
     if (e.target.files && e.target.files[0]) {
       handleImageUpload(e.target.files);
       formik.setFieldValue("profileImage", e.target.files[0]);
-    }
-  };
-
-  const handleRetryApproval = async () => {
-    try {
-      setIsRetryLoading(true);
-      const response = await retryAdminApproval(formik.values.userId);
-      setProfileData({ ...profileData, status: response.status });
-      successToast("Approval request sent successfully!");
-    } catch (err) {
-      errorToast("Failed to send approval request");
-    } finally {
-      setIsRetryLoading(false);
     }
   };
 
@@ -448,7 +433,7 @@ export const OwnerProfile = ({
             animate={{ scale: 1, opacity: 1 }}
             className="flex justify-end gap-4"
           >
-            {isEditing ? (
+            {isEditing && (
               <>
                 <motion.button
                   type="button"
@@ -478,24 +463,6 @@ export const OwnerProfile = ({
                   Save Profile
                 </motion.button>
               </>
-            ) : (
-              isProfileComplete && formik.values.status !== 'approved' && (
-                <motion.button
-                  type="button"
-                  disabled={isRetryLoading}
-                  onClick={handleRetryApproval}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {isRetryLoading ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <RefreshCw className="w-4 h-4" />
-                  )}
-                  {/* Retry Admin Approval */}
-                </motion.button>
-              )
             )}
           </motion.div>
         </form>

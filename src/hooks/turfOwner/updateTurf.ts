@@ -5,7 +5,7 @@ import { updateTurf } from "@/services/TurfOwner/turfOwnerService";
 
 interface UpdateTurfParams {
   id: string;
-  data: NewTurf;
+  data: Partial<NewTurf>;
 }
 
 export const useUpdateTurf = () => {

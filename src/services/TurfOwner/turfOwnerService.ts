@@ -1,6 +1,7 @@
 import { axiosInstance } from "@/api/private_axios";
 import { OWNER_ROUTE } from "@/constants/owner_route";
-import type { GetMyTurfsParams, IAuthResponse, ITurffResponse, ITurfOwnerResponse, ITurfResponse } from "@/types/Response";
+import type {  GetMyTurfsParams, IAuthResponse, IGenerateSlotsResponse, ITurffResponse, ITurfOwnerResponse, ITurfResponse } from "@/types/Response";
+import type { GenerateSlotsData } from "@/types/Slots";
 import type { ITurf, ITurfBase, NewTurf } from "@/types/Turf";
 import type { ITurfOwner, turfOwnerStatus } from "@/types/User";
 
@@ -25,7 +26,7 @@ export const getTurfById = async (id: string): Promise<ITurf> => {
   )
   return response.data.turf;
 }
-export const updateTurf = async(id: string, data: NewTurf &{isRetryUpdata?:boolean;retryToken?:string}): Promise<ITurf> => {
+export const updateTurf = async(id: string, data: Partial<NewTurf &{isRetryUpdata?:boolean;retryToken?:string}>): Promise<ITurf> => {
   console.log('heyyy broooooooo',id)
   const response = await axiosInstance.put<ITurf>(
     `${OWNER_ROUTE.UPDATE_TURF}/${id}`,
@@ -69,6 +70,11 @@ export const getMyTurfs = async (
     OWNER_ROUTE.GET_MY_TURF,
     { params } 
   );
+  return response.data
+}
+
+export const generateSlots =async (data:GenerateSlotsData):Promise<IGenerateSlotsResponse> =>{
+  const response =await axiosInstance.post<IGenerateSlotsResponse>(OWNER_ROUTE.GENERATESLOTS,data)
   return response.data
 }
 

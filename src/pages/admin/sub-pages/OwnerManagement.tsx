@@ -164,14 +164,14 @@ export default function OwnerManagement() {
     {
       label: "Reject",
       onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "rejected"),
-      condition: (owner: OwnerData) => owner.status !== "rejected",
+      condition: (owner: OwnerData) => owner.status !== "rejected"&& owner.status !=="approved",
       variant: "warning",
       refreshAfter: false,
     },
     {
       label: "Block",
       onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "blocked"),
-      condition: (owner: OwnerData) => owner.status !== "blocked",
+      condition: (owner: OwnerData) => owner.status !== "blocked" && owner.status==="approved",
       variant: "warning",
       refreshAfter: false,
     },
