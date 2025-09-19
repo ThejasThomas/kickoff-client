@@ -1,4 +1,5 @@
 export interface ISlot {
+    id:string,
     turfId:string,
     ownerId:string,
     date:string,

@@ -3,6 +3,7 @@ import ResetPassword from "@/components/auth/ResetPassword";
 import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ClientAuth } from "@/pages/client/ClientAuth";
 import ClientHomePage from "@/pages/client/ClientHomePage";
+import TurfOverview from "@/pages/client/components/TurfOverview";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";
@@ -13,6 +14,7 @@ const ClientRoutes = () => {
       <Route index element={<NoAuthRoute element={<ClientAuth />} />} />
       <Route path="/" element={<ProtectedRoute allowedRoles={["client"]} element={<ClientLayout/>}  />}>
       <Route path="home" element={<ClientHomePage/>}/>
+      <Route path="turfoverview/:id" element={<TurfOverview/>}/>
       
       </Route>
       

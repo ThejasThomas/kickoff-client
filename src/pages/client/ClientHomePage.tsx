@@ -1,4 +1,3 @@
-"use client"
 
 import { getTurfs } from "@/services/client/clientService"
 import type { ITurffResponse } from "@/types/Response"
@@ -11,15 +10,13 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Heart,
-  Share2,
-  Calendar,
-  Zap,
-  Target,
   Shield,
+  Target,
   Sparkles,
   Play,
   Trophy,
+  Eye,
+  Zap,
 } from "lucide-react"
 
 const ClientHomePage: React.FC = () => {
@@ -29,8 +26,6 @@ const ClientHomePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState<string>("")
-  const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null)
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState<boolean>(false)
 
   const pageSize = 10
 
@@ -73,11 +68,6 @@ const ClientHomePage: React.FC = () => {
     }
   }
 
-  const handleBookNow = (turf: ITurf) => {
-    setSelectedTurf(turf)
-    setIsBookingModalOpen(true)
-  }
-
   const filteredTurfs = turfs.filter(
     (turf) =>
       turf.turfName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -87,7 +77,6 @@ const ClientHomePage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-green-900 flex items-center justify-center relative overflow-hidden">
-        {/* Animated Background */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -124,18 +113,12 @@ const ClientHomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-green-900">
-      {/* Hero Section */}
       <div className="relative overflow-hidden min-h-screen flex items-center">
-        {/* Dynamic Background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-emerald-900/40 to-green-900/60"></div>
-
-          {/* Animated Orbs */}
           <div className="absolute top-20 left-20 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 right-20 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-green-300/5 rounded-full blur-2xl animate-pulse delay-500"></div>
-
-          {/* Floating Elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(12)].map((_, i) => (
               <motion.div
@@ -167,7 +150,6 @@ const ClientHomePage: React.FC = () => {
             transition={{ duration: 1 }}
             className="text-center"
           >
-            {/* Main Heading */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -185,7 +167,6 @@ const ClientHomePage: React.FC = () => {
               </p>
             </motion.div>
 
-            {/* Premium Search Bar */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -214,7 +195,6 @@ const ClientHomePage: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Feature Highlights */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -245,9 +225,7 @@ const ClientHomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 -mt-20">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -260,7 +238,6 @@ const ClientHomePage: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Turfs Grid */}
         {filteredTurfs.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
             <div className="w-40 h-40 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8">
@@ -279,10 +256,8 @@ const ClientHomePage: React.FC = () => {
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-700 overflow-hidden border border-white/10 hover:border-green-400/40"
               >
-                {/* Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-green-400/0 via-green-400/10 to-emerald-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
-                {/* Image Container */}
                 <div className="relative overflow-hidden rounded-t-3xl">
                   <img
                     src={
@@ -295,25 +270,18 @@ const ClientHomePage: React.FC = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
 
-                  {/* Action Buttons
                   <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors border border-white/30"
-                    >
-                      <Heart className="w-6 h-6 text-white" />
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}f
-                      className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors border border-white/30"
-                    >
-                      <Share2 className="w-6 h-6 text-white" />
-                    </motion.button>
-                  </div> */}
+                    <a href={`/turfoverview/${turf._id}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors border border-white/30"
+                      >
+                        <Eye className="w-6 h-6 text-white" />
+                      </motion.button>
+                    </a>
+                  </div>
 
-                  {/* Quality Badge */}
                   <div className="absolute top-6 left-6">
                     <span className="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-black rounded-full shadow-xl backdrop-blur-sm border border-white/30 flex items-center gap-2">
                       <Play className="w-4 h-4" />
@@ -322,7 +290,6 @@ const ClientHomePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="relative p-8">
                   <div className="mb-6">
                     <h3 className="text-2xl font-bold text-white group-hover:text-green-400 transition-colors leading-tight mb-4">
@@ -334,21 +301,11 @@ const ClientHomePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Price and Book Button */}
                   <div className="flex items-center justify-between">
                     <div className="text-left">
                       <span className="text-4xl font-black text-green-400">₹{turf.pricePerHour ?? 0}</span>
                       <span className="text-green-200 text-lg font-medium">/hour</span>
                     </div>
-                    <motion.button
-                      onClick={() => handleBookNow(turf)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-black rounded-2xl transition-all duration-300 flex items-center gap-3 shadow-xl hover:shadow-2xl border border-green-400/30"
-                    >
-                      <Calendar className="w-6 h-6" />
-                      Book Now
-                    </motion.button>
                   </div>
                 </div>
               </motion.div>
@@ -356,7 +313,6 @@ const ClientHomePage: React.FC = () => {
           </div>
         )}
 
-        {/* Enhanced Pagination */}
         {totalPages > 1 && (
           <motion.div
             initial={{ opacity: 0 }}

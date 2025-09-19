@@ -1,6 +1,8 @@
 import { axiosInstance } from "@/api/private_axios";
 import { CLIENT_ROUTE } from "@/constants/client_route";
-import type { IAuthResponse, ITurffResponse } from "@/types/Response";
+import type { IAuthResponse, ITurffResponse, SlotResponse } from "@/types/Response";
+import type { ISlot } from "@/types/Slot";
+import type { ITurf } from "@/types/Turf";
 import type { GetTurfsParams, IClient } from "@/types/User";
 
 export type IUpdateClientData = Pick<
@@ -12,6 +14,19 @@ export const refreshClientSession = async (): Promise<IAuthResponse> => {
   const response = await axiosInstance.get<IAuthResponse>(CLIENT_ROUTE.REFRESH_SESSION);
   return response.data;
 };
+export const getTurfById = async (id: string): Promise<ITurf> => {
+  console.log('iddddddd',id)
+  const response = await axiosInstance.get<{success: boolean;turf:ITurf}>(
+    `${CLIENT_ROUTE.GETURFBYID}/${id}`
+  )
+  return response.data.turf;
+}
+export const getSlots = async (turfId:string,date:string):Promise<ISlot[]> =>{
+  const response = await axiosInstance.get<SlotResponse>(
+    `${CLIENT_ROUTE.GETSLOTS}/${turfId}?date=${date}`
+  )
+  return response.data.slots
+}
 export const getTurfs = async (
   params: GetTurfsParams = {}
 ): Promise<ITurffResponse> => {
