@@ -8,7 +8,6 @@ import {
   ChevronRight,
   ArrowRight,
   Calendar,
-  Users,
   CheckCircle,
   XCircle,
 } from "lucide-react"
@@ -59,8 +58,8 @@ const TurfOverview: React.FC = () => {
 
       try {
         const slotData = await getSlots(id, selectedDate)
+        console.log('SloootDaaaataaa',slotData)
         
-        // Generate unique IDs for each slot since backend doesn't provide them
         const slotsWithUniqueIds = Array.isArray(slotData) 
           ? slotData.map((slot, index) => ({
               ...slot,
@@ -90,9 +89,9 @@ const TurfOverview: React.FC = () => {
     setSelectedSlots((prev) => {
       const isCurrentlySelected = prev.includes(slotId)
       if (isCurrentlySelected) {
-        return prev.filter(id => id !== slotId) // Remove from selection
+        return prev.filter(id => id !== slotId)
       } else {
-        return [...prev, slotId] // Add to selection (keep existing selections)
+        return [...prev, slotId]
       }
     })
   }
@@ -104,13 +103,48 @@ const TurfOverview: React.FC = () => {
     }, 0)
   }
 
-  const handleContinue = () => {
-    if (selectedSlots.length > 0) {
-      navigate(`/booking/${id}?slots=${selectedSlots.join(",")}`)
-    } else {
-      navigate(`/booking/${id}`)
+ const handleContinue = () => {
+    if (selectedSlots.length === 0) {
+      return;
     }
-  }
+
+    // Get selected slot details
+    const selectedSlotDetails = selectedSlots.map(slotId => {
+      const slot = slots.find(s => s.id === slotId);
+      return {
+        id: slotId,
+        startTime: slot?.startTime,
+        endTime: slot?.endTime,
+        price: slot?.price,
+        duration: slot?.duration
+      };
+    });
+
+    const formattedSlots = selectedSlotDetails.map(slot => 
+      `${slot.startTime} - ${slot.endTime}`
+    );
+
+    const bookingData = {
+      turfId: id,
+      turfName: turf?.turfName || '',
+      location: `${turf?.location?.address}, ${turf?.location?.city}` || '',
+      date: new Date(selectedDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }),
+      slots: formattedSlots,
+      selectedSlotIds: selectedSlots,
+      slotDetails: selectedSlotDetails,
+      totalAmount: getTotalPrice(),
+      contactNumber: turf?.contactNumber || '',
+      courtType: turf?.courtType || ''
+    };
+
+    navigate('/paymentpage', { 
+      state: { bookingData } 
+    });
+  };
 
   if (loading) {
     return (
@@ -353,7 +387,7 @@ const TurfOverview: React.FC = () => {
                               {slot.startTime} - {slot.endTime}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {slot.duration} minutes • ₹{slot.price}
+                              {slot.duration} hour • ₹{slot.price}
                             </p>
                           </div>
                           <div className="flex items-center">
@@ -382,6 +416,9 @@ const TurfOverview: React.FC = () => {
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-card-foreground font-medium">
                       Total ({selectedSlots.length} slot{selectedSlots.length > 1 ? "s" : ""})
+                    </span>
+                    <span className="">
+                      
                     </span>
                     <span className="text-2xl font-bold text-card-foreground">₹{getTotalPrice()}</span>
                   </div>

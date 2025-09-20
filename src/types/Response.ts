@@ -2,6 +2,7 @@ import { boolean } from "yup";
 import type { ISlot } from "./Slot";
 import type { ITurf, ITurfBase } from "./Turf";
 import type { IAdmin, IClient, ITurfOwner, UserDTO } from "./User";
+import type { IBookings } from "./Booking_type";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -60,5 +61,11 @@ export interface IGenerateSlotsResponse {
 export  interface SlotResponse {
   success:boolean;
   slots:ISlot[]
+}
+
+export interface IBookResponse {
+  success:boolean,
+  message:string,
+  bookings:IBookings
 }
 

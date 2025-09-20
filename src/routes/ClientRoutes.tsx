@@ -4,6 +4,7 @@ import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ClientAuth } from "@/pages/client/ClientAuth";
 import ClientHomePage from "@/pages/client/ClientHomePage";
 import TurfOverview from "@/pages/client/components/TurfOverview";
+import TurfPaymentPage from "@/pages/client/components/TurfPaymentPage";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";
@@ -15,6 +16,7 @@ const ClientRoutes = () => {
       <Route path="/" element={<ProtectedRoute allowedRoles={["client"]} element={<ClientLayout/>}  />}>
       <Route path="home" element={<ClientHomePage/>}/>
       <Route path="turfoverview/:id" element={<TurfOverview/>}/>
+      <Route path="paymentpage" element={<TurfPaymentPage/>}/>
       
       </Route>
       

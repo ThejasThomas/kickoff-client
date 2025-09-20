@@ -1,6 +1,7 @@
 import { axiosInstance } from "@/api/private_axios";
 import { CLIENT_ROUTE } from "@/constants/client_route";
-import type { IAuthResponse, ITurffResponse, SlotResponse } from "@/types/Response";
+import type { IBookings } from "@/types/Booking_type";
+import type { IAuthResponse, IBookResponse, ITurffResponse, SlotResponse } from "@/types/Response";
 import type { ISlot } from "@/types/Slot";
 import type { ITurf } from "@/types/Turf";
 import type { GetTurfsParams, IClient } from "@/types/User";
@@ -26,6 +27,14 @@ export const getSlots = async (turfId:string,date:string):Promise<ISlot[]> =>{
     `${CLIENT_ROUTE.GETSLOTS}/${turfId}?date=${date}`
   )
   return response.data.slots
+}
+export const bookSlots =async (bookData:Partial<IBookings>):Promise<IBookResponse> =>{
+  console.log('bookiokkkktheee sloottt',bookData)
+   const response= await axiosInstance.post<IBookResponse> (
+    CLIENT_ROUTE.BOOKSLOT,
+    bookData
+   )
+   return response.data
 }
 export const getTurfs = async (
   params: GetTurfsParams = {}
