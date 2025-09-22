@@ -66,6 +66,6 @@ export  interface SlotResponse {
 export interface IBookResponse {
   success:boolean,
   message:string,
-  bookings:IBookings
+  bookings:IBookings[]
 }
 

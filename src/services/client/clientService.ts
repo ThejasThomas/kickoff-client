@@ -57,3 +57,29 @@ export const getTurfs = async (
     throw error;
   }
 };
+
+export const getTurfsByLocation =async (
+  latitude:number,
+  longitude:number,
+  params:GetTurfsParams ={},
+) :Promise<ITurffResponse> =>{
+  try{
+    const response =await axiosInstance.get<ITurffResponse>(
+      CLIENT_ROUTE.GETNEARBYTURF,
+      {
+        params: {
+          params:params.page ||1,
+          limit:params.limit||10,
+          search:params.search ||"",
+          status:params.status || "",
+          latitude:latitude,
+          longitude:longitude
+        },
+      }
+    )
+    return response.data
+  } catch(error) {
+    console.error('Error in getTurfs:',error)
+    throw error;
+  }
+}

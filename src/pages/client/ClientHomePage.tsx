@@ -1,223 +1,241 @@
+"use client"
 
-import { getTurfs } from "@/services/client/clientService"
-import type { ITurffResponse } from "@/types/Response"
-import type { ITurf } from "@/types/Turf"
 import type React from "react"
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
-  MapPin,
   Search,
-  ChevronLeft,
+  MapPin,
+  AlertCircle,
+  Loader2,
   ChevronRight,
+  Clock,
   Shield,
-  Target,
-  Sparkles,
-  Play,
-  Trophy,
-  Eye,
   Zap,
+  ArrowRight,
+  Filter,
+  Grid3X3,
+  Map,
+  CheckCircle,
 } from "lucide-react"
+import LocationModal from "./components/LocationModal"
+import TurfCard from "./components/TurfCard"
+import { useGeolocation } from "@/hooks/common/useGeoLocation"
+import { getTurfsByLocation } from "@/services/client/clientService"
+import { useToaster } from "@/hooks/ui/useToaster"
+import type { ITurf } from "@/types/Turf"
+import type { ITurffResponse } from "@/types/Response"
+import { useNavigate } from "react-router-dom"
 
-const ClientHomePage: React.FC = () => {
+interface HomePageProps {
+  onTurfSelect: (turfId: string) => void
+}
+
+const HomePage: React.FC<HomePageProps> = ({ onTurfSelect }) => {
+  const [showLocationModal, setShowLocationModal] = useState(false)
   const [turfs, setTurfs] = useState<ITurf[]>([])
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [totalPages, setTotalPages] = useState<number>(1)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState<string>("")
-
-  const pageSize = 10
+  const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const { successToast, errorToast } = useToaster()
+  const navigate = useNavigate()
+  const { latitude, longitude, error, loading: locationLoading, getCurrentPosition } = useGeolocation()
 
   useEffect(() => {
-    console.log("✅ ClientHomePage mounted")
+    const hasShownLocationModal = localStorage.getItem("hasShownLocationModal")
+    if (!hasShownLocationModal) {
+      setShowLocationModal(true)
+      localStorage.setItem("hasShownLocationModal", "true")
+    }
   }, [])
 
   useEffect(() => {
-    const fetchTurfs = async () => {
-      try {
-        setLoading(true)
-        console.log("Fetching turfs with params:", { page: currentPage, limit: pageSize, status: "approved" })
-        const response: ITurffResponse = await getTurfs({
-          page: currentPage,
-          limit: pageSize,
-          status: "approved",
-        })
-        console.log("API response:", response)
-        if (response.success) {
-          setTurfs(response.turfs || [])
-          setTotalPages(response.totalPages || 1)
-          setCurrentPage(response.currentPage || 1)
-        } else {
-          setError(response.message || "Failed to fetch turfs.")
-        }
-      } catch (err) {
-        console.error("Error fetching turfs:", err)
-        setError("An error occurred while fetching turfs. Please try again.")
-      } finally {
-        setLoading(false)
-      }
+    if (turfs.length > 0) {
+      localStorage.setItem("turfs", JSON.stringify(turfs))
     }
+  }, [turfs])
 
-    fetchTurfs()
-  }, [currentPage])
+  useEffect(() => {
+    const storedTurfs = localStorage.getItem("turfs")
+    if (storedTurfs) {
+      setTurfs(JSON.parse(storedTurfs))
+    }
+  }, [])
 
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage)
+  useEffect(() => {
+    if (latitude && longitude) {
+      fetchNearbyTurfs({
+        onSuccess: (data) => {
+          successToast("Nearby turfs loaded successfully")
+          setTurfs(data.turfs)
+          setShowLocationModal(false)
+        },
+        onError: (error) => {
+          errorToast(error.response?.data?.message || "Failed to fetch the nearby turfs")
+        },
+      })
+    }
+  }, [latitude, longitude])
+
+  const fetchNearbyTurfs = async ({
+    onSuccess,
+    onError,
+  }: {
+    onSuccess: (data: ITurffResponse) => void
+    onError: (error: any) => void
+  }) => {
+    if (!latitude || !longitude) return
+
+    setLoading(true)
+    try {
+      const response = await getTurfsByLocation(latitude, longitude, {
+        search: searchQuery,
+        page: 1,
+        limit: 10,
+      })
+      console.log("turfff", response)
+      onSuccess(response)
+    } catch (err: any) {
+      console.error("Error fetching turfs:", err)
+      onError(err)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const filteredTurfs = turfs.filter(
-    (turf) =>
-      turf.turfName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      turf.location?.address?.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-green-900 flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-
-        <motion.div className="text-center relative z-10">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-            className="w-20 h-20 border-4 border-green-400 border-t-transparent rounded-full mx-auto mb-6"
-          />
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <h2 className="text-2xl font-bold text-white mb-2">Loading Turfs</h2>
-            <p className="text-green-200">Please wait...</p>
-          </motion.div>
-        </motion.div>
-      </div>
-    )
+  const handleViewDetails = (turfId: string) => {
+    navigate(`/turfoverview/${turfId}`)
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-green-900 flex items-center justify-center">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-          <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Zap className="w-10 h-10 text-red-400" />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Something went wrong</h2>
-          <p className="text-red-400 text-lg">{error}</p>
-        </motion.div>
-      </div>
-    )
+  const handleLocationAccess = () => {
+    getCurrentPosition()
   }
+
+  const filteredTurfs = turfs.filter((turf) => {
+    const matchesSearch =
+      turf.turfName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      turf.location.city.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesSearch
+  })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-green-900">
-      <div className="relative overflow-hidden min-h-screen flex items-center">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-emerald-900/40 to-green-900/60"></div>
-          <div className="absolute top-20 left-20 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-green-300/5 rounded-full blur-2xl animate-pulse delay-500"></div>
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(12)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full opacity-30"
-                initial={{
-                  x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1200),
-                  y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 800),
-                }}
-                animate={{
-                  x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1200),
-                  y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 800),
-                }}
-                transition={{
-                  duration: Math.random() * 25 + 20,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  ease: "linear",
-                }}
-              />
-            ))}
-          </div>
+    <div className="min-h-screen bg-white">
+      {/* Modern Hero Section */}
+      <div className="relative bg-gradient-to-br from-gray-50 to-white overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%23000000' fillOpacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.6 }}
             className="text-center"
           >
+            {/* Brand Badge */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="mb-12"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-8 border border-emerald-100"
             >
-              <h1 className="text-7xl md:text-8xl font-black text-white mb-8 leading-tight tracking-tight">
-                KICKOFF
-                <span className="block bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                  ARENA
-                </span>
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              KICKOFF ARENA
+            </motion.div>
+
+            {/* Main Heading */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="mb-8"
+            >
+              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+                Find Your Perfect
+                <span className="block text-emerald-600">Football Turf</span>
               </h1>
-              <p className="text-2xl md:text-3xl text-green-100 mb-12 max-w-4xl mx-auto font-light leading-relaxed">
-                Book Premium Football Turfs Near You
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                Discover premium football turfs near you. Book instantly and play with confidence.
               </p>
             </motion.div>
 
+            {/* Modern Search Bar */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="max-w-3xl mx-auto relative mb-16"
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="max-w-2xl mx-auto mb-12"
             >
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
-                <div className="relative bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl">
-                  <Search className="absolute left-8 top-1/2 transform -translate-y-1/2 text-green-300 w-7 h-7" />
-                  <input
-                    type="text"
-                    placeholder="Search turfs by name or location..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-20 pr-8 py-6 bg-transparent text-white placeholder-green-200 focus:outline-none text-xl font-medium"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-2xl font-bold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg"
-                  >
-                    Search
-                  </motion.button>
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur-lg opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
+                <div className="relative bg-white rounded-2xl shadow-lg border border-gray-200 group-hover:border-emerald-200 transition-colors duration-300">
+                  <div className="flex items-center">
+                    <Search className="absolute left-6 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search turfs by name or location..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-14 pr-32 py-4 bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none text-lg"
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="absolute right-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors duration-200 flex items-center gap-2"
+                    >
+                      Search
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.button>
+                  </div>
                 </div>
               </div>
             </motion.div>
 
+            {/* Location Status */}
+            {latitude && longitude && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="flex items-center justify-center gap-2 text-gray-600 mb-12"
+              >
+                <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-emerald-600" />
+                </div>
+                <span className="font-medium">Showing turfs near your location</span>
+              </motion.div>
+            )}
+
+            {/* Feature Cards - Removed Dummy Data */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="flex flex-wrap justify-center gap-12 text-green-100"
+              transition={{ delay: 0.8, duration: 0.6 }}
+              className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
             >
               {[
-                { icon: Shield, text: "Verified Turfs" },
-                { icon: Target, text: "Easy Booking" },
-                { icon: Sparkles, text: "Quality Assured" },
-                { icon: Trophy, text: "Best Experience" },
+                { icon: Shield, label: "Verified Turfs", desc: "Quality Assured" },
+                { icon: Clock, label: "24/7 Booking", desc: "Always Available" },
+                { icon: CheckCircle, label: "Instant Booking", desc: "Quick & Easy" },
               ].map((feature, index) => (
                 <motion.div
-                  key={feature.text}
+                  key={feature.label}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                  className="flex items-center gap-3 group cursor-pointer"
+                  transition={{ delay: 1 + index * 0.1 }}
+                  className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full flex items-center justify-center group-hover:from-green-500/40 group-hover:to-emerald-500/40 transition-all duration-300">
-                    <feature.icon className="w-6 h-6 text-green-400" />
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mb-3">
+                    <feature.icon className="w-5 h-5 text-emerald-600" />
                   </div>
-                  <span className="font-semibold text-lg">{feature.text}</span>
+                  <div className="text-lg font-bold text-gray-900 mb-1">{feature.label}</div>
+                  <div className="text-sm text-gray-600">{feature.desc}</div>
                 </motion.div>
               ))}
             </motion.div>
@@ -225,146 +243,197 @@ const ClientHomePage: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 -mt-20">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-5xl md:text-6xl font-black text-white mb-6">Available Turfs</h2>
-          <p className="text-green-200 text-xl max-w-3xl mx-auto leading-relaxed">
-            Find and book the perfect turf for your next game
-          </p>
-        </motion.div>
-
-        {filteredTurfs.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
-            <div className="w-40 h-40 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8">
-              <Search className="w-20 h-20 text-green-400" />
+      {/* Quick Actions */}
+      <div className="bg-gray-50 border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+              <div className="flex items-center gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 hover:border-emerald-200 text-gray-700 hover:text-emerald-700 transition-colors duration-200"
+                >
+                  <Filter className="w-4 h-4" />
+                  Filters
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 hover:border-emerald-200 text-gray-700 hover:text-emerald-700 transition-colors duration-200"
+                >
+                  <Map className="w-4 h-4" />
+                  Map View
+                </motion.button>
+              </div>
             </div>
-            <h3 className="text-4xl font-bold text-white mb-4">No turfs found</h3>
-            <p className="text-green-200 text-xl">Try adjusting your search terms</p>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {filteredTurfs.map((turf, index) => (
-              <motion.div
-                key={turf._id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.1 }}
-                className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-700 overflow-hidden border border-white/10 hover:border-green-400/40"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400/0 via-green-400/10 to-emerald-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                <div className="relative overflow-hidden rounded-t-3xl">
-                  <img
-                    src={
-                      turf.images && turf.images.length > 0
-                        ? turf.images[0]
-                        : "/placeholder.svg?height=300&width=400&query=football turf field"
-                    }
-                    alt={turf.turfName}
-                    className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-
-                  <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <a href={`/turfoverview/${turf._id}`}>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors border border-white/30"
-                      >
-                        <Eye className="w-6 h-6 text-white" />
-                      </motion.button>
-                    </a>
-                  </div>
-
-                  <div className="absolute top-6 left-6">
-                    <span className="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-black rounded-full shadow-xl backdrop-blur-sm border border-white/30 flex items-center gap-2">
-                      <Play className="w-4 h-4" />
-                      AVAILABLE
-                    </span>
-                  </div>
-                </div>
-
-                <div className="relative p-8">
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-white group-hover:text-green-400 transition-colors leading-tight mb-4">
-                      {turf.turfName}
-                    </h3>
-                    <div className="flex items-center gap-3 text-green-200">
-                      <MapPin className="w-6 h-6 text-green-400" />
-                      <span className="font-medium">{turf.location?.address ?? "Location Available"}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="text-left">
-                      <span className="text-4xl font-black text-green-400">₹{turf.pricePerHour ?? 0}</span>
-                      <span className="text-green-200 text-lg font-medium">/hour</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+            <motion.button
+              onClick={() => navigate("/allturfdisplay")}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
+            >
+              View All Turfs
+              <ChevronRight className="w-4 h-4" />
+            </motion.button>
           </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Section Header */}
+        {!loading && filteredTurfs.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">Nearby Turfs</h2>
+                <p className="text-gray-600">{filteredTurfs.length} premium venues found near you</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="p-2 bg-white rounded-lg border border-gray-200 hover:border-emerald-200 text-gray-700 hover:text-emerald-700 transition-colors duration-200"
+                >
+                  <Grid3X3 className="w-5 h-5" />
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
         )}
 
-        {totalPages > 1 && (
+        {/* Loading State */}
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-center py-20"
+            >
+              <div className="text-center">
+                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <Loader2 className="w-6 h-6 text-emerald-600 animate-spin" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Finding Perfect Turfs</h3>
+                <p className="text-gray-600">Discovering amazing venues near you...</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Error State */}
+        <AnimatePresence>
+          {error && !loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center py-20"
+            >
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertCircle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Location Access Required</h3>
+              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                We need your location to show nearby football turfs. Please enable location access to continue.
+              </p>
+              <motion.button
+                onClick={() => setShowLocationModal(true)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
+              >
+                Enable Location Access
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Turfs Grid */}
+        <AnimatePresence>
+          {!loading && filteredTurfs.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {filteredTurfs.map((turf, index) => (
+                <motion.div
+                  key={turf._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  whileHover={{ y: -4 }}
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300"
+                >
+                  <TurfCard turf={turf} onSelect={handleViewDetails} index={index} />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* No Results */}
+        <AnimatePresence>
+          {!loading && filteredTurfs.length === 0 && turfs.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center py-20"
+            >
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">No Turfs Found</h3>
+              <p className="text-gray-600 max-w-md mx-auto">
+                Try adjusting your search criteria or check back later for new venues.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Show More Section */}
+        {!loading && filteredTurfs.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex justify-center items-center mt-20 gap-4"
+            transition={{ delay: 0.6 }}
+            className="text-center mt-12 pt-8 border-t border-gray-200"
           >
             <motion.button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300 border border-white/10 hover:border-green-400/40"
+              onClick={() => navigate("/allturfdisplay")}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex items-center gap-3 bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-xl font-medium transition-colors duration-200"
             >
-              <ChevronLeft className="w-7 h-7 text-green-400" />
-            </motion.button>
-
-            <div className="flex items-center gap-3">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const pageNum = i + 1
-                return (
-                  <motion.button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`w-16 h-16 rounded-2xl font-black transition-all duration-300 ${
-                      currentPage === pageNum
-                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-xl border border-green-400/40"
-                        : "bg-white/10 backdrop-blur-sm text-green-400 hover:bg-white/20 shadow-xl hover:shadow-2xl border border-white/10 hover:border-green-400/40"
-                    }`}
-                  >
-                    {pageNum}
-                  </motion.button>
-                )
-              })}
-            </div>
-
-            <motion.button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300 border border-white/10 hover:border-green-400/40"
-            >
-              <ChevronRight className="w-7 h-7 text-green-400" />
+              <Zap className="w-5 h-5" />
+              Explore All Turfs
+              <ArrowRight className="w-5 h-5" />
             </motion.button>
           </motion.div>
         )}
       </div>
+
+      {/* Location Modal */}
+      <LocationModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onLocationAccess={handleLocationAccess}
+        loading={locationLoading}
+        error={error}
+      />
     </div>
   )
 }
 
-export default ClientHomePage
+export default HomePage

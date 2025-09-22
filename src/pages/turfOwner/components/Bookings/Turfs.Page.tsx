@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Plus, MapPin, Phone, Clock, Users } from 'lucide-react';
+import { Search, Plus, MapPin, Phone, Clock, Users, Calendar } from 'lucide-react';
 import { useGetMyTurf } from '@/hooks/turfOwner/getMyTurf';
 import type { ITurffResponse } from '@/types/Response';
 import type { ITurf } from '@/types/Turf';
-import { useNavigate } from 'react-router-dom'; // Add for navigation
-import TurfDetails from '@/components/ReusableComponents/ViewTurfDetailedPage';
+import { useNavigate } from 'react-router-dom';
 
-const MyTurfPage: React.FC = () => {
-  type TurfStatus = "active" | "inactive" | "approved" | "rejected" | "pending" | "blocked";
+const ApprovedTurfsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<TurfStatus | "">("");
   const [searchInput, setSearchInput] = useState('');
   const [turfsData, setTurfsData] = useState<ITurffResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null); // State for modal
   const navigate = useNavigate();
 
   const { mutate: getMyTurfs, isPending } = useGetMyTurf();
@@ -23,13 +19,13 @@ const MyTurfPage: React.FC = () => {
   const fetchTurfs = () => {
     setIsLoading(true);
     setError(null);
-    
+
     getMyTurfs(
       {
         page: currentPage,
         limit: 8,
         search: searchTerm || undefined,
-        status: statusFilter || undefined,
+        status: 'approved',
       },
       {
         onSuccess: (data: ITurffResponse) => {
@@ -37,7 +33,7 @@ const MyTurfPage: React.FC = () => {
           setIsLoading(false);
         },
         onError: (error: any) => {
-          setError(error.message || "Failed to fetch turfs");
+          setError(error.message || 'Failed to fetch approved turfs');
           setIsLoading(false);
         },
       }
@@ -46,28 +42,15 @@ const MyTurfPage: React.FC = () => {
 
   useEffect(() => {
     fetchTurfs();
-  }, [currentPage, searchTerm, statusFilter]);
+  }, [currentPage, searchTerm]);
 
   const handleSearch = () => {
     setSearchTerm(searchInput);
     setCurrentPage(1);
   };
 
-  const handleStatusFilter = (status: TurfStatus) => {
-    setStatusFilter(status === statusFilter ? '' : status);
-    setCurrentPage(1);
-  };
-
   const getStatusColor = (status: string) => {
-    const colors = {
-      active: 'bg-green-100 text-green-800 border-green-200',
-      inactive: 'bg-gray-100 text-gray-800 border-gray-200',
-      approved: 'bg-blue-100 text-blue-800 border-blue-200',
-      rejected: 'bg-red-100 text-red-800 border-red-200',
-      pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      blocked: 'bg-purple-100 text-purple-800 border-purple-200',
-    };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return 'bg-blue-100 text-blue-800 border-blue-200';
   };
 
   const loading = isLoading || isPending;
@@ -97,7 +80,7 @@ const MyTurfPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Turfs</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Approved Turfs</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={fetchTurfs}
@@ -116,14 +99,13 @@ const MyTurfPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Turfs</h1>
-            <p className="text-gray-600">Manage your turf listings</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Approved Turfs</h1>
+            <p className="text-gray-600">View and manage bookings for your approved turfs</p>
           </div>
-          <button 
-            onClick={() => navigate('/turfOwner/add-turf')} 
+          <button
+            onClick={() => navigate('/turfOwner/add-turf')}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center space-x-2 mt-4 md:mt-0"
           >
             <Plus className="w-5 h-5" />
@@ -141,7 +123,7 @@ const MyTurfPage: React.FC = () => {
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  placeholder="Search turfs by name, location..."
+                  placeholder="Search approved turfs by name, location..."
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -155,61 +137,39 @@ const MyTurfPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Status Filters */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            {(['active', 'inactive', 'approved', 'rejected', 'pending', 'blocked'] as TurfStatus[]).map((status) => (
-              <button
-                key={status}
-                onClick={() => handleStatusFilter(status)}
-                disabled={loading}
-                className={`px-4 py-2 rounded-full text-sm border transition-colors disabled:opacity-50 ${
-                  statusFilter === status
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          {/* Clear Filters */}
-          {(searchTerm || statusFilter) && (
+          {searchTerm && (
             <div className="mt-4">
               <button
                 onClick={() => {
                   setSearchTerm('');
                   setSearchInput('');
-                  setStatusFilter('');
                   setCurrentPage(1);
                 }}
                 className="text-sm text-blue-600 hover:text-blue-700"
               >
-                Clear all filters
+                Clear search
               </button>
             </div>
           )}
         </div>
 
-        {/* Loading overlay for filtering */}
         {loading && turfsData && (
           <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-700">
-            <p>Loading turfs...</p>
+            <p>Loading approved turfs...</p>
           </div>
         )}
 
-        {/* Turfs Grid */}
         {turfs.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <div className="text-gray-400 mb-4">
               <Users className="w-16 h-16 mx-auto" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Turfs Found</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Approved Turfs Found</h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || statusFilter ? 'Try adjusting your filters' : 'Start by adding your first turf'}
+              {searchTerm ? 'Try adjusting your search' : 'No approved turfs available. Add a new turf to get started.'}
             </p>
-            <button 
-              onClick={() => navigate('/turf/add')} 
+            <button
+              onClick={() => navigate('/turfOwner/add-turf')}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center space-x-2 mx-auto"
             >
               <Plus className="w-5 h-5" />
@@ -221,7 +181,6 @@ const MyTurfPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {turfs.map((turf: ITurf) => (
                 <div key={turf._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  {/* Turf Image */}
                   <div className="h-48 bg-gray-200 relative">
                     {turf.images && turf.images.length > 0 ? (
                       <img
@@ -236,29 +195,25 @@ const MyTurfPage: React.FC = () => {
                     )}
                     <div className="absolute top-4 right-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(turf.status)}`}>
-                        {turf.status.charAt(0).toUpperCase() + turf.status.slice(1)}
+                        Approved
                       </span>
                     </div>
                   </div>
 
-                  {/* Turf Details */}
                   <div className="p-4">
                     <h3 className="font-bold text-lg text-gray-900 mb-2 truncate">{turf.turfName}</h3>
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">{turf.description}</p>
 
-                    {/* Location */}
                     <div className="flex items-center text-gray-500 text-sm mb-2">
                       <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
                       <span className="truncate">{turf.location.address}, {turf.location.city}</span>
                     </div>
 
-                    {/* Contact */}
                     <div className="flex items-center text-gray-500 text-sm mb-2">
                       <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
                       <span>{turf.contactNumber}</span>
                     </div>
 
-                    {/* Court Type & Price */}
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">{turf.courtType}</span>
                       <div className="flex items-center text-green-600 font-semibold">
@@ -267,27 +222,20 @@ const MyTurfPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="mt-4 flex space-x-2">
-                      <button 
-                        onClick={() => navigate(`/turfOwner/edit-turf/${turf._id}`)}
-                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-700 transition-colors"
-                      >
-                        Edit
-                      </button>
+                    <div className="mt-4">
                       <button
-                        onClick={() => setSelectedTurf(turf)}
-                        className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                        onClick={() => navigate(`/turfOwner/bookings/${turf._id}`)}
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                       >
-                        View
+                        <Calendar className="w-4 h-4" />
+                        <span>Bookings</span>
                       </button>
                     </div>
-                  </div>+
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-8 flex justify-center space-x-2">
                 <button
@@ -297,7 +245,7 @@ const MyTurfPage: React.FC = () => {
                 >
                   Previous
                 </button>
-                
+
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <button
                     key={page}
@@ -312,7 +260,7 @@ const MyTurfPage: React.FC = () => {
                     {page}
                   </button>
                 ))}
-                
+
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages || loading}
@@ -324,18 +272,9 @@ const MyTurfPage: React.FC = () => {
             )}
           </>
         )}
-
-        {/* Modal for Turf Details */}
-        {selectedTurf && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <TurfDetails turf={selectedTurf} onClose={() => setSelectedTurf(null)} />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-export default MyTurfPage;
+export default ApprovedTurfsPage;

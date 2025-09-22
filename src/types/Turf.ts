@@ -18,7 +18,7 @@ export interface ITurfBase {
   status: "active" | "inactive" | "approved" | "rejected"|"pending"| "blocked"
   createdAt?: Date;
   updatedAt?: Date;
-  pricePerHour: string;
+  pricePerHour: number;
   courtType: string;
   openingTime?:string;
   closingTime?:string;

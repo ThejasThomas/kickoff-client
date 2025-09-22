@@ -1,6 +1,6 @@
 import { axiosInstance } from "@/api/private_axios";
 import { OWNER_ROUTE } from "@/constants/owner_route";
-import type {  GetMyTurfsParams, IAuthResponse, IGenerateSlotsResponse, ITurffResponse, ITurfOwnerResponse, ITurfResponse } from "@/types/Response";
+import type {  GetMyTurfsParams, IAuthResponse, IBookResponse, IGenerateSlotsResponse, ITurffResponse, ITurfOwnerResponse, ITurfResponse } from "@/types/Response";
 import type { GenerateSlotsData } from "@/types/Slots";
 import type { ITurf, ITurfBase, NewTurf } from "@/types/Turf";
 import type { ITurfOwner, turfOwnerStatus } from "@/types/User";
@@ -36,6 +36,7 @@ export const updateTurf = async(id: string, data: Partial<NewTurf &{isRetryUpdat
   return response.data;
 };
 export const addTurf =async (turfData:Partial<ITurfBase>) : Promise <ITurfResponse> => {
+  console.log('turffff',turfData)
     const response = await axiosInstance.post<ITurfResponse> (
         OWNER_ROUTE.ADD_TURF,
         turfData
@@ -77,6 +78,19 @@ export const getMyTurfs = async (
 export const generateSlots =async (data:GenerateSlotsData):Promise<IGenerateSlotsResponse> =>{
   const response =await axiosInstance.post<IGenerateSlotsResponse>(OWNER_ROUTE.GENERATESLOTS,data)
   return response.data
+}
+
+export const getusersBookings =async({turfId,date}:{turfId:string,date:string}):Promise<IBookResponse>=>{
+  const response = await axiosInstance.get<IBookResponse>(
+    OWNER_ROUTE.GET_ALL_BOOKINGS,{
+      params:{
+        turfId,
+        date
+      }
+    }
+  )
+  return response.data
+
 }
 
 export const retryAdminApproval = async (userId:string):Promise<{status:turfOwnerStatus}>=>{

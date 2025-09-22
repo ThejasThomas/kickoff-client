@@ -449,7 +449,7 @@ const GenerateSlotsPage: React.FC = () => {
                         type="date"
                         value={format(endDate, "yyyy-MM-dd")}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setSelectedDate(new Date(e.target.value))
+                          setEndDate(new Date(e.target.value))
                         }
                         className="px-4 py-4 w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl focus:ring-2 focus:ring-emerald-400 focus:border-transparent text-white text-lg font-medium transition-all duration-300 hover:bg-white/15"
                       />
