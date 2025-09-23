@@ -10,7 +10,7 @@ import {
 import type React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { data, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLogout } from "@/hooks/auth/useLogout";
 import { logoutAdmin } from "@/services/auth/authService";

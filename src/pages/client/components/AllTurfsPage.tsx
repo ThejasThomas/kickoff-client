@@ -42,13 +42,13 @@ const AllTurfsPage: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchInput);
-      if (searchInput !== debouncedSearchTerm) {
-        setCurrentPage(1);
-      }
+      setCurrentPage(1)
     }, 500); 
 
     return () => clearTimeout(timer);
   }, [searchInput]);
+
+  
 
   const fetchAllTurfs = useCallback(async () => {
     try {

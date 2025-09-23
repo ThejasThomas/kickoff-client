@@ -10,7 +10,7 @@ const AddSlotsPage: React.FC = () => {
   type TurfStatus = "active" | "inactive" | "approved" | "rejected" | "pending" | "blocked";
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter] = useState<TurfStatus>("approved"); // Default to approved
+  const [statusFilter] = useState<TurfStatus>("approved"); 
   const [searchInput, setSearchInput] = useState('');
   const [turfsData, setTurfsData] = useState<ITurffResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +67,6 @@ const AddSlotsPage: React.FC = () => {
 
   const loading = isLoading || isPending 
 
-  // Navigate to GenerateSlotsPage with turfId and ownerId
   const handleAddSlots = (turfId: string) => {
    
     navigate(`/turfOwner/generate-slots/${turfId}`, {

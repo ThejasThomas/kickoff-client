@@ -3,7 +3,7 @@ import { Search, Plus, MapPin, Phone, Clock, Users } from 'lucide-react';
 import { useGetMyTurf } from '@/hooks/turfOwner/getMyTurf';
 import type { ITurffResponse } from '@/types/Response';
 import type { ITurf } from '@/types/Turf';
-import { useNavigate } from 'react-router-dom'; // Add for navigation
+import { useNavigate } from 'react-router-dom';
 import TurfDetails from '@/components/ReusableComponents/ViewTurfDetailedPage';
 
 const MyTurfPage: React.FC = () => {
@@ -15,7 +15,7 @@ const MyTurfPage: React.FC = () => {
   const [turfsData, setTurfsData] = useState<ITurffResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null); // State for modal
+  const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null);
   const navigate = useNavigate();
 
   const { mutate: getMyTurfs, isPending } = useGetMyTurf();

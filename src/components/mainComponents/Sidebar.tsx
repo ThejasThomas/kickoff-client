@@ -61,12 +61,6 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
           description: "Overview & Stats",
         },
         {
-          icon: MapPin,
-          label: "Browse Turfs",
-          path: "/client/turfs",
-          description: "Find Perfect Turfs",
-        },
-        {
           icon: Calendar,
           label: "My Bookings",
           path: "/client/bookings",
@@ -77,12 +71,6 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
           label: "Booking History",
           path: "/client/history",
           description: "Past Activities",
-        },
-        {
-          icon: Heart,
-          label: "Favorites",
-          path: "/client/favorites",
-          description: "Saved Turfs",
         },
         {
           icon: User,

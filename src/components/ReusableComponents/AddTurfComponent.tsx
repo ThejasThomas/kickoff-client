@@ -49,6 +49,8 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
     newCourtType: "",
   });
 
+  type FormStatus="active" | "inactive"
+
   const formik = useFormik({
     initialValues: {
       turfName: "",
@@ -62,7 +64,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
       amenities: [] as string[],
       pricePerHour: "",
       courtType: "",
-      status: "active",
+      status: "active"as FormStatus
     },
     validationSchema: turfSchema,
     onSubmit: async (values) => {
@@ -94,9 +96,9 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
         amenities: values.amenities,
         images: uploadedImages.map((img) => img.cloudinaryUrl!),
         contactNumber: values.contactNumber,
-        pricePerHour: values.pricePerHour,
+        pricePerHour:Number.parseFloat(values.pricePerHour),
         courtType: values.courtType,
-        status: values.status as "pending",
+        status: values.status,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -672,8 +674,8 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
               onBlur={formik.handleBlur}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
-              <option value="pending">Active</option>
-              <option value="pending">Inactive</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
             {getFieldError("status") && (
               <p className="text-red-500 text-sm mt-1">

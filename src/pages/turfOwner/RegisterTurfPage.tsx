@@ -21,14 +21,16 @@ const AddTurfPageContainer: React.FC = () => {
         }
       },
       onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "An unexpected error occurred.";
+
         if (error?.response?.status === 400) {
-          ("Invalid data provided. Please check your inputs.")
+          errorToast(errorMessage || "Invalid data provided. Please check your inputs.");
         } else if (error?.response?.status === 401) {
-          errorToast("Please login to continue.")
+          errorToast(errorMessage || "Please login to continue.");
         } else if (error?.response?.status === 500) {
-          errorToast("Server error. Please try again later.")
+          errorToast(errorMessage || "Server error. Please try again later.");
         } else {
-          errorToast("Failed to register turf. Please check your connection and try again.")
+          errorToast(errorMessage || "Failed to register turf. Please check your connection and try again.");
         }
       },
     })

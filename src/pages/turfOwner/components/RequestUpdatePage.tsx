@@ -18,7 +18,7 @@ import { useToaster } from "@/hooks/ui/useToaster";
 import type { ITurfOwner } from "@/types/User";
 import * as Yup from "yup";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
-import { getTurfOwnerProfile, retryAdminApproval, requestupdateProfile } from "@/services/TurfOwner/turfOwnerService";
+import { getTurfOwnerProfile, requestupdateProfile } from "@/services/TurfOwner/turfOwnerService";
 
 interface TurfOwnerProfileProps {
   initialData?: Partial<ITurfOwner>;
@@ -146,18 +146,18 @@ export const RequestProfileUpdate = ({
     }
   };
 
-  const handleRetryApproval = async () => {
-    try {
-      setIsRetryLoading(true);
-      const response = await retryAdminApproval(formik.values.userId);
-      setProfileData({ ...profileData, status: response.status });
-      successToast("Approval request sent successfully!");
-    } catch (err) {
-      errorToast("Failed to send approval request");
-    } finally {
-      setIsRetryLoading(false);
-    }
-  };
+  // const handleRetryApproval = async () => {
+  //   try {
+  //     setIsRetryLoading(true);
+  //     const response = await retryAdminApproval(formik.values.userId);
+  //     setProfileData({ ...profileData, status: response.status });
+  //     successToast("Approval request sent successfully!");
+  //   } catch (err) {
+  //     errorToast("Failed to send approval request");
+  //   } finally {
+  //     setIsRetryLoading(false);
+  //   }
+  // };
 
   const isProfileComplete = formik.isValid && formik.values.ownerName && 
     formik.values.email && formik.values.phoneNumber && 
@@ -483,7 +483,7 @@ export const RequestProfileUpdate = ({
                 <motion.button
                   type="button"
                   disabled={isRetryLoading}
-                  onClick={handleRetryApproval}
+                  onClick={()=>{}}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"

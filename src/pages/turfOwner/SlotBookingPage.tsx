@@ -127,7 +127,7 @@ const GenerateSlotsPage: React.FC = () => {
     generateSlotsMutation.mutate(data, {
       onSuccess: (response) => {
         successToast(response.message);
-        navigate("/turfOwner/my-turfs", {
+        navigate("/turfOwner/add-slots", {
           state: { successMessage: "Slots generated successfully!" },
         });
       },

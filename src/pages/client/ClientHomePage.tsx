@@ -13,9 +13,7 @@ import {
   Shield,
   Zap,
   ArrowRight,
-  Filter,
   Grid3X3,
-  Map,
   CheckCircle,
 } from "lucide-react"
 import LocationModal from "./components/LocationModal"
@@ -245,41 +243,21 @@ const HomePage: React.FC<HomePageProps> = ({ onTurfSelect }) => {
 
       {/* Quick Actions */}
       <div className="bg-gray-50 border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
-              <div className="flex items-center gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 hover:border-emerald-200 text-gray-700 hover:text-emerald-700 transition-colors duration-200"
-                >
-                  <Filter className="w-4 h-4" />
-                  Filters
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 hover:border-emerald-200 text-gray-700 hover:text-emerald-700 transition-colors duration-200"
-                >
-                  <Map className="w-4 h-4" />
-                  Map View
-                </motion.button>
-              </div>
-            </div>
-            <motion.button
-              onClick={() => navigate("/allturfdisplay")}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
-            >
-              View All Turfs
-              <ChevronRight className="w-4 h-4" />
-            </motion.button>
-          </div>
-        </div>
-      </div>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="flex items-center justify-center"> {/* Center horizontally */}
+      <motion.button
+        onClick={() => navigate("/allturfdisplay")}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
+      >
+        View All Turfs
+        <ChevronRight className="w-4 h-4" />
+      </motion.button>
+    </div>
+  </div>
+</div>
+
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
