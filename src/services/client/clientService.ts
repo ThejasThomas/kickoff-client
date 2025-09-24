@@ -22,6 +22,14 @@ export const getTurfById = async (id: string): Promise<ITurf> => {
   )
   return response.data.turf;
 }
+
+export const getClientProfile =async ():Promise<IClient> =>{
+  const response =await axiosInstance.get<IClient>(
+    CLIENT_ROUTE.GETPROFILE
+  )
+  
+  return response.data
+}
 export const getSlots = async (turfId:string,date:string):Promise<ISlot[]> =>{
   const response = await axiosInstance.get<SlotResponse>(
     `${CLIENT_ROUTE.GETSLOTS}/${turfId}?date=${date}`

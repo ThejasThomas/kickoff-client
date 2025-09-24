@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { MapPin, Phone, Trash2, Plus, ArrowLeft } from "lucide-react";
 import { useFormik } from "formik";
 import { turfSchema } from "@/utils/validations/turf_register_validation";
-import type {  LocationCoordinates, NewTurf } from "@/types/Turf";
+import type { LocationCoordinates, NewTurf } from "@/types/Turf";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TurfLocationPicker from "../turfOwner/TurfDetails/map-location-picker";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
@@ -49,7 +49,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
     newCourtType: "",
   });
 
-  type FormStatus="active" | "inactive"
+  type FormStatus = "active" | "inactive";
 
   const formik = useFormik({
     initialValues: {
@@ -64,7 +64,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
       amenities: [] as string[],
       pricePerHour: "",
       courtType: "",
-      status: "active"as FormStatus
+      status: "active" as FormStatus,
     },
     validationSchema: turfSchema,
     onSubmit: async (values) => {
@@ -96,7 +96,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
         amenities: values.amenities,
         images: uploadedImages.map((img) => img.cloudinaryUrl!),
         contactNumber: values.contactNumber,
-        pricePerHour:Number.parseFloat(values.pricePerHour),
+        pricePerHour: Number.parseFloat(values.pricePerHour),
         courtType: values.courtType,
         status: values.status,
         createdAt: new Date(),

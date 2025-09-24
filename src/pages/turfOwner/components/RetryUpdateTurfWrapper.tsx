@@ -2,7 +2,6 @@
 import React from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import type { NewTurf } from '@/types/Turf';
-import EditTurfPage from '@/components/ReusableComponents/EditTurfComponent';
 import { useGetTurfById } from '@/hooks/turfOwner/getTurfById';
 import { useUpdateTurf } from '@/hooks/turfOwner/updateTurf';
 import RetryEditTurfPage from './RetryEditTurfPage';
@@ -19,12 +18,11 @@ export const RetryUpdateTurfWrapper: React.FC = () => {
   const handleSubmit = (data: NewTurf) => {
     if (!id) return;
     
-    // Add retry flag and token to the data
     const retryUpdateData = {
       ...data,
       isRetryUpdate: true,
       retryToken: retryToken || undefined,
-      status: 'pending' as const // Force status to pending for retry updates
+      status: 'pending' as const 
     };
     
     updateTurf(

@@ -1,4 +1,3 @@
-import { boolean } from "yup";
 import type { ISlot } from "./Slot";
 import type { ITurf, ITurfBase } from "./Turf";
 import type { IAdmin, IClient, ITurfOwner, UserDTO } from "./User";

@@ -150,7 +150,7 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
         amenities: values.amenities,
         images: uploadedImages.map((img) => img.cloudinaryUrl!),
         contactNumber: values.contactNumber,
-        pricePerHour: values.pricePerHour,
+        pricePerHour:Number.parseFloat(values.pricePerHour),
         courtType: values.courtType,
         status: values.status as "pending" | "active" | "inactive",
         updatedAt: new Date(),

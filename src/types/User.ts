@@ -51,7 +51,6 @@ export interface ITurfOwner extends Omit<User, "fullName" | "userId"> {
   pinCode?: string;
   googleId?: string;
   rejectionReason?: string;
-  
 }
 export interface GetUsersParams {
   role?: "client" | "turfOwner";

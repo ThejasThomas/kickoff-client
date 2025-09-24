@@ -6,6 +6,7 @@ export const CLIENT_ROUTE ={
     GETNEARBYTURF:`${BASE_URL.CLIENT}/getnearbyturf`,
     GETSLOTS:`${BASE_URL.CLIENT}/getslots`,
     BOOKSLOT:`${BASE_URL.CLIENT}/bookslots`,
+    GETPROFILE:`${BASE_URL.CLIENT}/get-user-profile`,
     GETURFBYID:`${BASE_URL.CLIENT}/get-turfdetails`,
     REFRESH_TOKEN:`${BASE_URL.CLIENT}/refresh-token`,
     LOGOUT:`${BASE_URL.CLIENT}/logout`,
