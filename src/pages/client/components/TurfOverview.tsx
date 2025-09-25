@@ -278,7 +278,7 @@ const TurfOverview: React.FC = () => {
                 <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">Hours</p>
                 <p className="font-semibold text-card-foreground">
-                  {turf.openingTime} - {turf.closingTime}
+                  {turf.openingTime} - {turf.closingTime}12
                 </p>
               </div>
               <div className="bg-card rounded-xl p-4 border border-border text-center">

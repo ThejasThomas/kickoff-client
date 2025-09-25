@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { motion } from "framer-motion"
-import { MapPin, Clock, Star, ArrowRight } from "lucide-react"
+import { MapPin, Clock, ArrowRight } from "lucide-react"
 import type { ITurf } from "@/types/Turf"
 
 interface TurfCardProps {

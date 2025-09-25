@@ -1,4 +1,3 @@
-// RetryUpdateTurfWrapper.tsx
 import React from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import type { NewTurf } from '@/types/Turf';

@@ -14,7 +14,7 @@ export interface SettingsProps {
 }
 
 export function Settings({
-  userRole = "client",
+  // userRole = "client",
 
   onLogout = () => {},
 }: SettingsProps) {

@@ -13,6 +13,7 @@ import { OwnerProfile } from "@/pages/turfOwner/components/OwnerProfile";
 import { RequestProfileUpdate } from "@/pages/turfOwner/components/RequestUpdatePage";
 import { RetryUpdateTurfWrapper } from "@/pages/turfOwner/components/RetryUpdateTurfWrapper";
 import TurfOwnerHomePage from "@/pages/turfOwner/components/TurfOwnerHomePage";
+import TurfReApplyPage from "@/pages/turfOwner/components/TurfReapplyPage";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";
@@ -57,8 +58,10 @@ const TurfOwnerRoutes = () => {
         <Route path="/add-slots" element={<AddSlotsPage/>}></Route>
         <Route path="/generate-slots/:id" element={<GenerateSlotsPage/>}></Route>
         <Route path="/edit-turf/:id" element={<EditTurfWrapper />} />
+        <Route path="/re-apply-turf" element={<TurfReApplyPage/>}/>
         <Route path="/turfsbooking" element={<ApprovedTurfsPage/>} />
         <Route path="/bookings/:turfId" element={<BookingsPage/>} />
+        
       </Route>
 
       <Route

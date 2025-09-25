@@ -110,7 +110,7 @@ const GenericTableInner = <T extends BaseItem>(
       const response = await fetchData(params);
 
       if (response.success) {
-        let items = response.users || [];
+        const items = response.users || [];
 
         setData(items);
         setPagination({

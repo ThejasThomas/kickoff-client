@@ -154,15 +154,6 @@ export default function OwnerManagement() {
   ]
   const actions: TableAction<OwnerData>[] = [
     {
-      label: "View Detail",
-      icon: <Eye size={16} />,
-      onClick: (owner: OwnerData) => {
-        setSelectedOwner(owner)
-      },
-      variant: "default",
-      refreshAfter: false,
-    },
-    {
       label: "Approve",
       onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "approved"),
       condition: (owner: OwnerData) => owner.status !== "approved" ,

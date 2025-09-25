@@ -69,7 +69,7 @@ export interface GetTurfsParams {
   excludeStatus?: string[];
 }
 
-export interface GetAllUsersResponse<T = any> {
+export interface GetAllUsersResponse<> {
   success: boolean;
   users: User[] | ITurfOwner[];
   totalPages: number;

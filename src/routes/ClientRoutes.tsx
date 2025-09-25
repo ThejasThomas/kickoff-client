@@ -1,14 +1,17 @@
 import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
 import { ClientLayout } from "@/components/layouts/ClientLayout";
+import BookingViewDetailsPage from "@/pages/client/BookingsViewDetailPage";
 import { ClientAuth } from "@/pages/client/ClientAuth";
 import HomePage from "@/pages/client/ClientHomePage";
 import AllTurfsPage from "@/pages/client/components/AllTurfsPage";
 import TurfOverview from "@/pages/client/components/TurfOverview";
 import TurfPaymentPage from "@/pages/client/components/TurfPaymentPage";
+import CurrentBookingPage from "@/pages/client/CurrentBookingPage";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";
+import ClientPastBookingsPage from "@/pages/client/ClientPastBookingsPage";
 
 const ClientRoutes = () => {
   return (
@@ -33,7 +36,10 @@ const ClientRoutes = () => {
         />{" "}
         <Route path="turfoverview/:id" element={<TurfOverview />} />
         <Route path="paymentpage" element={<TurfPaymentPage />} />
-        <Route path="allturfdisplay" element={<AllTurfsPage/>}/>
+        <Route path="allturfdisplay" element={<AllTurfsPage />} />
+        <Route path="bookinghistory" element={<ClientPastBookingsPage />} />
+        <Route path="upcomingbookings" element={<CurrentBookingPage/>} />
+        <Route path="bookings/details" element={<BookingViewDetailsPage/>}/>
       </Route>
 
       <Route

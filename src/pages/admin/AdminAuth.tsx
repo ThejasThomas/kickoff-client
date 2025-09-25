@@ -13,7 +13,7 @@ export const AdminAuth = () => {
   const { mutate: loginAdmin, isPending } = useLoginMutation();
   const { errorToast, successToast } = useToaster();
   const dispatch = useAppDispatch();
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleLoginSubmit = (data: Omit<ILoginData, "role">) => {
     loginAdmin(

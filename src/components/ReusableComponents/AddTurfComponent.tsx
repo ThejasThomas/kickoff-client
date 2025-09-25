@@ -50,6 +50,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
   });
 
   type FormStatus = "active" | "inactive";
+  
 
   const formik = useFormik({
     initialValues: {
@@ -282,8 +283,8 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
                 const img = images[idx] as ImageType | undefined;
                 const isAddSlot =
                   idx === images.length && images.length < MAX_IMAGES;
-                const isPlaceholder =
-                  idx > images.length || images.length === MAX_IMAGES;
+                // const isPlaceholder =
+                //   idx > images.length || images.length === MAX_IMAGES;
 
                 // Filled slot with image
                 if (img) {

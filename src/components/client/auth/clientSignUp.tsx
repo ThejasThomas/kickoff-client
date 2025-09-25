@@ -76,7 +76,7 @@ const ClientSignUp = ({
       verifyOTP(
         { email, otp },
         {
-          onSuccess: (data) => {
+          onSuccess: () => {
             successToast("OTP verified successfully!");
             setIsOTPModalOpen(false);
             onSubmit(userData as User);

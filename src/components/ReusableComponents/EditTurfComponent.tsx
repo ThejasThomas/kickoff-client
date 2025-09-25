@@ -5,7 +5,10 @@ import * as Yup from "yup";
 import type { LocationCoordinates, NewTurf } from "@/types/Turf";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TurfLocationPicker from "../turfOwner/TurfDetails/map-location-picker";
-import { useImageUploader, type UploadedImage } from "@/hooks/common/ImageUploader";
+import {
+  useImageUploader,
+  type UploadedImage,
+} from "@/hooks/common/ImageUploader";
 import type { ITurf } from "@/types/Turf";
 
 interface ImageType {
@@ -24,22 +27,35 @@ interface EditTurfPageProps {
 }
 
 const turfSchema = Yup.object({
-  turfName: Yup.string().required("Turf name is required").min(3, "Turf name must be at least 3 characters"),
-  description: Yup.string().required("Description is required").min(10, "Description must be at least 10 characters"),
+  turfName: Yup.string()
+    .required("Turf name is required")
+    .min(3, "Turf name must be at least 3 characters"),
+  description: Yup.string()
+    .required("Description is required")
+    .min(10, "Description must be at least 10 characters"),
   address: Yup.string().required("Address is required"),
   city: Yup.string().required("City is required"),
   state: Yup.string().nullable(),
   contactNumber: Yup.string()
     .required("Contact number is required")
     .matches(/^\d{10}$/, "Contact number must be 10 digits"),
-  longitude: Yup.string().required("Longitude is required").matches(/^-?\d+(\.\d+)?$/, "Invalid longitude format"),
-  latitude: Yup.string().required("Latitude is required").matches(/^-?\d+(\.\d+)?$/, "Invalid latitude format"),
+  longitude: Yup.string()
+    .required("Longitude is required")
+    .matches(/^-?\d+(\.\d+)?$/, "Invalid longitude format"),
+  latitude: Yup.string()
+    .required("Latitude is required")
+    .matches(/^-?\d+(\.\d+)?$/, "Invalid latitude format"),
   amenities: Yup.array().min(1, "At least one amenity is required"),
   pricePerHour: Yup.string()
     .required("Price per hour is required")
-    .matches(/^\d+(\.\d{0,2})?$/, "Price must be a valid number (e.g., 500 or 500.00)"),
+    .matches(
+      /^\d+(\.\d{0,2})?$/,
+      "Price must be a valid number (e.g., 500 or 500.00)"
+    ),
   courtType: Yup.string().required("Court type is required"),
-  status: Yup.string().required("Status is required").oneOf(["active", "inactive", "pending"]), // Allow "pending"
+  status: Yup.string()
+    .required("Status is required")
+    .oneOf(["active", "inactive", "pending"]), // Allow "pending"
 });
 
 const EditTurfPage: React.FC<EditTurfPageProps> = ({
@@ -49,7 +65,10 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
   isUpdating = false,
 }) => {
   console.log("turff", turf);
-  const defaultCoordinates: LocationCoordinates = { lat: 12.9716, lng: 77.5946 };
+  const defaultCoordinates: LocationCoordinates = {
+    lat: 12.9716,
+    lng: 77.5946,
+  };
 
   const getInitialCoordinates = (): LocationCoordinates => {
     console.log("Getting initial coordinates from turf:", turf);
@@ -65,10 +84,13 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
     return defaultCoordinates;
   };
 
-  const [coordinates, setCoordinates] = useState<LocationCoordinates>(getInitialCoordinates());
+  const [coordinates, setCoordinates] = useState<LocationCoordinates>(
+    getInitialCoordinates()
+  );
   const MAX_IMAGES = 10;
   const addInputRef = useRef<HTMLInputElement | null>(null);
-  const { images, handleImageUpload, removeImage, setImages } = useImageUploader("turf-images", MAX_IMAGES);
+  const { images, handleImageUpload, removeImage, setImages } =
+    useImageUploader("turf-images", MAX_IMAGES);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [availableOptions, setAvailableOptions] = useState({
     amenities: [
@@ -127,7 +149,10 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
       }
 
       const uploadedImages = images.filter((img) => img.cloudinaryUrl);
-      if (uploadedImages.length === 0 && images.some((img) => img.isUploading)) {
+      if (
+        uploadedImages.length === 0 &&
+        images.some((img) => img.isUploading)
+      ) {
         alert("Please wait for at least one image to finish uploading");
         return;
       }
@@ -150,7 +175,7 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
         amenities: values.amenities,
         images: uploadedImages.map((img) => img.cloudinaryUrl!),
         contactNumber: values.contactNumber,
-        pricePerHour:Number.parseFloat(values.pricePerHour),
+        pricePerHour: Number.parseFloat(values.pricePerHour),
         courtType: values.courtType,
         status: values.status as "pending" | "active" | "inactive",
         updatedAt: new Date(),
@@ -171,7 +196,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
     console.log("Setting up images from turf data:", turf?.images);
     if (turf?.images && Array.isArray(turf.images) && turf.images.length > 0) {
       const initialImages: UploadedImage[] = turf.images
-        .filter((url): url is string => typeof url === "string" && url.trim() !== "")
+        .filter(
+          (url): url is string => typeof url === "string" && url.trim() !== ""
+        )
         .map((url, index) => ({
           id: index + 1,
           preview: url,
@@ -187,9 +214,15 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
   }, [turf?.images, setImages]);
 
   useEffect(() => {
-    if (turf?.amenities && Array.isArray(turf.amenities) && turf.amenities.length > 0) {
+    if (
+      turf?.amenities &&
+      Array.isArray(turf.amenities) &&
+      turf.amenities.length > 0
+    ) {
       const newAmenities = turf.amenities.filter(
-        (amenity) => typeof amenity === "string" && !availableOptions.amenities.includes(amenity)
+        (amenity) =>
+          typeof amenity === "string" &&
+          !availableOptions.amenities.includes(amenity)
       );
       if (newAmenities.length > 0) {
         console.log("Adding new amenities to available options:", newAmenities);
@@ -202,8 +235,15 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
   }, [turf?.amenities]);
 
   useEffect(() => {
-    if (turf?.courtType && typeof turf.courtType === "string" && !availableOptions.courtTypes.includes(turf.courtType)) {
-      console.log("Adding new court type to available options:", turf.courtType);
+    if (
+      turf?.courtType &&
+      typeof turf.courtType === "string" &&
+      !availableOptions.courtTypes.includes(turf.courtType)
+    ) {
+      console.log(
+        "Adding new court type to available options:",
+        turf.courtType
+      );
       setAvailableOptions((prev) => ({
         ...prev,
         courtTypes: [...prev.courtTypes, turf.courtType],
@@ -228,8 +268,10 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
       ? formik.errors[fieldName]
       : null;
 
-  const handleCustomInputChange = (field: keyof typeof customInputs, value: string) =>
-    setCustomInputs((prev) => ({ ...prev, [field]: value }));
+  const handleCustomInputChange = (
+    field: keyof typeof customInputs,
+    value: string
+  ) => setCustomInputs((prev) => ({ ...prev, [field]: value }));
 
   const addNewAmenity = () => {
     const v = customInputs.newAmenity.trim();
@@ -263,8 +305,13 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
     formik.setFieldValue("latitude", coords.lat.toString());
   };
 
-  const handleAddressChange = (addressData: { address: string; city: string; state: string }) => {
-    if (addressData.address) formik.setFieldValue("address", addressData.address);
+  const handleAddressChange = (addressData: {
+    address: string;
+    city: string;
+    state: string;
+  }) => {
+    if (addressData.address)
+      formik.setFieldValue("address", addressData.address);
     if (addressData.city) formik.setFieldValue("city", addressData.city);
     if (addressData.state) formik.setFieldValue("state", addressData.state);
   };
@@ -391,7 +438,10 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
             <div>Status: {formik.values.status || "empty"}</div>
             <div>Images: {images.length}</div>
             <div>Amenities: {formik.values.amenities.join(", ") || "none"}</div>
-            <div>Coordinates: {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}</div>
+            <div>
+              Coordinates: {coordinates.lat.toFixed(4)},{" "}
+              {coordinates.lng.toFixed(4)}
+            </div>
             <div>Turf Prop Exists: {turf ? "Yes" : "No"}</div>
             <div>Form Valid: {formik.isValid.toString()}</div>
             <div>Form Dirty: {formik.dirty.toString()}</div>
@@ -427,7 +477,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
               placeholder="Enter turf name"
             />
             {getFieldError("turfName") && (
-              <p className="text-red-500 text-sm mt-1">{getFieldError("turfName")}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {getFieldError("turfName")}
+              </p>
             )}
           </div>
 
@@ -441,8 +493,10 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {Array.from({ length: MAX_IMAGES }).map((_, idx) => {
                 const img = images[idx] as ImageType | undefined;
-                const isAddSlot = idx === images.length && images.length < MAX_IMAGES;
-                const isPlaceholder = idx > images.length || images.length === MAX_IMAGES;
+                const isAddSlot =
+                  idx === images.length && images.length < MAX_IMAGES;
+                const isPlaceholder =
+                  idx > images.length || images.length === MAX_IMAGES;
 
                 if (img) {
                   return (
@@ -456,7 +510,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
                           "/placeholder.svg?height=144&width=192&query=uploaded image preview"
                         }
                         alt="Uploaded image preview"
-                        className={`w-full h-full object-cover ${img.isUploading ? "opacity-50" : ""}`}
+                        className={`w-full h-full object-cover ${
+                          img.isUploading ? "opacity-50" : ""
+                        }`}
                       />
                       {img.isUploading && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
@@ -548,7 +604,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
                       rows={3}
                     />
                     {getFieldError("address") && (
-                      <p className="text-red-500 text-sm mt-1">{getFieldError("address")}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {getFieldError("address")}
+                      </p>
                     )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -566,7 +624,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
                         placeholder="City name"
                       />
                       {getFieldError("city") && (
-                        <p className="text-red-500 text-sm mt-1">{getFieldError("city")}</p>
+                        <p className="text-red-500 text-sm mt-1">
+                          {getFieldError("city")}
+                        </p>
                       )}
                     </div>
                     <div>
@@ -583,7 +643,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
                         placeholder="State name"
                       />
                       {getFieldError("state") && (
-                        <p className="text-red-500 text-sm mt-1">{getFieldError("state")}</p>
+                        <p className="text-red-500 text-sm mt-1">
+                          {getFieldError("state")}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -598,7 +660,8 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
                   />
                 </div>
                 <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
-                  Current Coordinates: Lat: {coordinates.lat.toFixed(6)}, Lng: {coordinates.lng.toFixed(6)}
+                  Current Coordinates: Lat: {coordinates.lat.toFixed(6)}, Lng:{" "}
+                  {coordinates.lng.toFixed(6)}
                 </div>
               </CardContent>
             </Card>
@@ -612,7 +675,10 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
               Contact Number *
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-3 text-gray-400" size={20} />
+              <Phone
+                className="absolute left-3 top-3 text-gray-400"
+                size={20}
+              />
               <input
                 type="tel"
                 name="contactNumber"
@@ -624,7 +690,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
               />
             </div>
             {getFieldError("contactNumber") && (
-              <p className="text-red-500 text-sm mt-1">{getFieldError("contactNumber")}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {getFieldError("contactNumber")}
+              </p>
             )}
           </div>
 
@@ -644,7 +712,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
                 placeholder="500"
               />
               {getFieldError("pricePerHour") && (
-                <p className="text-red-500 text-sm mt-1">{getFieldError("pricePerHour")}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {getFieldError("pricePerHour")}
+                </p>
               )}
             </div>
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -667,7 +737,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
                 ))}
               </select>
               {getFieldError("courtType") && (
-                <p className="text-red-500 text-sm mt-1">{getFieldError("courtType")}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {getFieldError("courtType")}
+                </p>
               )}
             </div>
           </div>
@@ -680,7 +752,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
               <input
                 type="text"
                 value={customInputs.newCourtType}
-                onChange={(e) => handleCustomInputChange("newCourtType", e.target.value)}
+                onChange={(e) =>
+                  handleCustomInputChange("newCourtType", e.target.value)
+                }
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Add new court type (e.g., 8x8)"
                 onKeyPress={(e) => e.key === "Enter" && addNewCourtType()}
@@ -710,7 +784,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
               rows={4}
             />
             {getFieldError("description") && (
-              <p className="text-red-500 text-sm mt-1">{getFieldError("description")}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {getFieldError("description")}
+              </p>
             )}
           </div>
 
@@ -741,7 +817,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
               <input
                 type="text"
                 value={customInputs.newAmenity}
-                onChange={(e) => handleCustomInputChange("newAmenity", e.target.value)}
+                onChange={(e) =>
+                  handleCustomInputChange("newAmenity", e.target.value)
+                }
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Add new amenity"
                 onKeyPress={(e) => e.key === "Enter" && addNewAmenity()}
@@ -756,7 +834,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
               </button>
             </div>
             {getFieldError("amenities") && (
-              <p className="text-red-500 text-sm mb-2">{getFieldError("amenities")}</p>
+              <p className="text-red-500 text-sm mb-2">
+                {getFieldError("amenities")}
+              </p>
             )}
             {formik.values.amenities.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -791,7 +871,9 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
               <option value="pending">Pending</option>
             </select>
             {getFieldError("status") && (
-              <p className="text-red-500 text-sm mt-1">{getFieldError("status")}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {getFieldError("status")}
+              </p>
             )}
           </div>
 
