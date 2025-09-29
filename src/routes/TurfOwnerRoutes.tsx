@@ -6,6 +6,7 @@ import MyTurfPage from "@/pages/turfOwner/MyTurfPage";
 import RegisterTurfPage from "@/pages/turfOwner/RegisterTurfPage";
 import GenerateSlotsPage from "@/pages/turfOwner/SlotBookingPage";
 import { TurfOwnerAuth } from "@/pages/turfOwner/TurfOwnerAuth";
+import ViewSlotsPage from "@/pages/turfOwner/ViewSlotsPage";
 import ApprovedTurfsPage from "@/pages/turfOwner/components/Bookings/Turfs.Page";
 import BookingsPage from "@/pages/turfOwner/components/Bookings/UsersBookings";
 import { EditTurfWrapper } from "@/pages/turfOwner/components/EditTurfWrapper";
@@ -58,6 +59,7 @@ const TurfOwnerRoutes = () => {
         <Route path="/add-slots" element={<AddSlotsPage/>}></Route>
         <Route path="/generate-slots/:id" element={<GenerateSlotsPage/>}></Route>
         <Route path="/edit-turf/:id" element={<EditTurfWrapper />} />
+        <Route path="/view-slots/:id" element={<ViewSlotsPage/>} />
         <Route path="/re-apply-turf" element={<TurfReApplyPage/>}/>
         <Route path="/turfsbooking" element={<ApprovedTurfsPage/>} />
         <Route path="/bookings/:turfId" element={<BookingsPage/>} />

@@ -2,6 +2,7 @@ import type { ISlot } from "./Slot";
 import type { ITurf, ITurfBase } from "./Turf";
 import type { IAdmin, IClient, ITurfOwner, UserDTO } from "./User";
 import type { IBookings } from "./Booking_type";
+import type { IRules } from "./rules_type";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -54,6 +55,12 @@ export type GetMyTurfsParams = {
 export interface IGenerateSlotsResponse {
   message: string;
   slots: ISlot[];
+}
+
+export interface IGenerateRulesResponse{
+  message:string
+  success:boolean;
+  rules:IRules
 }
 
 
