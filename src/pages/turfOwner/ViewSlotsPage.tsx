@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,7 +19,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/image-header";
 import { formatTime } from "@/components/ui/format-date";
-import type { IRules, ITimeRange } from "@/types/rules_type"; // Matches IWeekRules[]
+import type { IRules, ITimeRange } from "@/types/rules_type";
 import { useNavigate, useParams } from "react-router-dom";
 import { getRules } from "@/services/TurfOwner/turfOwnerService";
 
@@ -67,11 +65,15 @@ const TurfRulesPage: React.FC = () => {
         }
         const adjustedRules = {
           ...loadedRules.rules,
-          weeklyRules: Array.isArray(loadedRules.rules.weeklyRules) ? loadedRules.rules.weeklyRules : [],
+          weeklyRules: Array.isArray(loadedRules.rules.weeklyRules)
+            ? loadedRules.rules.weeklyRules
+            : [],
         };
         setRules(adjustedRules);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load turf rules");
+        setError(
+          err instanceof Error ? err.message : "Failed to load turf rules"
+        );
         setRules(null);
       } finally {
         setLoading(false);
@@ -219,10 +221,10 @@ const TurfRulesPage: React.FC = () => {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                     <Timer className="w-4 h-4 text-emerald-600" />
-                    Slot Duration (minutes)
+                    Slot Duration (hours)
                   </Label>
                   <p className="text-lg font-semibold text-gray-800">
-                    {rules.slotDuration} minutes
+                    {rules.slotDuration} hours
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -257,61 +259,70 @@ const TurfRulesPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-6">
               <div className="grid gap-6">
-              {daysOfWeek.map((day, dayIndex) => {
-  const weekRule = rules.weeklyRules[0] || {}; 
-  const daySlots: ITimeRange[] = weekRule[dayIndex] || []; 
-  const totalHours = daySlots.reduce((acc: number, slot: ITimeRange) => {
-    const start = new Date(`2000-01-01T${slot.startTime}`);
-    const end = new Date(`2000-01-01T${slot.endTime}`);
-    return acc + (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-  }, 0);
+                {daysOfWeek.map((day, dayIndex) => {
+                  const weekRule = rules.weeklyRules[0] || {};
+                  const daySlots: ITimeRange[] = weekRule[dayIndex] || [];
+                  const totalHours = daySlots.reduce(
+                    (acc: number, slot: ITimeRange) => {
+                      const start = new Date(`2000-01-01T${slot.startTime}`);
+                      const end = new Date(`2000-01-01T${slot.endTime}`);
+                      return (
+                        acc +
+                        (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+                      );
+                    },
+                    0
+                  );
 
-  return (
-    <motion.div
-      key={day}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: dayIndex * 0.1 }}
-      className="border border-emerald-200 rounded-xl p-6 bg-gradient-to-r from-white to-emerald-50/30"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-sm">
-              {day.slice(0, 3).toUpperCase()}
-            </span>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-800">
-              {getDayName(day)}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {daySlots.length} slots • {totalHours.toFixed(1)} hours total
-            </p>
-          </div>
-        </div>
-      </div>
+                  return (
+                    <motion.div
+                      key={day}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: dayIndex * 0.1 }}
+                      className="border border-emerald-200 rounded-xl p-6 bg-gradient-to-r from-white to-emerald-50/30"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">
+                              {day.slice(0, 3).toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-gray-800">
+                              {getDayName(day)}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {daySlots.length} slots • {totalHours.toFixed(1)}{" "}
+                              hours total
+                            </p>
+                          </div>
+                        </div>
+                      </div>
 
-      {/* Time Slots */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        <AnimatePresence>
-          {daySlots.map((slot: ITimeRange, slotIndex: number) => (
-            <motion.div
-              key={slotIndex}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white border border-emerald-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-emerald-600" />
-                  <span className="font-semibold text-gray-800">
-                    {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
-                  </span>
-                </div>
-              </div>
-              {/* <div className="mt-2 text-xs text-gray-500">
+                      {/* Time Slots */}
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        <AnimatePresence>
+                          {daySlots.map(
+                            (slot: ITimeRange, slotIndex: number) => (
+                              <motion.div
+                                key={slotIndex}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                className="bg-white border border-emerald-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-emerald-600" />
+                                    <span className="font-semibold text-gray-800">
+                                      {formatTime(slot.startTime)} -{" "}
+                                      {formatTime(slot.endTime)}
+                                    </span>
+                                  </div>
+                                </div>
+                                {/* <div className="mt-2 text-xs text-gray-500">
                 Duration:{" "}
                 {Math.round(
                   (new Date(`2000-01-01T${slot.endTime}`).getTime() -
@@ -320,21 +331,22 @@ const TurfRulesPage: React.FC = () => {
                 )}{" "}
                 minutes
               </div> */}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+                              </motion.div>
+                            )
+                          )}
+                        </AnimatePresence>
+                      </div>
 
-      {daySlots.length === 0 && (
-        <EmptyState
-          icon={<Clock className="w-8 h-8" />}
-          title={`No slots for ${getDayName(day)}`}
-          description="No time slots are defined for this day"
-        />
-      )}
-    </motion.div>
-  );
-})}
+                      {daySlots.length === 0 && (
+                        <EmptyState
+                          icon={<Clock className="w-8 h-8" />}
+                          title={`No slots for ${getDayName(day)}`}
+                          description="No time slots are defined for this day"
+                        />
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -369,12 +381,15 @@ const TurfRulesPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-red-600" />
                         <span className="font-semibold text-red-800">
-                          {new Date(exception.date).toLocaleDateString("en-US", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {new Date(exception.date).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </span>
                       </div>
                     </motion.div>

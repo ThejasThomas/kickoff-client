@@ -23,8 +23,8 @@ import { isAxiosError } from "axios";
 import { useAddRulesMutation } from "@/hooks/turfOwner/addRules";
 import { getRules } from "@/services/TurfOwner/turfOwnerService";
 import type { IException, ITimeRange, IWeekRules } from "@/types/rules_type";
+import { parse } from "date-fns";
 
-// Helper function to convert time to minutes for comparison
 const parseTimeToMinutes = (time: string): number => {
   const [hours, minutes] = time.split(":").map(Number);
   return hours * 60 + minutes;
@@ -207,14 +207,27 @@ const GenerateRulesPage: React.FC = () => {
     });
     return slots;
   };
+  const formatTimeTo12Hour = (time: string): string => {
+  const parsed = parse(time, "HH:mm", new Date()); 
+  return format(parsed, "hh:mmaaa");
+};
 
   const handleSaveRules = () => {
     if (!validateInputs() || !turfId) return;
+ const formattedWeeklyRules = Object.fromEntries(
+    Object.entries(weeklyRules).map(([day, ranges]) => [
+      day,
+      ranges.map((r) => ({
+        startTime: formatTimeTo12Hour(r.startTime),
+        endTime: formatTimeTo12Hour(r.endTime),
+      })),
+    ])
+  );
 
     const data = {
       turfId,
       ownerId: turf?.ownerId || "",
-      weeklyRules: [weeklyRules],
+      weeklyRules: [formattedWeeklyRules],
       exceptions,
       slotDuration,
       price,

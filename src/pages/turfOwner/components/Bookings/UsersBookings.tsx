@@ -12,7 +12,7 @@ const BookingsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0] // Default to current date (e.g., 2025-09-23)
+    new Date().toISOString().split('T')[0] 
   );
 
   const { mutate: getBookings, isPending } = useGetUsersBookings();

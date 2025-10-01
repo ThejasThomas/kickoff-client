@@ -108,7 +108,7 @@ const TurfPaymentPage = () => {
 
       setTimeout(() => {
         console.log(`Payment successful with ${paymentMethod}`);
-        navigate("/booking-success");
+        navigate("/upcomingbookings");
       }, 3000);
     } catch (error) {
       console.error("Payment processing error:", error);

@@ -1,4 +1,4 @@
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 import {
   MapPin,
   Clock,
@@ -10,156 +10,193 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
-} from "lucide-react"
-import type { ITurf } from "@/types/Turf"
-import type React from "react"
-import { useState, useEffect } from "react"
-import { useNavigate, useParams } from "react-router-dom"
-import { getTurfById, getSlots } from "@/services/client/clientService"
-import type { ISlot } from "@/types/Slot"
+} from "lucide-react";
+import type { ITurf } from "@/types/Turf";
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getTurfById, getSlots } from "@/services/client/clientService";
+import type { ISlot } from "@/types/Slot";
 
 const TurfOverview: React.FC = () => {
-  const [turf, setTurf] = useState<ITurf | null>(null)
-  const [slots, setSlots] = useState<ISlot[]>([])
-  const [selectedSlots, setSelectedSlots] = useState<string[]>([])
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-  const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const [turf, setTurf] = useState<ITurf | null>(null);
+  const [slots, setSlots] = useState<ISlot[]>([]);
+  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toLocaleDateString("en-CA")
+  );
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+
+  const today = new Date().toLocaleDateString("en-CA"); // Local YYYY-MM-DD for min
 
   useEffect(() => {
     const fetchTurf = async () => {
       if (!id) {
-        setError("No turf ID provided")
-        setLoading(false)
-        return
+        setError("No turf ID provided");
+        setLoading(false);
+        return;
       }
 
       try {
-        setLoading(true)
-        const turfData = await getTurfById(id)
-        setTurf(turfData)
+        setLoading(true);
+        const turfData = await getTurfById(id);
+        setTurf(turfData);
       } catch (err) {
-        console.error("Error fetching turf:", err)
-        setError("An error occurred while fetching turf details")
+        console.error("Error fetching turf:", err);
+        setError("An error occurred while fetching turf details");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchTurf()
-  }, [id])
+    fetchTurf();
+  }, [id]);
 
   useEffect(() => {
     const fetchSlots = async () => {
-      if (!id || !selectedDate) return
+      if (!id || !selectedDate) return;
 
       try {
-        const slotData = await getSlots(id, selectedDate)
-        console.log('SloootDaaaataaa',slotData)
-        
-        const slotsWithUniqueIds = Array.isArray(slotData) 
+        const slotData = await getSlots(id, selectedDate);
+        console.log("SloootDaaaataaa", slotData);
+
+        const slotsWithUniqueIds = Array.isArray(slotData)
           ? slotData.map((slot, index) => ({
               ...slot,
-              id: slot.id || `slot-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+              id:
+                slot.id ||
+                `slot-${index}-${Date.now()}-${Math.random()
+                  .toString(36)
+                  .substr(2, 9)}`,
             }))
-          : []
-        
-        setSlots(slotsWithUniqueIds)
-      } catch (err) {
-        console.error("Error fetching slots:", err)
-        setError("An error occurred while fetching slot details")
-      }
-    }
+          : [];
 
-    fetchSlots()
-  }, [id, selectedDate])
+        setSlots(slotsWithUniqueIds);
+      } catch (err) {
+        console.error("Error fetching slots:", err);
+        setError("An error occurred while fetching slot details");
+      }
+    };
+
+    fetchSlots();
+  }, [id, selectedDate]);
 
   const handleNextImage = () => {
-    setCurrentImageIndex((prev) => (turf?.images && prev < turf.images.length - 1 ? prev + 1 : 0))
-  }
+    setCurrentImageIndex((prev) =>
+      turf?.images && prev < turf.images.length - 1 ? prev + 1 : 0
+    );
+  };
 
   const handlePrevImage = () => {
-    setCurrentImageIndex((prev) => (turf?.images && prev > 0 ? prev - 1 : (turf?.images?.length ?? 0) - 1))
-  }
+    setCurrentImageIndex((prev) =>
+      turf?.images && prev > 0 ? prev - 1 : (turf?.images?.length ?? 0) - 1
+    );
+  };
 
   const handleSlotSelect = (slotId: string) => {
     setSelectedSlots((prev) => {
-      const isCurrentlySelected = prev.includes(slotId)
+      const isCurrentlySelected = prev.includes(slotId);
       if (isCurrentlySelected) {
-        return prev.filter(id => id !== slotId)
+        return prev.filter((id) => id !== slotId);
       } else {
-        return [...prev, slotId]
+        return [...prev, slotId];
       }
-    })
-  }
+    });
+  };
 
   const getTotalPrice = () => {
     return selectedSlots.reduce((total, slotId) => {
-      const slot = slots.find((s) => s.id === slotId)
-      return total + (slot?.price || 0)
-    }, 0)
-  }
+      const slot = slots.find((s) => s.id === slotId);
+      return total + (slot?.price || 0);
+    }, 0);
+  };
 
- const handleContinue = () => {
+  const handleContinue = () => {
     if (selectedSlots.length === 0) {
       return;
     }
 
-    // Get selected slot details
-    const selectedSlotDetails = selectedSlots.map(slotId => {
-      const slot = slots.find(s => s.id === slotId);
+    const selectedSlotDetails = selectedSlots.map((slotId) => {
+      const slot = slots.find((s) => s.id === slotId);
       return {
         id: slotId,
         startTime: slot?.startTime,
         endTime: slot?.endTime,
         price: slot?.price,
-        duration: slot?.duration
+        duration: slot?.duration,
       };
     });
 
-    const formattedSlots = selectedSlotDetails.map(slot => 
-      `${slot.startTime} - ${slot.endTime}`
+    const formattedSlots = selectedSlotDetails.map(
+      (slot) => `${slot.startTime} - ${slot.endTime}`
     );
 
     const bookingData = {
       turfId: id,
-      turfName: turf?.turfName || '',
-      location: `${turf?.location?.address}, ${turf?.location?.city}` || '',
-      date: new Date(selectedDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+      turfName: turf?.turfName || "",
+      location: `${turf?.location?.address}, ${turf?.location?.city}` || "",
+      date: new Date(selectedDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       }),
       slots: formattedSlots,
       selectedSlotIds: selectedSlots,
       slotDetails: selectedSlotDetails,
       totalAmount: getTotalPrice(),
-      contactNumber: turf?.contactNumber || '',
-      courtType: turf?.courtType || ''
+      contactNumber: turf?.contactNumber || "",
+      courtType: turf?.courtType || "",
     };
 
-    navigate('/paymentpage', { 
-      state: { bookingData } 
+    navigate("/paymentpage", {
+      state: { bookingData },
     });
+  };
+
+  const isDefaultSlot = (slot: ISlot) => {
+    return (
+      slot.startTime === "00:00" && slot.endTime === "00:00" && slot.price === 0
+    );
+  };
+
+  const hasOnlyDefaultSlots = () => {
+    return slots.length > 0 && slots.every((slot) => isDefaultSlot(slot));
+  };
+
+  const getAvailableSlots = () => {
+    return slots.filter((slot) => !isDefaultSlot(slot));
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <motion.div className="text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+            transition={{
+              duration: 2,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "linear",
+            }}
             className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto mb-6"
           />
-          <h2 className="text-2xl font-bold text-foreground mb-2">Loading Turf Details</h2>
-          <p className="text-muted-foreground">Please wait while we fetch the information...</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Loading Turf Details
+          </h2>
+          <p className="text-muted-foreground">
+            Please wait while we fetch the information...
+          </p>
         </motion.div>
       </div>
-    )
+    );
   }
 
   if (error || !turf) {
@@ -173,8 +210,12 @@ const TurfOverview: React.FC = () => {
           <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <XCircle className="w-10 h-10 text-destructive" />
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">Oops! Something went wrong</h2>
-          <p className="text-destructive text-lg mb-6">{error || "Turf not found"}</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Oops! Something went wrong
+          </h2>
+          <p className="text-destructive text-lg mb-6">
+            {error || "Turf not found"}
+          </p>
           <button
             onClick={() => window.location.reload()}
             className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
@@ -183,7 +224,7 @@ const TurfOverview: React.FC = () => {
           </button>
         </motion.div>
       </div>
-    )
+    );
   }
 
   return (
@@ -232,8 +273,14 @@ const TurfOverview: React.FC = () => {
         {/* Hero Content */}
         <div className="absolute bottom-0 left-0 right-0 p-8">
           <div className="max-w-7xl mx-auto">
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-              <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 text-balance">{turf.turfName}</h1>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 text-balance">
+                {turf.turfName}
+              </h1>
               <div className="flex items-center gap-4 text-white/90 text-lg">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
@@ -284,12 +331,16 @@ const TurfOverview: React.FC = () => {
               <div className="bg-card rounded-xl p-4 border border-border text-center">
                 <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">Court Type</p>
-                <p className="font-semibold text-card-foreground">{turf.courtType}</p>
+                <p className="font-semibold text-card-foreground">
+                  {turf.courtType}
+                </p>
               </div>
               <div className="bg-card rounded-xl p-4 border border-border text-center">
                 <Phone className="w-6 h-6 text-primary mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">Contact</p>
-                <p className="font-semibold text-card-foreground">{turf.contactNumber}</p>
+                <p className="font-semibold text-card-foreground">
+                  {turf.contactNumber}
+                </p>
               </div>
             </motion.div>
 
@@ -300,8 +351,12 @@ const TurfOverview: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h2 className="text-2xl font-bold text-card-foreground mb-4">About This Facility</h2>
-              <p className="text-muted-foreground leading-relaxed">{turf.description}</p>
+              <h2 className="text-2xl font-bold text-card-foreground mb-4">
+                About This Facility
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                {turf.description}
+              </p>
             </motion.div>
 
             {/* Amenities */}
@@ -312,7 +367,9 @@ const TurfOverview: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <h2 className="text-2xl font-bold text-card-foreground mb-4">Amenities & Features</h2>
+                <h2 className="text-2xl font-bold text-card-foreground mb-4">
+                  Amenities & Features
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {turf.amenities.map((amenity, index) => (
                     <div key={index} className="flex items-center gap-3">
@@ -336,22 +393,28 @@ const TurfOverview: React.FC = () => {
               {/* Pricing Header */}
               <div className="p-6 border-b border-border">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-card-foreground">₹{turf.pricePerHour}</span>
+                  <span className="text-3xl font-bold text-card-foreground">
+                    ₹{turf.pricePerHour}
+                  </span>
                   <span className="text-muted-foreground">/hour</span>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">Base price per hour</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Base price per hour
+                </p>
               </div>
 
               {/* Date Selection */}
               <div className="p-6 border-b border-border">
-                <label className="block text-sm font-medium text-card-foreground mb-3">Select Date</label>
+                <label className="block text-sm font-medium text-card-foreground mb-3">
+                  Select Date
+                </label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
+                    min={today}
                     className="w-full pl-10 pr-4 py-3 bg-input border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
@@ -359,15 +422,39 @@ const TurfOverview: React.FC = () => {
 
               {/* Available Slots */}
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-4">Available Time Slots</h3>
-                {slots.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-muted-foreground">No slots available for this date</p>
-                  </div>
+                <h3 className="text-lg font-semibold text-card-foreground mb-4">
+                  Available Time Slots
+                </h3>
+                {slots.length === 0 || hasOnlyDefaultSlots() ? (
+                  <motion.div
+                    className="text-center py-12 px-4"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="relative mb-6">
+                      <div className="w-20 h-20 mx-auto bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full flex items-center justify-center">
+                        <XCircle className="w-10 h-10 text-orange-500" />
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold text-card-foreground mb-2">
+                      {hasOnlyDefaultSlots()
+                        ? "Turf Unavailable"
+                        : "No Slots Available"}
+                    </h4>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                      {hasOnlyDefaultSlots()
+                        ? "This turf is closed on the selected date. Please choose another date to view available slots."
+                        : "No time slots are available for this date. Please select a different date."}
+                    </p>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted rounded-lg text-sm text-muted-foreground">
+                      <Calendar className="w-4 h-4" />
+                      <span>Try selecting another date</span>
+                    </div>
+                  </motion.div>
                 ) : (
                   <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {slots.map((slot, index) => (
+                    {getAvailableSlots().map((slot, index) => (
                       <motion.div
                         key={`${slot.id}-${index}`}
                         whileHover={{ scale: 1.02 }}
@@ -376,10 +463,12 @@ const TurfOverview: React.FC = () => {
                           slot.isBooked
                             ? "bg-muted border-border opacity-50 cursor-not-allowed"
                             : selectedSlots.includes(slot.id)
-                              ? "bg-primary/10 border-primary"
-                              : "bg-input border-border hover:border-primary/50"
+                            ? "bg-primary/10 border-primary"
+                            : "bg-input border-border hover:border-primary/50"
                         }`}
-                        onClick={() => !slot.isBooked && handleSlotSelect(slot.id)}
+                        onClick={() =>
+                          !slot.isBooked && handleSlotSelect(slot.id)
+                        }
                       >
                         <div className="flex justify-between items-center">
                           <div>
@@ -392,7 +481,9 @@ const TurfOverview: React.FC = () => {
                           </div>
                           <div className="flex items-center">
                             {slot.isBooked ? (
-                              <span className="text-destructive font-medium">Booked</span>
+                              <span className="text-destructive font-medium">
+                                Booked
+                              </span>
                             ) : selectedSlots.includes(slot.id) ? (
                               <CheckCircle className="w-5 h-5 text-primary" />
                             ) : (
@@ -415,12 +506,12 @@ const TurfOverview: React.FC = () => {
                 >
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-card-foreground font-medium">
-                      Total ({selectedSlots.length} slot{selectedSlots.length > 1 ? "s" : ""})
+                      Total ({selectedSlots.length} slot
+                      {selectedSlots.length > 1 ? "s" : ""})
                     </span>
-                    <span className="">
-                      
+                    <span className="text-2xl font-bold text-card-foreground">
+                      ₹{getTotalPrice()}
                     </span>
-                    <span className="text-2xl font-bold text-card-foreground">₹{getTotalPrice()}</span>
                   </div>
                 </motion.div>
               )}
@@ -434,7 +525,9 @@ const TurfOverview: React.FC = () => {
                   className="w-full py-4 bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-primary-foreground font-semibold rounded-lg flex items-center justify-center gap-3 transition-colors"
                 >
                   <ArrowRight className="w-5 h-5" />
-                  {selectedSlots.length > 0 ? "Continue to Payment" : "Select Slots to Continue"}
+                  {selectedSlots.length > 0
+                    ? "Continue to Payment"
+                    : "Select Slots to Continue"}
                 </motion.button>
               </div>
             </motion.div>
@@ -442,7 +535,7 @@ const TurfOverview: React.FC = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TurfOverview
+export default TurfOverview;
