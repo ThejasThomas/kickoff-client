@@ -22,6 +22,11 @@ export type ITurfOwnerResponse = {
   message: string;
   user: ITurfOwner;
 };
+export type ITurfOwnerDetailsResponse = {
+  success: boolean;
+  message: string;
+  user: ITurfOwner;
+};
 export type IAdminResponse = {
   success: boolean;
   message: string;

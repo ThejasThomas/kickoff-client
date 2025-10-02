@@ -40,7 +40,7 @@ export interface IClient extends User {
   };
 }
 
-export interface ITurfOwner extends Omit<User, "fullName" | "userId"> {
+export interface ITurfOwner extends Omit<User, "fullName" | "userId" > {
   _id: string
   userId: string;
   profileImage?: string|File
@@ -52,6 +52,19 @@ export interface ITurfOwner extends Omit<User, "fullName" | "userId"> {
   googleId?: string;
   rejectionReason?: string;
 }
+
+export interface ITurfOwnerDetails extends Omit<User, "fullName" | "userId"  > {
+  profileImage?: string|File
+  ownerName?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pinCode?: string;
+  googleId?: string;
+  rejectionReason?: string;
+}
+
+
 export interface GetUsersParams {
   role?: "client" | "turfOwner";
   page?: number;

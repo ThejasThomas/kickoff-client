@@ -111,6 +111,8 @@ const MyTurfPage: React.FC = () => {
   }
 
   const turfs = turfsData?.turfs || [];
+  console.log("datasss",turfs);
+  
   const totalPages = turfsData?.totalPages || 0;
 
   return (

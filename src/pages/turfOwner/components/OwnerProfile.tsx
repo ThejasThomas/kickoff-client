@@ -14,7 +14,7 @@ import {
   Home
 } from 'lucide-react';
 import { useToaster } from "@/hooks/ui/useToaster";
-import type { ITurfOwner } from "@/types/User";
+import type { ITurfOwner, ITurfOwnerDetails } from "@/types/User";
 import * as Yup from "yup";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
 import { getTurfOwnerProfile, updateTurfOwnerProfile } from "@/services/TurfOwner/turfOwnerService";
@@ -25,7 +25,7 @@ interface TurfOwnerProfileProps {
   isLoading?: boolean;
 }
 
-interface ProfileFormData extends ITurfOwner {
+interface ProfileFormData extends ITurfOwnerDetails {
   profileImage?: string | File;
   address?: string;
   city?: string;
@@ -50,7 +50,6 @@ export const OwnerProfile = ({
         const data = await getTurfOwnerProfile();
         setProfileData(data);
       } catch (err) {
-        // errorToast("Failed to fetch profile");
       }
     };
 
@@ -96,8 +95,8 @@ export const OwnerProfile = ({
 
   const formik = useFormik<ProfileFormData>({
     initialValues: {
-      _id: profileData?._id || "",
-      userId: profileData?.userId || "",
+      // _id: profileData?._id || "",
+      // userId: profileData?.userId || "",
       ownerName: profileData?.ownerName || "",
       email: profileData?.email || "",
       phoneNumber: profileData?.phoneNumber || "",
@@ -119,10 +118,12 @@ export const OwnerProfile = ({
           finalImage = images[0].cloudinaryUrl;
         }
 
-        const ownerData: ITurfOwner = {
+        const ownerData: ITurfOwnerDetails = {
           ...values,
           profileImage: finalImage || undefined,
         };
+        console.log('ownerDaaata',ownerData)
+
         const response = await updateTurfOwnerProfile(ownerData);
         onSave(response.user);
         setIsEditing(false);

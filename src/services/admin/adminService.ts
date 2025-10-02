@@ -27,9 +27,9 @@ export const adminService = {
     search = "",
     status,
     excludeStatus,
-  }: GetUsersParams): Promise<GetAllUsersResponse<T>> => {
+  }: GetUsersParams): Promise<GetAllUsersResponse> => {
     try {
-      const response = await axiosInstance.get<GetAllUsersResponse<T>>(
+      const response = await axiosInstance.get<GetAllUsersResponse>(
         ADMIN_ROUTES.USERS,
         {
           params: {

@@ -1,10 +1,10 @@
 import { axiosInstance } from "@/api/private_axios";
 import { OWNER_ROUTE } from "@/constants/owner_route";
-import type {  GetMyTurfsParams, IAuthResponse, IBookResponse, IGenerateRulesResponse, IGenerateSlotsResponse, ITurffResponse, ITurfOwnerResponse, ITurfResponse } from "@/types/Response";
+import type {  GetMyTurfsParams, IAuthResponse, IBookResponse, IGenerateRulesResponse, IGenerateSlotsResponse, ITurffResponse, ITurfOwnerDetailsResponse, ITurfOwnerResponse, ITurfResponse } from "@/types/Response";
 import type { IRules } from "@/types/rules_type";
 import type { GenerateSlotsData } from "@/types/Slots";
 import type { ITurf, ITurfBase, NewTurf } from "@/types/Turf";
-import type { ITurfOwner, turfOwnerStatus } from "@/types/User";
+import type { ITurfOwner, ITurfOwnerDetails, turfOwnerStatus } from "@/types/User";
 
 export const refreshTurfOwnerSession = async (): Promise<IAuthResponse> =>{
     const response = await axiosInstance.get<IAuthResponse> (
@@ -47,9 +47,9 @@ export const addTurf =async (turfData:Partial<ITurfBase>) : Promise <ITurfRespon
 }
 
 export const updateTurfOwnerProfile = async (
-  turfData: ITurfOwner
-): Promise<ITurfOwnerResponse> => {
-  const response = await axiosInstance.put<ITurfOwnerResponse>(
+  turfData: ITurfOwnerDetails
+): Promise<ITurfOwnerDetailsResponse> => {
+  const response = await axiosInstance.put<ITurfOwnerDetailsResponse>(
     OWNER_ROUTE.UPDATE_PROFILE,
     turfData
   )
