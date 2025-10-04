@@ -57,12 +57,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const getCurrentPageTitle = () => {
-    const currentItem = sidebarItems.find(
-      (item) => item.route === location.pathname
-    );
-    return currentItem?.label || "Dashboard";
-  };
+  // const getCurrentPageTitle = () => {
+  //   const currentItem = sidebarItems.find(
+  //     (item) => item.route === location.pathname
+  //   );
+  //   return currentItem?.label || "Dashboard";
+  // };
 
   const handleLogout = () => {
     logoutReq(undefined, {

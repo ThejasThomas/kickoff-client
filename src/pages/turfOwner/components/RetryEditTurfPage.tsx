@@ -495,10 +495,10 @@ const RetryEditTurfPage: React.FC<EditTurfPageProps> = ({
                 const img = images[idx] as ImageType | undefined;
                 const isAddSlot =
                   idx === images.length && images.length < MAX_IMAGES;
-                const isPlaceholder =
-                  idx > images.length || images.length === MAX_IMAGES;
+                // const isPlaceholder =
+                //   idx > images.length || images.length === MAX_IMAGES;
 
-                if (img) {
+                if (img) {``
                   return (
                     <div
                       key={`img-${img.id}`}

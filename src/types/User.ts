@@ -78,7 +78,13 @@ export interface GetTurfsParams {
   page?: number;
   limit?: number;
   search?: string;
+  city?: string;      
+  state?: string;
   status?: string;
+  minPrice?: number;
+  maxPrice?: number;  
+  address?:string;
+  sortBy?: 'name' | 'price';
   excludeStatus?: string[];
 }
 

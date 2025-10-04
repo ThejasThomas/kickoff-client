@@ -11,7 +11,7 @@ export const RetryUpdateTurfWrapper: React.FC = () => {
   const [searchParams] = useSearchParams();
   const retryToken = searchParams.get('retry_token');
   
-  const { data: turf, isLoading, error } = useGetTurfById(id!);
+  const { data: turf, error } = useGetTurfById(id!);
   const { mutate: updateTurf, isPending: isUpdating } = useUpdateTurf();
     console.log('errorr',error)
   const handleSubmit = (data: NewTurf) => {

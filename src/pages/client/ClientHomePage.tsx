@@ -29,7 +29,7 @@ interface HomePageProps {
   onTurfSelect: (turfId: string) => void
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onTurfSelect }) => {
+const HomePage: React.FC<HomePageProps> = () => {
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [turfs, setTurfs] = useState<ITurf[]>([])
   const [loading, setLoading] = useState(false)

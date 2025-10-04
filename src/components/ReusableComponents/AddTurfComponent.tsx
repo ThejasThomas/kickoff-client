@@ -30,7 +30,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
   const addInputRef = useRef<HTMLInputElement | null>(null);
   const { images, handleImageUpload, removeImage, setImages } =
     useImageUploader("turf-images", MAX_IMAGES);
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [isUploadingImages] = useState(false);
   const [availableOptions, setAvailableOptions] = useState({
     amenities: [
       "Parking",

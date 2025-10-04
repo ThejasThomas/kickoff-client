@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import TurfDetails from '@/components/ReusableComponents/ViewTurfDetailedPage';
 
 const TurfReApplyPage: React.FC = () => {
-  type TurfStatus = "active" | "inactive" | "approved" | "rejected" | "pending" | "blocked";
+  // type TurfStatus = "active" | "inactive" | "approved" | "rejected" | "pending" | "blocked";
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -53,7 +53,7 @@ const TurfReApplyPage: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
-    return 'bg-red-100 text-red-800 border-red-200'; // Only rejected status is shown
+    return 'bg-red-100 text-red-800 border-red-200';
   };
 
   const loading = isLoading || isPending;

@@ -38,6 +38,7 @@ const ClientPastBookingsPage = () => {
     } catch (err) {
       setError("Failed to fetch past bookings");
       errorToast("Failed to fetch past bookings");
+      console.log(err)
     } finally {
       setLoading(false);
     }

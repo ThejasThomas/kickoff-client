@@ -6,6 +6,7 @@ export const OWNER_ROUTE = {
   PROFILE: `${BASE_URL.OWNER}/profile`,
   ADD_TURF: `${BASE_URL.OWNER}/add-turf`,
   UPDATE_TURF:`${BASE_URL.OWNER}/update-turf`,
+  GET_BOOKED_USER_DETAILS:`${BASE_URL.OWNER}/getbookedclient-details`,
   GETURFBYID:`${BASE_URL.OWNER}/get-turfdetails`,
   GET_MY_TURF:`${BASE_URL.OWNER}/get-my-turf`,
   ADD_RULES:`${BASE_URL.OWNER}/add-rules`,

@@ -50,6 +50,7 @@ export const OwnerProfile = ({
         const data = await getTurfOwnerProfile();
         setProfileData(data);
       } catch (err) {
+        console.log(err)
       }
     };
 

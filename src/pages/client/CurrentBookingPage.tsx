@@ -84,6 +84,7 @@ const CurrentBookingPage = () => {
       setCancelDialog({ isOpen: false, bookingIndex: null, booking: null })
     } catch (error) {
       errorToast("Cancellation Failed")
+      console.log(error)
     } finally {
       setCancelLoading(false)
     }

@@ -35,6 +35,7 @@ export const getClientProfile = async (): Promise<IClient> => {
 
   return response.data;
 };
+
 export const getSlots = async (
   turfId: string,
   date: string

@@ -8,7 +8,7 @@ import { useUpdateTurf } from '@/hooks/turfOwner/updateTurf';
 export const EditTurfWrapper: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: turf, isLoading, error } = useGetTurfById(id!);
+  const { data: turf, error } = useGetTurfById(id!);
   const { mutate: updateTurf, isPending: isUpdating } = useUpdateTurf();
 
   const handleSubmit = (data: NewTurf) => {

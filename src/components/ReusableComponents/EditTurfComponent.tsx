@@ -55,7 +55,7 @@ const turfSchema = Yup.object({
   courtType: Yup.string().required("Court type is required"),
   status: Yup.string()
     .required("Status is required")
-    .oneOf(["active", "inactive", "pending"]), // Allow "pending"
+    .oneOf(["active", "inactive", "pending"]),
 });
 
 const EditTurfPage: React.FC<EditTurfPageProps> = ({
@@ -495,8 +495,8 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
                 const img = images[idx] as ImageType | undefined;
                 const isAddSlot =
                   idx === images.length && images.length < MAX_IMAGES;
-                const isPlaceholder =
-                  idx > images.length || images.length === MAX_IMAGES;
+                // const isPlaceholder =
+                //   idx > images.length || images.length === MAX_IMAGES;
 
                 if (img) {
                   return (

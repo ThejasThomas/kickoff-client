@@ -21,6 +21,7 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
         successToast("Profile loaded successfully!");
       } catch (err) {
         errorToast("Failed to fetch profile");
+        console.log(err)
       }
     };
 

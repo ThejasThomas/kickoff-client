@@ -23,7 +23,7 @@ import { isAxiosError } from "axios";
 import { useAddRulesMutation } from "@/hooks/turfOwner/addRules";
 import { getRules } from "@/services/TurfOwner/turfOwnerService";
 import type { IException, ITimeRange, IWeekRules } from "@/types/rules_type";
-import { parse } from "date-fns";
+import { convert12To24, formatTimeTo12Hour } from "@/components/ui/format-date";
 
 const parseTimeToMinutes = (time: string): number => {
   const [hours, minutes] = time.split(":").map(Number);
@@ -68,7 +68,20 @@ const GenerateRulesPage: React.FC = () => {
         }
 
         const rulesData = loadedRules.rules;
-        setWeeklyRules(rulesData.weeklyRules[0] || { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] });
+        
+        // Process weeklyRules: convert 12-hour times to 24-hour for internal state
+        const loadedWeekly = rulesData.weeklyRules[0] || { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+        const processedWeekly = Object.fromEntries(
+          Object.entries(loadedWeekly).map(([day, ranges]) => [
+            day,
+            ranges.map((r: ITimeRange) => ({
+              startTime: convert12To24(r.startTime),
+              endTime: convert12To24(r.endTime),
+            })),
+          ])
+        );
+
+        setWeeklyRules(processedWeekly as IWeekRules);
         setSlotDuration(rulesData.slotDuration || 1);
         setPrice(rulesData.price || 0);
         setExceptions(rulesData.exceptions || []);
@@ -191,7 +204,7 @@ const GenerateRulesPage: React.FC = () => {
 
   const generatePreviewSlots = (day: number) => {
     const ranges = weeklyRules[day];
-    let slots: string[] = [];
+    const slots: string[] = [];
     ranges.forEach((range) => {
       let start = new Date(`2025-01-01T${range.startTime}`);
       const end = new Date(`2025-01-01T${range.endTime}`);
@@ -207,22 +220,19 @@ const GenerateRulesPage: React.FC = () => {
     });
     return slots;
   };
-  const formatTimeTo12Hour = (time: string): string => {
-  const parsed = parse(time, "HH:mm", new Date()); 
-  return format(parsed, "hh:mmaaa");
-};
 
   const handleSaveRules = () => {
     if (!validateInputs() || !turfId) return;
- const formattedWeeklyRules = Object.fromEntries(
-    Object.entries(weeklyRules).map(([day, ranges]) => [
-      day,
-      ranges.map((r) => ({
-        startTime: formatTimeTo12Hour(r.startTime),
-        endTime: formatTimeTo12Hour(r.endTime),
-      })),
-    ])
-  );
+    
+    const formattedWeeklyRules = Object.fromEntries(
+      Object.entries(weeklyRules).map(([day, ranges]) => [
+        day,
+        ranges.map((r) => ({
+          startTime: formatTimeTo12Hour(r.startTime),
+          endTime: formatTimeTo12Hour(r.endTime),
+        })),
+      ])
+    );
 
     const data = {
       turfId,
