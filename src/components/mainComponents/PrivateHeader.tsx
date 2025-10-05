@@ -60,7 +60,7 @@ export function PrivateHeader({
   // Handle profile navigation based on role
   const handleProfileClick = () => {
     const profileRoutes = {
-      client: '/client/profile',
+      client: 'clientprofile',
       turfOwner: '/turfOwner/profile',
       admin: '/admin/profile'
     };

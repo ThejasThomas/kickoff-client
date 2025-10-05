@@ -14,9 +14,11 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
   const [clientData, setClientData] = useState<Partial<IClient>>(initialData || {});
 
   useEffect(() => {
+    console.log('page mountedd')
     const fetchProfile = async () => {
       try {
         const data = await getClientProfile();
+        console.log('api called')
         setClientData(data);
         successToast("Profile loaded successfully!");
       } catch (err) {
@@ -25,10 +27,9 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
       }
     };
 
-    if (!initialData) {
       fetchProfile();
-    }
-  }, [initialData]);
+    
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 p-4">

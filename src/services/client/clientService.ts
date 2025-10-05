@@ -31,6 +31,8 @@ export const getTurfById = async (id: string): Promise<ITurf> => {
 };
 
 export const getClientProfile = async (): Promise<IClient> => {
+  console.log("GETPROFILE route:", CLIENT_ROUTE.GETPROFILE);
+
   const response = await axiosInstance.get<IClient>(CLIENT_ROUTE.GETPROFILE);
 
   return response.data;
@@ -86,7 +88,7 @@ export const getTurfs = async (
       CLIENT_ROUTE.GET_TURF,
       {
         params: {
-          params: params.page || 1,
+          page: params.page || 1,
           limit: params.limit || 10,
           search: params.search || "",
           status: params.status || "",
