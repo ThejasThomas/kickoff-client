@@ -257,7 +257,7 @@ export default function TurfManagement() {
   ];
 
   const fetchTurfs = async (
-    params: FetchParams
+    params: FetchParams<{}>
   ): Promise<ApiResponse<ITurf>> => {
     try {
       let statusParam = statusFilter;

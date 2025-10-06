@@ -1,5 +1,6 @@
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import RejectionModal from "@/components/ReusableComponents/RejectionModal";
+import {ConfirmationModal} from "@/components/ReusableComponents/ConfirmationModel";
 import { adminService } from "@/services/admin/adminService";
 import type { ApiResponse, FetchParams } from "@/types/api.type";
 import type {
@@ -11,6 +12,7 @@ import type { ITurfOwner } from "@/types/User";
 import { Check, User, X } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+
 interface TurfOwner extends ExtendableItem {
   _id: string;
   username: string;
@@ -18,6 +20,7 @@ interface TurfOwner extends ExtendableItem {
   status: string;
   createdAt: string;
 }
+
 type ownerStatus = "approved" | "rejected" | "pending";
 
 export default function VendorVerification() {
@@ -26,10 +29,14 @@ export default function VendorVerification() {
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
   const [isSubmittingReject, setIsSubmittingReject] = useState(false);
 
+  // New states for approve confirmation
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [selectedForApprove, setSelectedForApprove] = useState<TurfOwner | null>(null);
+
   const ownerRejectionReasons = ["Incomplete or uncleared documentation"];
 
   const fetchOwners = async (
-    params: FetchParams
+    params: FetchParams<{}>
   ): Promise<ApiResponse<TurfOwner>> => {
     try {
       const response = await adminService.getAllUSers({
@@ -41,8 +48,8 @@ export default function VendorVerification() {
       });
       const turfOwners: TurfOwner[] = (response.users as ITurfOwner[]).map(
         (user) => ({
-          _id:user._id,
-          username: user.ownerName|| 'Unknown Owner',
+          _id: user._id,
+          username: user.ownerName || 'Unknown Owner',
           email: user.email,
           status: user.status || 'pending',
           createdAt: user.createdAt?.toString() || new Date().toISOString()
@@ -144,6 +151,23 @@ export default function VendorVerification() {
     setSelectedOwnerId(null);
   };
 
+  const handleApproveClick = (owner: TurfOwner) => {
+    setSelectedForApprove(owner);
+    setShowApproveModal(true);
+  };
+
+  const handleApproveConfirm = async () => {
+    if (!selectedForApprove) return;
+    await handleStatusChange(selectedForApprove._id, "approved");
+    setShowApproveModal(false);
+    setSelectedForApprove(null);
+  };
+
+  const closeApproveModal = () => {
+    setShowApproveModal(false);
+    setSelectedForApprove(null);
+  };
+
   const columns: TableColumn<TurfOwner>[] = [
     {
       key: "owner",
@@ -178,7 +202,7 @@ export default function VendorVerification() {
     {
       label: "Approve",
       icon: <Check size={12} />,
-      onClick: (owner) => handleStatusChange(owner._id, "approved"),
+      onClick: (owner) => handleApproveClick(owner),
       condition: (owner) => owner.status !== "approved",
       variant: "success",
       refreshAfter: true,
@@ -213,18 +237,28 @@ export default function VendorVerification() {
         enableActions={true}
         emptyMessage="No owners found matching your criteria"
         loadingMessage="Loading owners list"
-        />
+      />
 
-        <RejectionModal
-        isOpen ={showRejectModal}
+      <RejectionModal
+        isOpen={showRejectModal}
         onClose={closeRejectModal}
         onSubmit={handleRejectSubmit}
         title="Reject Owner"
         description="Please select a reason for rejecting this owner"
         predefinedReasons={ownerRejectionReasons}
         isSubmitting={isSubmittingReject}
-        />
+      />
 
+      <ConfirmationModal
+        isOpen={showApproveModal}
+        onClose={closeApproveModal}
+        onConfirm={handleApproveConfirm}
+        title="Approve Owner"
+        message={`Are you sure you want to approve ${selectedForApprove?.username}? This action cannot be undone.`}
+        confirmText="Approve"
+        cancelText="Cancel"
+        variant="success"
+      />
     </>
-  )
+  );
 }

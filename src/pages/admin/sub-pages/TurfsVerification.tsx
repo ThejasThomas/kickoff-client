@@ -1,11 +1,10 @@
-"use client";
 import {motion} from 'framer-motion'
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import RejectionModal from "@/components/ReusableComponents/RejectionModal";
+import {ConfirmationModal} from "@/components/ReusableComponents/ConfirmationModel";
 import { adminService } from "@/services/admin/adminService";
 import type { ApiResponse, FetchParams } from "@/types/api.type";
 import type {
-  // ExtendableItem,
   TableAction,
   TableColumn,
 } from "@/types/table_type";
@@ -15,17 +14,6 @@ import { Check, MapPin, X, ImageIcon, XIcon, Eye, ChevronLeft, ChevronRight } fr
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-// interface Turf extends ExtendableItem {
-//   _id: string;
-//   turfName: string;
-//   location: string;
-//   courtType: string;
-//   status: string;
-//   createdAt: string;
-//   pricePerHour: string;
-//   amenities: string[];
-//   images: string[];
-// }
 
 console.log("heloo bro");
 
@@ -221,7 +209,7 @@ export default function TurfVerification() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedTurfId, setSelectedTurfId] = useState<string | null>(null);
   const [isSubmittingReject, setIsSubmittingReject] = useState(false);
-const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
+  const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedTurfName, setSelectedTurfName] = useState<string>("");
   const turfRejectionReasons = [
@@ -234,8 +222,12 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
   const [showImagesModal, setShowImagesModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
+  // New states for approve confirmation
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [selectedForApprove, setSelectedForApprove] = useState<ITurf | null>(null);
+
   const fetchTurfs = async (
-    params: FetchParams
+    params: FetchParams<{}>
   ): Promise<ApiResponse<ITurf>> => {
     try {
       const response = await adminService.getAllTurfs({
@@ -394,6 +386,24 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
     setSelectedTurfName("");
   };
 
+  // New handlers for approve confirmation
+  const handleApproveClick = (turf: ITurf) => {
+    setSelectedForApprove(turf);
+    setShowApproveModal(true);
+  };
+
+  const handleApproveConfirm = async () => {
+    if (!selectedForApprove) return;
+    await handleStatusChange(selectedForApprove._id, "approved", selectedForApprove.ownerId || "");
+    setShowApproveModal(false);
+    setSelectedForApprove(null);
+  };
+
+  const closeApproveModal = () => {
+    setShowApproveModal(false);
+    setSelectedForApprove(null);
+  };
+
    const columns: TableColumn<ITurf>[] = [
     {
       key: "turfName",
@@ -488,7 +498,7 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
       label: "Approve",
       icon: <Check size={12} />,
       onClick: (turf) =>{ if(!turf._id) return;
-         handleStatusChange(turf._id, "approved",turf.ownerId||"")},
+         handleApproveClick(turf)},
       condition: (turf) => turf.status !== "approved",
       variant: "success",
       refreshAfter: true,
@@ -542,6 +552,16 @@ const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
         onClose={closeImagesModal}
         images={selectedImages}
         turfName={selectedTurfName}
+      />
+      <ConfirmationModal
+        isOpen={showApproveModal}
+        onClose={closeApproveModal}
+        onConfirm={handleApproveConfirm}
+        title="Approve Turf"
+        message={`Are you sure you want to approve ${selectedForApprove?.turfName}? This action cannot be undone.`}
+        confirmText="Approve"
+        cancelText="Cancel"
+        variant="success"
       />
     </>
   );

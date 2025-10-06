@@ -25,7 +25,7 @@ export interface TableRef<T extends BaseItem> {
 }
 
 interface GenericTableProps<T extends BaseItem> extends TableConfiguration<T> {
-  fetchData: (params: FetchParams) => Promise<ApiResponse<T>>;
+  fetchData: (params: FetchParams<{}>) => Promise<ApiResponse<T>>;
   onRefresh?: () => void;
   className?: string;
   onFilterChange?: (filterValue: string) => void;
@@ -50,7 +50,6 @@ const GenericTableInner = <T extends BaseItem>(
     enablePagination = true,
     enableActions = true,
     emptyMessage = "No data found",
-    // loadingMessage = "Loading...",
     fetchData,
     onRefresh,
     className = "",
@@ -101,7 +100,7 @@ const GenericTableInner = <T extends BaseItem>(
     setError(null);
 
     try {
-      const params: FetchParams = {
+      const params: FetchParams<{}> = {
         page,
         limit: itemsPerPage,
         ...(enableSearch && search && { search }),

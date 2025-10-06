@@ -1,3 +1,4 @@
+import {ConfirmationModal} from "@/components/ReusableComponents/ConfirmationModel";
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import type { TableRef } from "@/components/ReusableComponents/GenericTable";
 
@@ -22,6 +23,10 @@ interface Users extends ExtendableItem {
 }
 
 export default function UserManagement() {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Users | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<"active" | "blocked" | null>(null);
+
   const tableRef = useRef<TableRef<Users>>(null);
   const [activeFilter, setActiveFilter] = useState("all");
 
@@ -81,29 +86,10 @@ export default function UserManagement() {
         user.status === "active" ? "Block User" : "Unblock User",
       icon: <Shield size={16} />,
       onClick: async (user) => {
-        try {
-          const newStatus = user.status === "active" ? "blocked" : "active";
-          const response = await adminService.updateEntityStatus(
-            "client",
-            user._id,
-            newStatus
-          );
-          if (response.success) {
-            tableRef.current?.updateItemOptimistically(user._id, {
-              status: newStatus,
-            });
-            toast.success(
-              `User ${
-                newStatus === "active" ? "unblocked" : "blocked"
-              } successfully`
-            );
-          } else {
-            toast.error(response.message || "Failed to update user status");
-          }
-        } catch (error) {
-          toast.error("Failed to update user status");
-          console.error("Status update error:", error);
-        }
+        const newStatus = user.status === "active" ? "blocked" : "active";
+        setSelectedUser(user);
+        setPendingStatus(newStatus);
+        setShowModal(true);
       },
       refreshAfter: false,
       variant: "danger",
@@ -118,7 +104,7 @@ export default function UserManagement() {
   ];
 
   const fetchUsers = async (
-    params: FetchParams
+    params: FetchParams<{}>
   ): Promise<ApiResponse<Users>> => {
     try {
       const response = await adminService.getAllUSers({
@@ -129,7 +115,6 @@ export default function UserManagement() {
         status: activeFilter === "all" ? undefined : activeFilter,
       });
 
-      // Map the response data to match Users interface
       const users: Users[] = response.users.map((user: any) => ({
         _id: user._id,
         fullName: user.fullName || user.name || "Unknown User",
@@ -157,22 +142,60 @@ export default function UserManagement() {
     }
   };
 
+  const handleConfirmStatusChange = async () => {
+    if (!selectedUser || !pendingStatus) return;
+
+    try {
+      const response = await adminService.updateEntityStatus(
+        "client",
+        selectedUser._id,
+        pendingStatus
+      );
+      if (response.success) {
+        tableRef.current?.updateItemOptimistically(selectedUser._id, {
+          status: pendingStatus,
+        });
+        toast.success(
+          `User ${
+            pendingStatus === "active" ? "unblocked" : "blocked"
+          } successfully`
+        );
+      } else {
+        toast.error(response.message || "Failed to update user status");
+      }
+    } catch (error) {
+      toast.error("Failed to update user status");
+      console.error("Status update error:", error);
+    }
+  };
+
   return (
-    <GenericTable<Users>
-      ref={tableRef}
-      title="User Management"
-      columns={columns}
-      actions={actions}
-      filters={filters}
-      searchPlaceholder="Search users..."
-      itemsPerPage={4}
-      fetchData={fetchUsers}
-      emptyMessage="No users found matching your criteria..."
-      loadingMessage="Loading Users..."
-      onFilterChange={(val) => setActiveFilter(val)}
-      enableSearch={true}
-      enablePagination={true}
-      enableActions={true}
-    />
+    <>
+      <GenericTable<Users>
+        ref={tableRef}
+        title="User Management"
+        columns={columns}
+        actions={actions}
+        filters={filters}
+        searchPlaceholder="Search users..."
+        itemsPerPage={4}
+        fetchData={fetchUsers}
+        emptyMessage="No users found matching your criteria..."
+        loadingMessage="Loading Users..."
+        onFilterChange={(val) => setActiveFilter(val)}
+        enableSearch={true}
+        enablePagination={true}
+        enableActions={true}
+      />
+      <ConfirmationModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onConfirm={handleConfirmStatusChange}
+        title={pendingStatus === "active" ? "Unblock User" : "Block User"}
+        message={`Are you sure you want to ${pendingStatus === "active" ? "unblock" : "block"} ${selectedUser?.fullName}? This action cannot be undone.`}
+        confirmText={pendingStatus === "active" ? "Unblock" : "Block"}
+        variant="danger"
+      />
+    </>
   );
 }

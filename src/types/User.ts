@@ -39,6 +39,11 @@ export interface IClient extends User {
     zipCode?: string;
   };
 }
+export interface IUpdateClient {
+  fullName:string;
+  email:string,
+  phoneNumber:string
+}
 
 export interface ITurfOwner extends Omit<User, "fullName" | "userId" > {
   _id: string

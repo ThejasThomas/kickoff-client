@@ -9,7 +9,7 @@ import type {
 } from "@/types/Response";
 import type { ISlot } from "@/types/Slot";
 import type { ITurf } from "@/types/Turf";
-import type { GetTurfsParams, IClient } from "@/types/User";
+import type { GetTurfsParams, IClient, IUpdateClient } from "@/types/User";
 
 export type IUpdateClientData = Pick<
   IClient,
@@ -37,6 +37,15 @@ export const getClientProfile = async (): Promise<IClient> => {
 
   return response.data;
 };
+
+export const updateClientProfile =async (clientData:IUpdateClient):Promise<void> =>{
+  console.log('reach api')
+  const response =await axiosInstance.patch(
+    CLIENT_ROUTE.UPDATE_USER_DETAILS,
+    clientData
+  )
+  return response.data;
+}
 
 export const getSlots = async (
   turfId: string,

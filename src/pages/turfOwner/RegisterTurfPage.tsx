@@ -5,10 +5,12 @@ import type { ITurfResponse } from "@/types/Response"
 import AddTurfPage from "@/components/ReusableComponents/AddTurfComponent"
 import type { NewTurf } from "@/types/Turf"
 import { useToaster } from "@/hooks/ui/useToaster"
+import { useNavigate } from "react-router-dom"
 
 const AddTurfPageContainer: React.FC = () => {
   const { mutate: addTurf, isPending } = useAddTurfMutation()
   const {successToast,errorToast} =useToaster()
+  const navigate=useNavigate()
 
   const handleSubmit = async (turfData: NewTurf) => {
     console.log('statussssssss',turfData.status)
@@ -16,8 +18,9 @@ const AddTurfPageContainer: React.FC = () => {
       onSuccess: (response: ITurfResponse) => {
         if (response.success) {
           successToast("Turf registered successfully!")
+          navigate('/turfowner/my-turf')
         } else {
-          successToast(response.message || "Failed to register turf. Please try again.")
+          errorToast(response.message || "Failed to register turf. Please try again.")
         }
       },
       onError: (error: any) => {

@@ -8,7 +8,6 @@ import type {
   IGenerateSlotsResponse,
   ITurffResponse,
   ITurfOwnerDetailsResponse,
-  ITurfOwnerResponse,
   ITurfResponse,
 } from "@/types/Response";
 import type { IRules } from "@/types/rules_type";

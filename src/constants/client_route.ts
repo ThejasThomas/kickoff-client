@@ -5,6 +5,7 @@ export const CLIENT_ROUTE ={
     GET_TURF:`${BASE_URL.CLIENT}/getturfs`,
     GETNEARBYTURF:`${BASE_URL.CLIENT}/getnearbyturf`,
     GETSLOTS:`${BASE_URL.CLIENT}/getslots`,
+    UPDATE_USER_DETAILS:`${BASE_URL.CLIENT}/update-user-details`,
     GETBOOKINGSTURF:`${BASE_URL.CLIENT}/getbookingturf`,
     GET_PAST_BOOKINGS:`${BASE_URL.CLIENT}/get-past-bookings`,
     BOOKSLOT:`${BASE_URL.CLIENT}/bookslots`,

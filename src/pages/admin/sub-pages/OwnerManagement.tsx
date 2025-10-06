@@ -1,6 +1,6 @@
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import type { TableRef } from "@/components/ReusableComponents/GenericTable";
-
+import { ConfirmationModal } from "@/components/ReusableComponents/ConfirmationModel";
 import { adminService } from "@/services/admin/adminService";
 import type { ApiResponse, FetchParams } from "@/types/api.type";
 import type {
@@ -29,6 +29,8 @@ interface OwnerData extends ExtendableItem {
 export default function OwnerManagement() {
   const [activeFilter, setActiveFilter] = useState<OwnerStatus | "all">("all");
   const [selectedOwner, setSelectedOwner] = useState<OwnerData | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<OwnerStatus | null>(null);
   const tableRef = useRef<TableRef<OwnerData>>(null);
 
   const fetchOwners = async (
@@ -100,8 +102,30 @@ export default function OwnerManagement() {
       }
     } catch (error) {
       console.error("status updated failed", error);
+      toast.error("Failed to update owner status");
     }
   };
+
+  const handleActionClick = (owner: OwnerData, actionStatus: OwnerStatus) => {
+    setSelectedOwner(owner);
+    setPendingStatus(actionStatus);
+    setShowModal(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedOwner || !pendingStatus) return;
+    await changeOwnerStatus(selectedOwner._id, pendingStatus);
+    setShowModal(false);
+    setSelectedOwner(null);
+    setPendingStatus(null);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedOwner(null);
+    setPendingStatus(null);
+  };
+
   const columns: TableColumn<OwnerData>[] = [
     {
       key: "turfOwner",
@@ -172,23 +196,15 @@ export default function OwnerManagement() {
   const actions: TableAction<OwnerData>[] = [
     {
       label: "Approve",
-      onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "approved"),
+      onClick: (owner: OwnerData) => handleActionClick(owner, "approved"),
       condition: (owner: OwnerData) => owner.status !== "approved",
       variant: "success",
       seperator: true,
       refreshAfter: false,
     },
     {
-      label: "Reject",
-      onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "rejected"),
-      condition: (owner: OwnerData) =>
-        owner.status !== "rejected" && owner.status !== "approved",
-      variant: "warning",
-      refreshAfter: false,
-    },
-    {
       label: "Block",
-      onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "blocked"),
+      onClick: (owner: OwnerData) => handleActionClick(owner, "blocked"),
       condition: (owner: OwnerData) =>
         owner.status !== "blocked" && owner.status === "approved",
       variant: "warning",
@@ -224,6 +240,21 @@ export default function OwnerManagement() {
         fetchData={fetchOwners}
         onFilterChange={handleFilterChange}
         className="max-w-6xl"
+      />
+      <ConfirmationModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirm}
+        title={
+          pendingStatus === "approved"
+            ? "Approve Owner"
+            : pendingStatus === "rejected"
+            ? "Reject Owner"
+            : "Block Owner"
+        }
+        message={`Are you sure you want to ${pendingStatus} ${selectedOwner?.username}? This action cannot be undone.`}
+        confirmText={pendingStatus || "Confirm"}
+        variant={pendingStatus === "approved" ? "success" : "danger"}
       />
     </>
   );

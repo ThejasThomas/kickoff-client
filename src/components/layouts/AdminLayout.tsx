@@ -16,6 +16,7 @@ import { useLogout } from "@/hooks/auth/useLogout";
 import { logoutAdmin } from "@/services/auth/authService";
 import { adminLogout } from "@/store/slices/admin_slice";
 import { useToaster } from "@/hooks/ui/useToaster";
+import { ConfirmationModal } from "@/components/ReusableComponents/ConfirmationModel";
 
 interface SidebarItem {
   icon: React.ComponentType<{ className?: string; size?: number }>;
@@ -51,6 +52,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { mutate: logoutReq } = useLogout(logoutAdmin);
 
   const toggleSidebar = () => {
@@ -64,17 +67,29 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   //   return currentItem?.label || "Dashboard";
   // };
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    setIsLoggingOut(true);
     logoutReq(undefined, {
       onSuccess: (data) => {
         dispatch(adminLogout());
         navigate("/admin");
         successToast(data.message);
+        setShowLogoutModal(false);
       },
       onError: (err: any) => {
         errorToast(err.response.data.message);
+        setIsLoggingOut(false);
       },
     });
+  };
+
+  const handleCloseLogoutModal = () => {
+    setShowLogoutModal(false);
+    setIsLoggingOut(false);
   };
 
   const handleSidebarNavigation = (route: string) => {
@@ -161,7 +176,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </nav>
               <div className="mt-auto">
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   className="w-full flex items-center p-3 text-gray-300 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200"
                 >
                   <X className="w-5 h-5 mr-3 text-gray-400" />
@@ -177,6 +192,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <main className="flex-1 overflow-auto">
         <div className="p-6 md:p-8">{children}</div>
       </main>
+
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={handleCloseLogoutModal}
+        onConfirm={handleConfirmLogout}
+        title="Logout Confirmation"
+        message="Are you sure you want to logout? You will be redirected to the login page."
+        confirmText="Logout"
+        cancelText="Stay Logged In"
+        variant="danger"
+        loading={isLoggingOut}
+      />
     </div>
   );
 };
