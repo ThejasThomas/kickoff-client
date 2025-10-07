@@ -128,7 +128,7 @@ export const OwnerProfile = ({
         const response = await updateTurfOwnerProfile(ownerData);
         onSave(response.user);
         setIsEditing(false);
-        successToast("Profile updated successfully!");
+        // successToast("Profile updated successfully!");
       } catch (err) {
         errorToast("Failed to update profile");
       }

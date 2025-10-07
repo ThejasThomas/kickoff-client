@@ -32,7 +32,7 @@ export const BookingCard = ({ booking, index, onViewDetails, onCancel }: Booking
               </div>
               <div>
                 <h3 className="text-lg font-bold text-gray-900">Turf Booking</h3>
-                <p className="text-sm text-gray-500">#{index + 1}</p>
+                <p className="text-sm text-gray-500"></p>
               </div>
             </div>
             <StatusBadge status={booking.status} variant="booking" />

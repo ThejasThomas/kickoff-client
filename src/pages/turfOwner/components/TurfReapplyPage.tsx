@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import TurfDetails from '@/components/ReusableComponents/ViewTurfDetailedPage';
 
 const TurfReApplyPage: React.FC = () => {
-  // type TurfStatus = "active" | "inactive" | "approved" | "rejected" | "pending" | "blocked";
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -21,8 +20,8 @@ const TurfReApplyPage: React.FC = () => {
 
   const fetchTurfs = () => {
     setIsLoading(true);
-    setError(null);
-    
+    setError(null); 
+
     getMyTurfs(
       {
         page: currentPage,
@@ -32,11 +31,15 @@ const TurfReApplyPage: React.FC = () => {
       },
       {
         onSuccess: (data: ITurffResponse) => {
+          console.log('TurfReApplyPage - onSuccess data:', data); 
           setTurfsData(data);
+          setError(null); 
           setIsLoading(false);
         },
         onError: (error: any) => {
-          setError(error.message || "Failed to fetch turfs");
+          console.error('TurfReApplyPage - onError:', error);
+          setError(error.message || "Failed to fetch rejected turfs");
+          setTurfsData(null);
           setIsLoading(false);
         },
       }
@@ -78,12 +81,11 @@ const TurfReApplyPage: React.FC = () => {
       </div>
     );
   }
-
-  if (error && !turfsData) {
+  if (error && !turfsData && !loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Turfs</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Rejected Turfs</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={fetchTurfs}
@@ -158,138 +160,134 @@ const TurfReApplyPage: React.FC = () => {
           )}
         </div>
 
-        {/* Loading overlay for filtering */}
         {loading && turfsData && (
           <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-700">
             <p>Loading turfs...</p>
           </div>
         )}
 
-        {/* Turfs Grid */}
-        {turfs.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <div className="text-gray-400 mb-4">
-              <Users className="w-16 h-16 mx-auto" />
-            </div>//
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Rejected Turfs Found</h3>
-            <p className="text-gray-600 mb-6">
-              {searchTerm ? 'Try adjusting your search' : 'No rejected turfs available'}
-            </p>
-            <button 
-              onClick={() => navigate('/turfOwner/add-turf')} 
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center space-x-2 mx-auto"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Add New Turf</span>
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {turfs.map((turf: ITurf) => (
-                <div key={turf._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  {/* Turf Image */}
-                  <div className="h-48 bg-gray-200 relative">
-                    {turf.images && turf.images.length > 0 ? (
-                      <img
-                        src={turf.images[0]}
-                        alt={turf.turfName}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-gray-400">
-                        <Users className="w-12 h-12" />
-                      </div>
-                    )}
-                    <div className="absolute top-4 right-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(turf.status)}`}>
-                        {turf.status.charAt(0).toUpperCase() + turf.status.slice(1)}
-                      </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {turfs.length === 0 && !loading ? (
+            <div className="col-span-full bg-white rounded-lg shadow-sm p-12 text-center">
+              <div className="text-gray-400 mb-4">
+                <Users className="w-16 h-16 mx-auto" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Rejected Turfs Found</h3>
+              <p className="text-gray-600 mb-6">
+                {searchTerm ? 'Try adjusting your search' : 'No rejected turfs available. All your turfs are approved or pending.'}
+              </p>
+              <button 
+                onClick={() => navigate('/turfOwner/add-turf')} 
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center space-x-2 mx-auto"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add New Turf</span>
+              </button>
+            </div>
+          ) : (
+            turfs.map((turf: ITurf) => (
+              <div key={turf._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                {/* Turf Image */}
+                <div className="h-48 bg-gray-200 relative">
+                  {turf.images && turf.images.length > 0 ? (
+                    <img
+                      src={turf.images[0]}
+                      alt={turf.turfName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      <Users className="w-12 h-12" />
                     </div>
-                  </div>
-
-                  {/* Turf Details */}
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg text-gray-900 mb-2 truncate">{turf.turfName}</h3>
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{turf.description}</p>
-
-                    {/* Location */}
-                    <div className="flex items-center text-gray-500 text-sm mb-2">
-                      <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span className="truncate">{turf.location.address}, {turf.location.city}</span>
-                    </div>
-
-                    {/* Contact */}
-                    <div className="flex items-center text-gray-500 text-sm mb-2">
-                      <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span>{turf.contactNumber}</span>
-                    </div>
-
-                    {/* Court Type & Price */}
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">{turf.courtType}</span>
-                      <div className="flex items-center text-green-600 font-semibold">
-                        <Clock className="w-4 h-4 mr-1" />
-                        ₹{turf.pricePerHour}/hr
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="mt-4 flex space-x-2">
-                      <button 
-                        onClick={() => navigate(`/turfOwner/retryedit-turf/${turf._id}`)}
-                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-700 transition-colors"
-                      >
-                        Reapply
-                      </button>
-                      <button
-                        onClick={() => setSelectedTurf(turf)}
-                        className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-                      >
-                        View
-                      </button>
-                    </div>
+                  )}
+                  <div className="absolute top-4 right-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(turf.status)}`}>
+                      {turf.status.charAt(0).toUpperCase() + turf.status.slice(1)}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-8 flex justify-center space-x-2">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1 || loading}
-                  className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                >
-                  Previous
-                </button>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    disabled={loading}
-                    className={`px-4 py-2 border rounded-lg disabled:opacity-50 ${
-                      currentPage === page
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-                
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages || loading}
-                  className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                >
-                  Next
-                </button>
+                {/* Turf Details */}
+                <div className="p-4">
+                  <h3 className="font-bold text-lg text-gray-900 mb-2 truncate">{turf.turfName}</h3>
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">{turf.description}</p>
+
+                  {/* Location */}
+                  <div className="flex items-center text-gray-500 text-sm mb-2">
+                    <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">{turf.location.address}, {turf.location.city}</span>
+                  </div>
+
+                  {/* Contact */}
+                  <div className="flex items-center text-gray-500 text-sm mb-2">
+                    <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span>{turf.contactNumber}</span>
+                  </div>
+
+                  {/* Court Type & Price */}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">{turf.courtType}</span>
+                    <div className="flex items-center text-green-600 font-semibold">
+                      <Clock className="w-4 h-4 mr-1" />
+                      ₹{turf.pricePerHour}/hr
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="mt-4 flex space-x-2">
+                    <button 
+                      onClick={() => navigate(`/turfOwner/retryedit-turf/${turf._id}`)}
+                      className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                    >
+                      Reapply
+                    </button>
+                    <button
+                      onClick={() => setSelectedTurf(turf)}
+                      className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-          </>
+            ))
+          )}
+        </div>
+
+        {/* Pagination (only if data exists and totalPages > 1) */}
+        {turfsData && totalPages > 1 && (
+          <div className="mt-8 flex justify-center space-x-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1 || loading}
+              className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                disabled={loading}
+                className={`px-4 py-2 border rounded-lg disabled:opacity-50 ${
+                  currentPage === page
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || loading}
+              className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </div>
         )}
 
         {/* Modal for Turf Details */}

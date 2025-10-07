@@ -78,5 +78,15 @@ export interface IBookResponse {
   success:boolean,
   message:string,
   bookings:IBookings[]
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+}
+
+export interface GetUpcomingBookings{
+  page?:number;
+  limit?:number;
+  search?:string;
 }
 
