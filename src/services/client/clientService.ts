@@ -2,6 +2,7 @@ import { axiosInstance } from "@/api/private_axios";
 import { CLIENT_ROUTE } from "@/constants/client_route";
 import type { IBookings } from "@/types/Booking_type";
 import type {
+  GetUpcomingBookings,
   IAuthResponse,
   IBookResponse,
   ITurffResponse,
@@ -68,9 +69,18 @@ export const bookSlots = async (
   return response.data;
 };
 
-export const getupcomingBookings = async (): Promise<IBookResponse> => {
+export const getupcomingBookings = async (
+  params:GetUpcomingBookings ={}
+): Promise<IBookResponse> => {
   const response = await axiosInstance.get<IBookResponse>(
-    CLIENT_ROUTE.GET_UPCOMING_BOOKINGS
+    CLIENT_ROUTE.GET_UPCOMING_BOOKINGS,
+    {
+      params:{
+        page:params.page || 1,
+        limit:params.limit || 10,
+        search:params.search || "",
+      }
+    }
   );
   return response.data;
 };

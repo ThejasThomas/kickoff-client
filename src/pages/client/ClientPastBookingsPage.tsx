@@ -128,7 +128,7 @@ const ClientPastBookingsPage = () => {
               title="No past bookings"
               description="You don't have any completed turf reservations. Book a turf to get started!"
               actionLabel="Book a Turf"
-              onAction={() => navigate("/turfs")}
+              onAction={() => navigate("/allturfdisplay")}
             />
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
