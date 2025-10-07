@@ -4,29 +4,36 @@ import { useAddTurfMutation } from "@/hooks/turfOwner/addTurf"
 import type { ITurfResponse } from "@/types/Response"
 import AddTurfPage from "@/components/ReusableComponents/AddTurfComponent"
 import type { NewTurf } from "@/types/Turf"
+import { useToaster } from "@/hooks/ui/useToaster"
+import { useNavigate } from "react-router-dom"
 
 const AddTurfPageContainer: React.FC = () => {
   const { mutate: addTurf, isPending } = useAddTurfMutation()
+  const {successToast,errorToast} =useToaster()
+  const navigate=useNavigate()
 
   const handleSubmit = async (turfData: NewTurf) => {
     console.log('statussssssss',turfData.status)
     addTurf(turfData, {
       onSuccess: (response: ITurfResponse) => {
         if (response.success) {
-          alert("Turf registered successfully!")
+          successToast("Turf registered successfully!")
+          navigate('/turfowner/my-turf')
         } else {
-          alert(response.message || "Failed to register turf. Please try again.")
+          errorToast(response.message || "Failed to register turf. Please try again.")
         }
       },
       onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || "An unexpected error occurred.";
+
         if (error?.response?.status === 400) {
-          alert("Invalid data provided. Please check your inputs.")
+          errorToast(errorMessage || "Invalid data provided. Please check your inputs.");
         } else if (error?.response?.status === 401) {
-          alert("Please login to continue.")
+          errorToast(errorMessage || "Please login to continue.");
         } else if (error?.response?.status === 500) {
-          alert("Server error. Please try again later.")
+          errorToast(errorMessage || "Server error. Please try again later.");
         } else {
-          alert("Failed to register turf. Please check your connection and try again.")
+          errorToast(errorMessage || "Failed to register turf. Please check your connection and try again.");
         }
       },
     })

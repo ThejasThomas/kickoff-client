@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { Component, type ErrorInfo, type ReactNode, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -35,7 +34,6 @@ type ErrorBoundaryState = {
   info?: ErrorInfo
 }
 
-// Class Error Boundary
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false }
 
@@ -45,7 +43,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     if (this.props.onError) this.props.onError(error, info)
-    // eslint-disable-next-line no-console
     console.error("[ErrorBoundary] Caught error:", error, info)
     this.setState({ info })
   }
@@ -61,22 +58,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     if (!hasError || !error) return children
 
-    // If fallback is a function, call with (error, reset)
     if (typeof fallback === "function") {
       return (fallback as FallbackRenderer)(error, this.reset)
     }
 
-    // If fallback is a ReactNode, render it
     if (fallback) {
       return fallback
     }
 
-    // Default polished UI
     return <DefaultErrorFallback error={error} info={info} onReset={this.reset} />
   }
 }
 
-// Default UI Fallback (polished)
 function DefaultErrorFallback({
   error,
   info,

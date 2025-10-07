@@ -13,7 +13,6 @@ export const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// prevent multiple refresh calls
 let isRefreshing = false;
 
 axiosInstance.interceptors.response.use(
@@ -40,7 +39,6 @@ axiosInstance.interceptors.response.use(
         role = "";
     }
 
-    // 🔹 Handle expired token (401)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 

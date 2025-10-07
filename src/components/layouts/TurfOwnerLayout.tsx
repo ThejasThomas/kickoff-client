@@ -16,8 +16,8 @@ interface TurfOwnerLayoutProps {
   title?: string;
 }
 
-export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = ({
-}) => {
+export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = (
+) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { successToast } = useToaster();
   const turfOwner = useSelector((state: RootState) => state.turfOwner.turfOwner);
@@ -33,7 +33,7 @@ export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = ({
     logoutReq(undefined, {
       onSuccess: (data) => {
         dispatch(turfOwnerLogout());
-        navigate('/');
+        navigate('/turfowner');
         successToast(data.message);
       }
     });

@@ -1,7 +1,6 @@
 import { useToaster } from "@/hooks/ui/useToaster";
 import { useState } from "react";
 import {  useNavigate, useParams } from "react-router-dom";
-import { PublicHeader } from "../mainComponents/PublicHeader";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle, Eye, EyeOff, Lock } from "lucide-react";
 import { passwordSchema } from "@/utils/validations/password_validator";

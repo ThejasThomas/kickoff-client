@@ -3,11 +3,11 @@ import type { ITurfOwner } from "@/types/User";
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface TurfOwnerState {
-    turfOwner:ITurfOwner |null;
+    turfOwner: ITurfOwner | null;
 }
 
-const initialState:TurfOwnerState = {
-    turfOwner:null,
+const initialState: TurfOwnerState = {
+    turfOwner: null,
 }
 
 export const refreshTurfOwnerSessionThunk = createAsyncThunk<
@@ -17,11 +17,11 @@ export const refreshTurfOwnerSessionThunk = createAsyncThunk<
 >("turfOwner/refreshSession", async (_, { rejectWithValue }) => {
   try {
     const { user } = await refreshTurfOwnerSession();
-     if (!('_id' in user) || !user.userId) {
+    
+    if (!user || !('_id' in user) || !user.userId) {
       return rejectWithValue('Invalid turf owner data received');
     }
 
-    const turfOwner = user as ITurfOwner;
     const mappedTurfOwner: ITurfOwner = {
       _id: user._id,
       userId: user.userId,
@@ -35,12 +35,12 @@ export const refreshTurfOwnerSessionThunk = createAsyncThunk<
       googleId: 'googleId' in user ? user.googleId : undefined,
       rejectionReason: 'rejectionReason' in user ? user.rejectionReason : undefined,
     };
+    
     return { user: mappedTurfOwner };
   } catch (error) {
     return rejectWithValue(error instanceof Error ? error.message : 'An error occurred');
   }
 });
-
 
 const turfOwnerSlice = createSlice({
   name: "turfOwner",
@@ -54,9 +54,13 @@ const turfOwnerSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(refreshTurfOwnerSessionThunk.fulfilled, (state, action) => {
-      state.turfOwner = action.payload.user;
-    });
+    builder
+      .addCase(refreshTurfOwnerSessionThunk.fulfilled, (state, action) => {
+        state.turfOwner = action.payload.user;
+      })
+      .addCase(refreshTurfOwnerSessionThunk.rejected, (state) => {
+        state.turfOwner = null;
+      });
   },
 });
 

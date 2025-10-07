@@ -1,7 +1,7 @@
 import type { ITurf } from "./Turf";
 import type { UserRoles } from "./UserRoles";
 
-type statusTypes = "active" | "pending" | "blocked"|"updated"|"rejected"|"approved"
+type statusTypes = "active" | "pending" | "blocked"|"rejected"|"approved"
 
 export type userStatus = "active" | "blocked";
 export type turfOwnerStatus = "pending" | "approved" | "rejected" | "blocked";
@@ -39,8 +39,13 @@ export interface IClient extends User {
     zipCode?: string;
   };
 }
+export interface IUpdateClient {
+  fullName:string;
+  email:string,
+  phoneNumber:string
+}
 
-export interface ITurfOwner extends Omit<User, "fullName" | "userId"> {
+export interface ITurfOwner extends Omit<User, "fullName" | "userId" > {
   _id: string
   userId: string;
   profileImage?: string|File
@@ -51,8 +56,20 @@ export interface ITurfOwner extends Omit<User, "fullName" | "userId"> {
   pinCode?: string;
   googleId?: string;
   rejectionReason?: string;
-  
 }
+
+export interface ITurfOwnerDetails extends Omit<User, "fullName" | "userId"  > {
+  profileImage?: string|File
+  ownerName?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pinCode?: string;
+  googleId?: string;
+  rejectionReason?: string;
+}
+
+
 export interface GetUsersParams {
   role?: "client" | "turfOwner";
   page?: number;
@@ -66,11 +83,17 @@ export interface GetTurfsParams {
   page?: number;
   limit?: number;
   search?: string;
+  city?: string;      
+  state?: string;
   status?: string;
+  minPrice?: number;
+  maxPrice?: number;  
+  address?:string;
+  sortBy?: 'name' | 'price';
   excludeStatus?: string[];
 }
 
-export interface GetAllUsersResponse<T = any> {
+export interface GetAllUsersResponse<> {
   success: boolean;
   users: User[] | ITurfOwner[];
   totalPages: number;

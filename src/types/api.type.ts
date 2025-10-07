@@ -7,7 +7,7 @@ export interface ApiResponse<T> {
     totalItem?: number;
 }
 
-export type FetchParams<Extras extends Record<string, unknown> ={}> ={
+export type FetchParams<Extras extends Record<string, unknown>> ={
      page?: number;
      limit?: number;
      search?:string;

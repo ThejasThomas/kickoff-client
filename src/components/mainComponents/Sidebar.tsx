@@ -10,12 +10,9 @@ import {
   MapPin,
   Calendar,
   Clock,
-  Heart,
   User,
-  Settings,
   Trophy,
   Star,
-  Shield,
   Zap,
   X,
 } from "lucide-react"
@@ -23,7 +20,6 @@ import { Button } from "../ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
 
 
-// 🔹 Type for items
 interface SidebarItemType {
   icon: React.ElementType
   label: string
@@ -50,7 +46,6 @@ interface NavItemProps {
   index: number
 }
 
-// Default sidebar items for different roles
 const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
   switch (role) {
     case "client":
@@ -58,44 +53,20 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
         {
           icon: Home,
           label: "Dashboard",
-          path: "/client/home",
+          path: "/home",
           description: "Overview & Stats",
-        },
-        {
-          icon: MapPin,
-          label: "Browse Turfs",
-          path: "/client/turfs",
-          description: "Find Perfect Turfs",
         },
         {
           icon: Calendar,
           label: "My Bookings",
-          path: "/client/bookings",
+          path: "/upcomingbookings",
           description: "Manage Reservations",
         },
         {
           icon: Clock,
           label: "Booking History",
-          path: "/client/history",
+          path: "/bookinghistory",
           description: "Past Activities",
-        },
-        {
-          icon: Heart,
-          label: "Favorites",
-          path: "/client/favorites",
-          description: "Saved Turfs",
-        },
-        {
-          icon: User,
-          label: "Profile",
-          path: "/client/profile",
-          description: "Personal Info",
-        },
-        {
-          icon: Settings,
-          label: "Settings",
-          path: "/client/settings",
-          description: "Preferences",
         },
       ]
     case "admin":

@@ -1,6 +1,6 @@
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import type { TableRef } from "@/components/ReusableComponents/GenericTable";
-
+import { ConfirmationModal } from "@/components/ReusableComponents/ConfirmationModel";
 import { adminService } from "@/services/admin/adminService";
 import type { ApiResponse, FetchParams } from "@/types/api.type";
 import type {
@@ -10,7 +10,7 @@ import type {
   TableFilter,
 } from "@/types/table_type";
 import type { ITurfOwner } from "@/types/User";
-import { Eye, User } from "lucide-react";
+import { User } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -21,16 +21,20 @@ interface OwnerData extends ExtendableItem {
   status: OwnerStatus;
   email: string;
   phoneNumber: string;
+  address?: string;
+  city?: string;
   createdAt?: string;
 }
 
 export default function OwnerManagement() {
   const [activeFilter, setActiveFilter] = useState<OwnerStatus | "all">("all");
   const [selectedOwner, setSelectedOwner] = useState<OwnerData | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<OwnerStatus | null>(null);
   const tableRef = useRef<TableRef<OwnerData>>(null);
 
   const fetchOwners = async (
-    params: FetchParams
+    params: FetchParams<{}>
   ): Promise<ApiResponse<OwnerData>> => {
     try {
       const response = await adminService.getAllUSers({
@@ -47,6 +51,8 @@ export default function OwnerManagement() {
           username: user.ownerName || "Unknown Owner",
           email: user.email,
           phoneNumber: user.phoneNumber || "N/A",
+          address: user.address || "N/A",
+          city: user.city || "N/A",
           status: user.status || "pending",
           createdAt: user.createdAt?.toString() || new Date().toISOString(),
         })
@@ -96,19 +102,63 @@ export default function OwnerManagement() {
       }
     } catch (error) {
       console.error("status updated failed", error);
+      toast.error("Failed to update owner status");
     }
   };
+
+  const handleActionClick = (owner: OwnerData, actionStatus: OwnerStatus) => {
+    setSelectedOwner(owner);
+    setPendingStatus(actionStatus);
+    setShowModal(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedOwner || !pendingStatus) return;
+    await changeOwnerStatus(selectedOwner._id, pendingStatus);
+    setShowModal(false);
+    setSelectedOwner(null);
+    setPendingStatus(null);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedOwner(null);
+    setPendingStatus(null);
+  };
+
   const columns: TableColumn<OwnerData>[] = [
     {
       key: "turfOwner",
       label: "turfOwner",
-      width: "col-span-4 md:col-span-3",
+      width: "col-span-4 md:col-span-2",
       render: (owner: OwnerData) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
             <User className="text-gray-400" size={20} />
           </div>
           <span className="font-medium truncate">{owner.username}</span>
+        </div>
+      ),
+    },
+    {
+      key: "address",
+      label: "Address",
+      width: "col-span-4 md:col-span-2",
+      render: (owner: OwnerData) => (
+        <div className="text-sm">
+          <div className="text-white truncate">{owner.address}</div>
+          <div className="text-gray-400 text-xs">{owner.city}</div>
+        </div>
+      ),
+    },
+    {
+      key: "contact",
+      label: "Contact",
+      width: "col-span-4 md:col-span-2",
+      render: (owner: OwnerData) => (
+        <div className="text-sm">
+          <div className="text-white truncate">{owner.email}</div>
+          <div className="text-gray-400 text-xs">{owner.phoneNumber}</div>
         </div>
       ),
     },
@@ -145,33 +195,18 @@ export default function OwnerManagement() {
   ];
   const actions: TableAction<OwnerData>[] = [
     {
-      label: "View Detail",
-      icon: <Eye size={16} />,
-      onClick: (owner: OwnerData) => {
-        setSelectedOwner(owner);
-      },
-      variant: "default",
-      refreshAfter: false,
-    },
-    {
       label: "Approve",
-      onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "approved"),
+      onClick: (owner: OwnerData) => handleActionClick(owner, "approved"),
       condition: (owner: OwnerData) => owner.status !== "approved",
       variant: "success",
       seperator: true,
       refreshAfter: false,
     },
     {
-      label: "Reject",
-      onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "rejected"),
-      condition: (owner: OwnerData) => owner.status !== "rejected",
-      variant: "warning",
-      refreshAfter: false,
-    },
-    {
       label: "Block",
-      onClick: (owner: OwnerData) => changeOwnerStatus(owner._id, "blocked"),
-      condition: (owner: OwnerData) => owner.status !== "blocked",
+      onClick: (owner: OwnerData) => handleActionClick(owner, "blocked"),
+      condition: (owner: OwnerData) =>
+        owner.status !== "blocked" && owner.status === "approved",
       variant: "warning",
       refreshAfter: false,
     },
@@ -205,6 +240,21 @@ export default function OwnerManagement() {
         fetchData={fetchOwners}
         onFilterChange={handleFilterChange}
         className="max-w-6xl"
+      />
+      <ConfirmationModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirm}
+        title={
+          pendingStatus === "approved"
+            ? "Approve Owner"
+            : pendingStatus === "rejected"
+            ? "Reject Owner"
+            : "Block Owner"
+        }
+        message={`Are you sure you want to ${pendingStatus} ${selectedOwner?.username}? This action cannot be undone.`}
+        confirmText={pendingStatus || "Confirm"}
+        variant={pendingStatus === "approved" ? "success" : "danger"}
       />
     </>
   );

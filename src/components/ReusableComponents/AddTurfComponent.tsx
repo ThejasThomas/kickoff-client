@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { MapPin, Phone, Trash2, Plus, ArrowLeft } from "lucide-react";
 import { useFormik } from "formik";
 import { turfSchema } from "@/utils/validations/turf_register_validation";
-import type {  LocationCoordinates, NewTurf } from "@/types/Turf";
+import type { LocationCoordinates, NewTurf } from "@/types/Turf";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TurfLocationPicker from "../turfOwner/TurfDetails/map-location-picker";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
@@ -30,7 +30,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
   const addInputRef = useRef<HTMLInputElement | null>(null);
   const { images, handleImageUpload, removeImage, setImages } =
     useImageUploader("turf-images", MAX_IMAGES);
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [isUploadingImages] = useState(false);
   const [availableOptions, setAvailableOptions] = useState({
     amenities: [
       "Parking",
@@ -49,6 +49,9 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
     newCourtType: "",
   });
 
+  type FormStatus = "active" | "inactive";
+  
+
   const formik = useFormik({
     initialValues: {
       turfName: "",
@@ -62,7 +65,7 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
       amenities: [] as string[],
       pricePerHour: "",
       courtType: "",
-      status: "active",
+      status: "active" as FormStatus,
     },
     validationSchema: turfSchema,
     onSubmit: async (values) => {
@@ -94,9 +97,9 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
         amenities: values.amenities,
         images: uploadedImages.map((img) => img.cloudinaryUrl!),
         contactNumber: values.contactNumber,
-        pricePerHour: values.pricePerHour,
+        pricePerHour: Number.parseFloat(values.pricePerHour),
         courtType: values.courtType,
-        status: values.status as "pending",
+        status: values.status,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -280,8 +283,8 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
                 const img = images[idx] as ImageType | undefined;
                 const isAddSlot =
                   idx === images.length && images.length < MAX_IMAGES;
-                const isPlaceholder =
-                  idx > images.length || images.length === MAX_IMAGES;
+                // const isPlaceholder =
+                //   idx > images.length || images.length === MAX_IMAGES;
 
                 // Filled slot with image
                 if (img) {
@@ -672,8 +675,8 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
               onBlur={formik.handleBlur}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
-              <option value="pending">Active</option>
-              <option value="pending">Inactive</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
             {getFieldError("status") && (
               <p className="text-red-500 text-sm mt-1">
