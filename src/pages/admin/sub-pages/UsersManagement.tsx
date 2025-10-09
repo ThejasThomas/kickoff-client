@@ -178,7 +178,7 @@ export default function UserManagement() {
         actions={actions}
         filters={filters}
         searchPlaceholder="Search users..."
-        itemsPerPage={4}
+        itemsPerPage={2}
         fetchData={fetchUsers}
         emptyMessage="No users found matching your criteria..."
         loadingMessage="Loading Users..."

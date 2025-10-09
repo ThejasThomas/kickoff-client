@@ -1,6 +1,7 @@
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import RejectionModal from "@/components/ReusableComponents/RejectionModal";
-import {ConfirmationModal} from "@/components/ReusableComponents/ConfirmationModel";
+import { ConfirmationModal } from "@/components/ReusableComponents/ConfirmationModel";
+import type { TableRef } from "@/components/ReusableComponents/GenericTable";
 import { adminService } from "@/services/admin/adminService";
 import type { ApiResponse, FetchParams } from "@/types/api.type";
 import type {
@@ -10,7 +11,7 @@ import type {
 } from "@/types/table_type";
 import type { ITurfOwner } from "@/types/User";
 import { Check, User, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 interface TurfOwner extends ExtendableItem {
@@ -18,20 +19,23 @@ interface TurfOwner extends ExtendableItem {
   username: string;
   email: string;
   status: string;
+  phoneNumber: string;
+  address?: string;
+  city?: string;
   createdAt: string;
 }
 
 type ownerStatus = "approved" | "rejected" | "pending";
 
 export default function VendorVerification() {
-  const [refreshKey, setRefreshKey] = useState(0);
+  const tableRef = useRef<TableRef<TurfOwner>>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
   const [isSubmittingReject, setIsSubmittingReject] = useState(false);
 
-  // New states for approve confirmation
   const [showApproveModal, setShowApproveModal] = useState(false);
-  const [selectedForApprove, setSelectedForApprove] = useState<TurfOwner | null>(null);
+  const [selectedForApprove, setSelectedForApprove] =
+    useState<TurfOwner | null>(null);
 
   const ownerRejectionReasons = ["Incomplete or uncleared documentation"];
 
@@ -49,10 +53,13 @@ export default function VendorVerification() {
       const turfOwners: TurfOwner[] = (response.users as ITurfOwner[]).map(
         (user) => ({
           _id: user._id,
-          username: user.ownerName || 'Unknown Owner',
+          username: user.ownerName || "Unknown Owner",
           email: user.email,
-          status: user.status || 'pending',
-          createdAt: user.createdAt?.toString() || new Date().toISOString()
+          phoneNumber: user.phoneNumber || "N/A",
+          address: user.address || "N/A",
+          city: user.city || "N/A",
+          status: user.status || "pending",
+          createdAt: user.createdAt?.toString() || new Date().toISOString(),
         })
       );
 
@@ -62,9 +69,10 @@ export default function VendorVerification() {
         totalPages: response.totalPages,
         currentPage: response.currentPage,
         message: response.message,
+        totalItem: response.users.length,
       };
     } catch (error) {
-      console.error("Failed to fetch venders", error);
+      console.error("Failed to fetch turfOwners", error);
       return {
         success: false,
         users: [],
@@ -78,10 +86,12 @@ export default function VendorVerification() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "approved":
-        return "bg-green-900/30 text-green-400 border border-green-500/30";
+        return "bg-emerald-900/30 text-emerald-400 border border-emerald-500/30";
       case "rejected":
         return "bg-red-900/30 text-red-400 border border-red-500/30";
       case "pending":
+        return "bg-yellow-900/30 text-yellow-400 border border-yellow-500/30";
+      default:
         return "bg-gray-900/30 text-gray-400 border border-gray-500/30";
     }
   };
@@ -97,17 +107,19 @@ export default function VendorVerification() {
         newStatus
       );
       if (res.success) {
-        toast.success(`ownwer status updated to ${newStatus}`);
-        setRefreshKey((prev) => prev + 1);
+        tableRef.current?.updateItemOptimistically(ownerId, {
+          status: newStatus,
+        });
+        toast.success(`Owner status updated to ${newStatus}`);
       } else {
         console.error("Failed to update status", res.message);
         toast.error(
-          `Failed to update vendor status:${res.message || "Unknown error"}`
+          `Failed to update owner status: ${res.message || "Unknown error"}`
         );
       }
     } catch (error) {
-      console.error("Error while updating uwner status:", error);
-      toast.error("Error updating owner status.Please try again later");
+      console.error("Error while updating owner status:", error);
+      toast.error("Error updating owner status. Please try again later");
     }
   };
 
@@ -129,17 +141,19 @@ export default function VendorVerification() {
       );
 
       if (res.success) {
-        toast.success("Vendor rejected successfully");
+        tableRef.current?.updateItemOptimistically(selectedOwnerId, {
+          status: "rejected",
+        });
+        toast.success("Owner rejected successfully");
         setShowRejectModal(false);
         setSelectedOwnerId(null);
-        setRefreshKey((prev) => prev + 1);
       } else {
-        toast.error(`Failed to reject owner:${res.message || "unknown error"}`);
+        toast.error(`Failed to reject owner: ${res.message || "unknown error"}`);
         throw new Error(res.message || "Failed to reject owner");
       }
     } catch (error) {
-      console.error("Errroer while rejectiong owner:", error);
-      toast.error("Error rejectiong owner.Please try again later");
+      console.error("Error while rejecting owner:", error);
+      toast.error("Error rejecting owner. Please try again later");
       throw error;
     } finally {
       setIsSubmittingReject(false);
@@ -171,21 +185,43 @@ export default function VendorVerification() {
   const columns: TableColumn<TurfOwner>[] = [
     {
       key: "owner",
-      label: "owner",
-      width: "col-span-2",
+      label: "Owner",
+      width: "col-span-4 md:col-span-2",
       render: (owner) => (
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-            <User className="text-gray-400" size={16} />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+            <User className="text-gray-400" size={20} />
           </div>
-          <span className="font-medium truncate text-sm">{owner.username}</span>
+          <span className="font-medium truncate">{owner.username}</span>
+        </div>
+      ),
+    },
+    {
+      key: "address",
+      label: "Address",
+      width: "col-span-4 md:col-span-2",
+      render: (owner: TurfOwner) => (
+        <div className="text-sm">
+          <div className="text-white truncate">{owner.address}</div>
+          <div className="text-gray-400 text-xs">{owner.city}</div>
+        </div>
+      ),
+    },
+    {
+      key: "contact",
+      label: "Contact",
+      width: "col-span-4 md:col-span-2",
+      render: (owner: TurfOwner) => (
+        <div className="text-sm">
+          <div className="text-white truncate">{owner.email}</div>
+          <div className="text-gray-400 text-xs">{owner.phoneNumber}</div>
         </div>
       ),
     },
     {
       key: "status",
       label: "Status",
-      width: "col-span-1",
+      width: "col-span-4 md:col-span-2",
       render: (owner) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -205,7 +241,7 @@ export default function VendorVerification() {
       onClick: (owner) => handleApproveClick(owner),
       condition: (owner) => owner.status !== "approved",
       variant: "success",
-      refreshAfter: true,
+      refreshAfter: false,
     },
     {
       label: "Reject",
@@ -213,24 +249,19 @@ export default function VendorVerification() {
       onClick: (owner) => handleRejectClick(owner._id),
       condition: (owner) => owner.status !== "rejected",
       variant: "danger",
-      refreshAfter: true,
+      refreshAfter: false,
     },
   ];
-
-  const handleRefresh = () => {
-    setRefreshKey((prev) => prev + 1);
-  };
 
   return (
     <>
       <GenericTable<TurfOwner>
-        key={refreshKey}
-        title="Owner verification"
+        ref={tableRef}
+        title="Owner Verification"
         columns={columns}
         actions={actions}
         fetchData={fetchOwners}
-        onRefresh={handleRefresh}
-        searchPlaceholder="Search vendors.."
+        searchPlaceholder="Search owners.."
         itemsPerPage={5}
         enableSearch={true}
         enablePagination={true}
