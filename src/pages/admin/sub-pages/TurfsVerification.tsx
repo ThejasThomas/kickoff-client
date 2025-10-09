@@ -1,31 +1,36 @@
-import {motion} from 'framer-motion'
+import { motion } from "framer-motion";
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import RejectionModal from "@/components/ReusableComponents/RejectionModal";
-import {ConfirmationModal} from "@/components/ReusableComponents/ConfirmationModel";
+import { ConfirmationModal } from "@/components/ReusableComponents/ConfirmationModel";
 import { adminService } from "@/services/admin/adminService";
 import type { ApiResponse, FetchParams } from "@/types/api.type";
-import type {
-  TableAction,
-  TableColumn,
-} from "@/types/table_type";
+import type { TableAction, TableColumn } from "@/types/table_type";
 import type { ITurf } from "@/types/Turf";
 import { AnimatePresence } from "framer-motion";
-import { Check, MapPin, X, ImageIcon, XIcon, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Check,
+  MapPin,
+  X,
+  ImageIcon,
+  XIcon,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-
 console.log("heloo bro");
 
-const AmenitiesModal = ({ 
-  isOpen, 
-  onClose, 
-  amenities, 
-  turfName 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  amenities: string[]; 
+const AmenitiesModal = ({
+  isOpen,
+  onClose,
+  amenities,
+  turfName,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  amenities: string[];
   turfName: string;
 }) => {
   if (!isOpen) return null;
@@ -57,7 +62,7 @@ const AmenitiesModal = ({
               <XIcon size={20} />
             </button>
           </div>
-          
+
           {amenities.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
               {amenities.map((amenity, index) => (
@@ -79,15 +84,15 @@ const AmenitiesModal = ({
     </AnimatePresence>
   );
 };
-const ImagesModal = ({ 
-  isOpen, 
-  onClose, 
-  images, 
-  turfName 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  images: string[]; 
+const ImagesModal = ({
+  isOpen,
+  onClose,
+  images,
+  turfName,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  images: string[];
   turfName: string;
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -129,7 +134,7 @@ const ImagesModal = ({
               <XIcon size={20} />
             </button>
           </div>
-          
+
           {images.length > 0 ? (
             <>
               {/* Main Image Display */}
@@ -141,7 +146,7 @@ const ImagesModal = ({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                
+
                 {/* Navigation arrows */}
                 {images.length > 1 && (
                   <>
@@ -159,7 +164,7 @@ const ImagesModal = ({
                     </button>
                   </>
                 )}
-                
+
                 {/* Image counter */}
                 <div className="absolute bottom-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-sm">
                   {currentImageIndex + 1} / {images.length}
@@ -174,9 +179,9 @@ const ImagesModal = ({
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                        index === currentImageIndex 
-                          ? 'border-blue-500' 
-                          : 'border-gray-600 hover:border-gray-500'
+                        index === currentImageIndex
+                          ? "border-blue-500"
+                          : "border-gray-600 hover:border-gray-500"
                       }`}
                     >
                       <img
@@ -200,8 +205,6 @@ const ImagesModal = ({
   );
 };
 
-
-
 type turfStatus = "approved" | "rejected" | "pending";
 
 export default function TurfVerification() {
@@ -217,14 +220,16 @@ export default function TurfVerification() {
     "Invalid location/address",
     "Suspicious or fraudulent listing",
     "Pricing concerns",
-  "Safety compliance issues"
+    "Safety compliance issues",
   ];
   const [showImagesModal, setShowImagesModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
   // New states for approve confirmation
   const [showApproveModal, setShowApproveModal] = useState(false);
-  const [selectedForApprove, setSelectedForApprove] = useState<ITurf | null>(null);
+  const [selectedForApprove, setSelectedForApprove] = useState<ITurf | null>(
+    null
+  );
 
   const fetchTurfs = async (
     params: FetchParams<{}>
@@ -234,12 +239,12 @@ export default function TurfVerification() {
         page: params.page,
         limit: params.limit,
         search: params.search,
-        status:"pending"
+        status: "pending",
       });
 
       const turfs: ITurf[] = response.turfs.map((turf: any) => ({
         _id: turf._id,
-        ownerId:turf.ownerId,
+        ownerId: turf.ownerId,
         turfName: turf.turfName || "Unknown Turf",
         description: turf.description || "",
         location: {
@@ -290,8 +295,13 @@ export default function TurfVerification() {
     }
   };
 
-  const handleStatusChange = async (turfId: string, newStatus: turfStatus,ownerId:string,reason?:string) => {
-    console.log('ownerrrrIdddddddds',ownerId)
+  const handleStatusChange = async (
+    turfId: string,
+    newStatus: turfStatus,
+    ownerId: string,
+    reason?: string
+  ) => {
+    console.log("ownerrrrIdddddddds", ownerId);
     try {
       const res = await adminService.updateEntityStatus(
         "turf",
@@ -313,16 +323,16 @@ export default function TurfVerification() {
     }
   };
 
-  const [selectedOwnerId, setSelectedOwnerId] = useState<string | undefined>(undefined);
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string | undefined>(
+    undefined
+  );
 
-
-  const handleRejectClick = (turfId: string,ownerId?:string) => {
+  const handleRejectClick = (turfId: string, ownerId?: string) => {
     setSelectedTurfId(turfId);
-    setSelectedOwnerId(ownerId)
+    setSelectedOwnerId(ownerId);
     setShowRejectModal(true);
   };
 
-  
   const handleRejectSubmit = async (reason: string) => {
     if (!selectedTurfId) return;
 
@@ -364,9 +374,8 @@ export default function TurfVerification() {
     setShowAmenitiesModal(true);
   };
   const handleRefresh = () => {
-  setRefreshKey((prev) => prev + 1);
-};
-
+    setRefreshKey((prev) => prev + 1);
+  };
 
   const closeAmenitiesModal = () => {
     setShowAmenitiesModal(false);
@@ -374,7 +383,7 @@ export default function TurfVerification() {
     setSelectedTurfName("");
   };
 
-   const handleViewImages = (images: string[], turfName: string) => {
+  const handleViewImages = (images: string[], turfName: string) => {
     setSelectedImages(images);
     setSelectedTurfName(turfName);
     setShowImagesModal(true);
@@ -394,7 +403,11 @@ export default function TurfVerification() {
 
   const handleApproveConfirm = async () => {
     if (!selectedForApprove) return;
-    await handleStatusChange(selectedForApprove._id, "approved", selectedForApprove.ownerId || "");
+    await handleStatusChange(
+      selectedForApprove._id,
+      "approved",
+      selectedForApprove.ownerId || ""
+    );
     setShowApproveModal(false);
     setSelectedForApprove(null);
   };
@@ -404,11 +417,11 @@ export default function TurfVerification() {
     setSelectedForApprove(null);
   };
 
-   const columns: TableColumn<ITurf>[] = [
+  const columns: TableColumn<ITurf>[] = [
     {
       key: "turfName",
       label: "Turf Name",
-      width: "col-span-3", 
+      width: "col-span-3",
       render: (turf) => (
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center shrink-0">
@@ -422,19 +435,31 @@ export default function TurfVerification() {
       key: "location",
       label: "Location",
       width: "col-span-2", // 2
-      render: (turf) => <span className="text-sm text-gray-300 truncate whitespace-nowrap">{turf.location.city}</span>,
+      render: (turf) => (
+        <span className="text-sm text-gray-300 truncate whitespace-nowrap">
+          {turf.location.city}
+        </span>
+      ),
     },
     {
       key: "courtType",
       label: "Court Type",
       width: "col-span-1", // 1
-      render: (turf) => <span className="text-sm text-gray-400 whitespace-nowrap">{turf.courtType}</span>,
+      render: (turf) => (
+        <span className="text-sm text-gray-400 whitespace-nowrap">
+          {turf.courtType}
+        </span>
+      ),
     },
     {
       key: "pricePerHour",
       label: "Price / Hour",
       width: "col-span-1", // 1
-      render: (turf) => <span className="text-sm text-gray-400 whitespace-nowrap">₹{turf.pricePerHour}</span>,
+      render: (turf) => (
+        <span className="text-sm text-gray-400 whitespace-nowrap">
+          ₹{turf.pricePerHour}
+        </span>
+      ),
     },
     {
       key: "amenities",
@@ -448,7 +473,9 @@ export default function TurfVerification() {
                 {turf.amenities.length} amenities
               </span> */}
               <button
-                onClick={() => handleViewAmenities(turf.amenities, turf.turfName)}
+                onClick={() =>
+                  handleViewAmenities(turf.amenities, turf.turfName)
+                }
                 className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md text-xs flex items-center gap-1 transition-colors"
               >
                 <Eye size={12} />
@@ -486,19 +513,25 @@ export default function TurfVerification() {
       label: "Status",
       width: "col-span-1", // 1
       render: (turf) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(turf.status)}`}>
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(
+            turf.status
+          )}`}
+        >
           {turf.status}
         </span>
       ),
     },
-  ]
+  ];
 
   const actions: TableAction<ITurf>[] = [
     {
       label: "Approve",
       icon: <Check size={12} />,
-      onClick: (turf) =>{ if(!turf._id) return;
-         handleApproveClick(turf)},
+      onClick: (turf) => {
+        if (!turf._id) return;
+        handleApproveClick(turf);
+      },
       condition: (turf) => turf.status !== "approved",
       variant: "success",
       refreshAfter: true,
@@ -506,8 +539,10 @@ export default function TurfVerification() {
     {
       label: "Reject",
       icon: <X size={12} />,
-      onClick: (turf) =>{ if(!turf._id) return;
-         handleRejectClick(turf._id,turf.ownerId)},
+      onClick: (turf) => {
+        if (!turf._id) return;
+        handleRejectClick(turf._id, turf.ownerId);
+      },
       condition: (turf) => turf.status !== "rejected",
       variant: "danger",
       refreshAfter: true,
@@ -524,7 +559,7 @@ export default function TurfVerification() {
         fetchData={fetchTurfs}
         onRefresh={handleRefresh}
         searchPlaceholder="Search turfs.."
-        itemsPerPage={5}
+        itemsPerPage={4}
         enableSearch
         enablePagination
         enableActions

@@ -69,7 +69,7 @@ const BookingViewDetailsPage = () => {
     };
 
     fetchDetails();
-  }, [turfId, errorToast]);
+  }, [turfId]);
 
   if (loading) {
     return (

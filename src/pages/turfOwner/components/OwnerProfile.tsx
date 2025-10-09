@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { useFormik } from "formik";
-import { 
+import {
   Camera,
   Edit3,
   Save,
@@ -11,13 +11,17 @@ import {
   Mail,
   Phone,
   MapPin,
-  Home
-} from 'lucide-react';
+  Home,
+} from "lucide-react";
 import { useToaster } from "@/hooks/ui/useToaster";
 import type { ITurfOwner, ITurfOwnerDetails } from "@/types/User";
 import * as Yup from "yup";
 import { useImageUploader } from "@/hooks/common/ImageUploader";
-import { getTurfOwnerProfile, updateTurfOwnerProfile } from "@/services/TurfOwner/turfOwnerService";
+import {
+  getTurfOwnerProfile,
+  updateTurfOwnerProfile,
+} from "@/services/TurfOwner/turfOwnerService";
+import { useNavigate } from "react-router-dom";
 
 interface TurfOwnerProfileProps {
   initialData?: Partial<ITurfOwner>;
@@ -33,16 +37,22 @@ interface ProfileFormData extends ITurfOwnerDetails {
   pinCode?: string;
 }
 
-export const OwnerProfile = ({ 
-  initialData, 
-  onSave, 
-  isLoading = false 
+export const OwnerProfile = ({
+  initialData,
+  onSave,
+  isLoading = false,
 }: TurfOwnerProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { successToast, errorToast } = useToaster();
-  const { images, handleImageUpload, removeImage } = useImageUploader("turfOwners", 1);
-  const [profileData, setProfileData] = useState<Partial<ITurfOwner>>(initialData || {});
+  const { images, handleImageUpload, removeImage } = useImageUploader(
+    "turfOwners",
+    1
+  );
+  const [profileData, setProfileData] = useState<Partial<ITurfOwner>>(
+    initialData || {}
+  );
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -50,7 +60,7 @@ export const OwnerProfile = ({
         const data = await getTurfOwnerProfile();
         setProfileData(data);
       } catch (err) {
-        console.log(err)
+        console.log(err);
       }
     };
 
@@ -59,8 +69,11 @@ export const OwnerProfile = ({
     }
   }, [initialData]);
 
-  const profileImagePreview = images[0]?.cloudinaryUrl || 
-    (profileData?.profileImage && typeof profileData.profileImage === 'string' ? profileData.profileImage : null);
+  const profileImagePreview =
+    images[0]?.cloudinaryUrl ||
+    (profileData?.profileImage && typeof profileData.profileImage === "string"
+      ? profileData.profileImage
+      : null);
 
   const profileSchema = Yup.object({
     address: Yup.string()
@@ -123,12 +136,11 @@ export const OwnerProfile = ({
           ...values,
           profileImage: finalImage || undefined,
         };
-        console.log('ownerDaaata',ownerData)
+        console.log("ownerDaaata", ownerData);
 
         const response = await updateTurfOwnerProfile(ownerData);
         onSave(response.user);
         setIsEditing(false);
-        // successToast("Profile updated successfully!");
       } catch (err) {
         errorToast("Failed to update profile");
       }
@@ -146,10 +158,15 @@ export const OwnerProfile = ({
     }
   };
 
-  const isProfileComplete = formik.isValid && formik.values.ownerName && 
-    formik.values.email && formik.values.phoneNumber && 
-    formik.values.address && formik.values.city && 
-    formik.values.state && formik.values.pinCode && 
+  const isProfileComplete =
+    formik.isValid &&
+    formik.values.ownerName &&
+    formik.values.email &&
+    formik.values.phoneNumber &&
+    formik.values.address &&
+    formik.values.city &&
+    formik.values.state &&
+    formik.values.pinCode &&
     profileImagePreview;
 
   return (
@@ -163,17 +180,21 @@ export const OwnerProfile = ({
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Complete Your Profile</h1>
-              <p className="text-gray-600 mt-1">Add your turf details to get started</p>
+              <h1 className="text-3xl font-bold text-gray-800">
+                Complete Your Profile
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Add your turf details to get started
+              </p>
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsEditing(!isEditing)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                isEditing 
-                  ? 'bg-red-500 text-white hover:bg-red-600' 
-                  : 'bg-teal-500 text-white hover:bg-teal-600'
+                isEditing
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "bg-teal-500 text-white hover:bg-teal-600"
               }`}
             >
               {isEditing ? (
@@ -202,14 +223,14 @@ export const OwnerProfile = ({
               <Camera className="w-5 h-5 text-teal-500" />
               Profile Photo
             </h2>
-            
+
             <div className="flex items-center gap-6">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-teal-400 to-green-500 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
                   {profileImagePreview ? (
-                    <img 
-                      src={profileImagePreview} 
-                      alt="Profile" 
+                    <img
+                      src={profileImagePreview}
+                      alt="Profile"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -228,7 +249,7 @@ export const OwnerProfile = ({
                   </motion.button>
                 )}
               </div>
-              
+
               {isEditing && profileImagePreview && (
                 <button
                   type="button"
@@ -239,7 +260,7 @@ export const OwnerProfile = ({
                 </button>
               )}
             </div>
-            
+
             <input
               ref={fileInputRef}
               type="file"
@@ -273,14 +294,20 @@ export const OwnerProfile = ({
                     onBlur={formik.handleBlur}
                     disabled={!isEditing}
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                      isEditing ? 'bg-white' : 'bg-gray-100'
-                    } ${formik.touched.ownerName && formik.errors.ownerName ? 'border-red-500' : 'border-gray-300'}`}
+                      isEditing ? "bg-white" : "bg-gray-100"
+                    } ${
+                      formik.touched.ownerName && formik.errors.ownerName
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter owner name"
                   />
                   <User className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
                 </div>
                 {formik.touched.ownerName && formik.errors.ownerName && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.ownerName}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.ownerName}
+                  </p>
                 )}
               </div>
               <div>
@@ -296,14 +323,20 @@ export const OwnerProfile = ({
                     onBlur={formik.handleBlur}
                     disabled={!isEditing}
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                      isEditing ? 'bg-white' : 'bg-gray-100'
-                    } ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                      isEditing ? "bg-white" : "bg-gray-100"
+                    } ${
+                      formik.touched.email && formik.errors.email
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter email"
                   />
                   <Mail className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
                 </div>
                 {formik.touched.email && formik.errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.email}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.email}
+                  </p>
                 )}
               </div>
               <div>
@@ -319,14 +352,20 @@ export const OwnerProfile = ({
                     onBlur={formik.handleBlur}
                     disabled={!isEditing}
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                      isEditing ? 'bg-white' : 'bg-gray-100'
-                    } ${formik.touched.phoneNumber && formik.errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+                      isEditing ? "bg-white" : "bg-gray-100"
+                    } ${
+                      formik.touched.phoneNumber && formik.errors.phoneNumber
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter phone number"
                   />
                   <Phone className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
                 </div>
                 {formik.touched.phoneNumber && formik.errors.phoneNumber && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.phoneNumber}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.phoneNumber}
+                  </p>
                 )}
               </div>
             </div>
@@ -356,14 +395,20 @@ export const OwnerProfile = ({
                     onBlur={formik.handleBlur}
                     disabled={!isEditing}
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                      isEditing ? 'bg-white' : 'bg-gray-100'
-                    } ${formik.touched.address && formik.errors.address ? 'border-red-500' : 'border-gray-300'}`}
+                      isEditing ? "bg-white" : "bg-gray-100"
+                    } ${
+                      formik.touched.address && formik.errors.address
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter address"
                   />
                   <Home className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
                 </div>
                 {formik.touched.address && formik.errors.address && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.address}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.address}
+                  </p>
                 )}
               </div>
               <div>
@@ -378,12 +423,18 @@ export const OwnerProfile = ({
                   onBlur={formik.handleBlur}
                   disabled={!isEditing}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                    isEditing ? 'bg-white' : 'bg-gray-100'
-                  } ${formik.touched.city && formik.errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                    isEditing ? "bg-white" : "bg-gray-100"
+                  } ${
+                    formik.touched.city && formik.errors.city
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter city"
                 />
                 {formik.touched.city && formik.errors.city && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.city}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.city}
+                  </p>
                 )}
               </div>
               <div>
@@ -398,12 +449,18 @@ export const OwnerProfile = ({
                   onBlur={formik.handleBlur}
                   disabled={!isEditing}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                    isEditing ? 'bg-white' : 'bg-gray-100'
-                  } ${formik.touched.state && formik.errors.state ? 'border-red-500' : 'border-gray-300'}`}
+                    isEditing ? "bg-white" : "bg-gray-100"
+                  } ${
+                    formik.touched.state && formik.errors.state
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter state"
                 />
                 {formik.touched.state && formik.errors.state && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.state}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.state}
+                  </p>
                 )}
               </div>
               <div>
@@ -418,12 +475,18 @@ export const OwnerProfile = ({
                   onBlur={formik.handleBlur}
                   disabled={!isEditing}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
-                    isEditing ? 'bg-white' : 'bg-gray-100'
-                  } ${formik.touched.pinCode && formik.errors.pinCode ? 'border-red-500' : 'border-gray-300'}`}
+                    isEditing ? "bg-white" : "bg-gray-100"
+                  } ${
+                    formik.touched.pinCode && formik.errors.pinCode
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter pin code"
                 />
                 {formik.touched.pinCode && formik.errors.pinCode && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.pinCode}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.pinCode}
+                  </p>
                 )}
               </div>
             </div>
@@ -435,6 +498,18 @@ export const OwnerProfile = ({
             animate={{ scale: 1, opacity: 1 }}
             className="flex justify-end gap-4"
           >
+            {profileData?.status === "rejected" && (
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate("/turfOwner/request-updatedpage")}
+                className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium transition-all"
+              >
+                ReApply
+              </motion.button>
+            )}
+
             {isEditing && (
               <>
                 <motion.button
@@ -449,7 +524,7 @@ export const OwnerProfile = ({
                 >
                   Cancel
                 </motion.button>
-                
+
                 <motion.button
                   type="submit"
                   disabled={isLoading || !(formik.isValid && formik.dirty)}

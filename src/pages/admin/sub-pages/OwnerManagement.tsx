@@ -231,7 +231,7 @@ export default function OwnerManagement() {
         actions={actions}
         filters={filters}
         searchPlaceholder="Search Owners..."
-        itemsPerPage={4}
+        itemsPerPage={3}
         enableSearch={true}
         enablePagination={true}
         enableActions={true}

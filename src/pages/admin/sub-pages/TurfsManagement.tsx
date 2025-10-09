@@ -232,7 +232,6 @@ export default function TurfManagement() {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
 
-  // Confirmation modal state
   const [confirmationState, setConfirmationState] = useState<ConfirmationState>(
     {
       isOpen: false,
@@ -666,7 +665,7 @@ export default function TurfManagement() {
         actions={actions}
         fetchData={fetchTurfs}
         searchPlaceholder="Search turfs by name, location, court type..."
-        itemsPerPage={10}
+        itemsPerPage={5}
         enableSearch
         enablePagination
         enableActions
