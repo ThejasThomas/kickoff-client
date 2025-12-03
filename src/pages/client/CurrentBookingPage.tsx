@@ -56,11 +56,10 @@ const CurrentBookingPage = () => {
 
   const pageSize = 6;
 
-  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchInput);
-      setCurrentPage(1); // Reset to first page on search
+      setCurrentPage(1);
     }, 500);
 
     return () => clearTimeout(timer);

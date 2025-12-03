@@ -20,7 +20,6 @@ import {
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-console.log("heloo bro");
 
 const AmenitiesModal = ({
   isOpen,
@@ -273,7 +272,6 @@ export default function TurfVerification() {
         message: response.message,
       };
     } catch (error) {
-      console.error("Failed to fetch turfs", error);
       return {
         success: false,
         users: [],
@@ -301,7 +299,6 @@ export default function TurfVerification() {
     ownerId: string,
     reason?: string
   ) => {
-    console.log("ownerrrrIdddddddds", ownerId);
     try {
       const res = await adminService.updateEntityStatus(
         "turf",
@@ -318,7 +315,6 @@ export default function TurfVerification() {
         toast.error(`Failed to update turf status: ${res.message}`);
       }
     } catch (error) {
-      console.error("Error while updating turf status:", error);
       toast.error("Error updating turf status. Please try again later");
     }
   };
@@ -356,7 +352,6 @@ export default function TurfVerification() {
         toast.error(`Failed to reject turf: ${res.message}`);
       }
     } catch (error) {
-      console.error("Error while rejecting turf:", error);
       toast.error("Error rejecting turf. Please try again later");
     } finally {
       setIsSubmittingReject(false);

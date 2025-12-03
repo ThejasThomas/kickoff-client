@@ -15,14 +15,20 @@ export interface ITurfBase {
   amenities: string[];
   images: string[];
   contactNumber: string;
-  status: "active" | "inactive" | "approved" | "rejected"|"pending"| "blocked"
+  status:
+    | "active"
+    | "inactive"
+    | "approved"
+    | "rejected"
+    | "pending"
+    | "blocked";
   createdAt?: Date;
   updatedAt?: Date;
   pricePerHour: number;
   courtType: string;
-  openingTime?:string;
-  closingTime?:string;
-  slotDuration?:number;
+  openingTime?: string;
+  closingTime?: string;
+  slotDuration?: number;
 }
 
 export interface TurfFormValues {}
@@ -34,6 +40,5 @@ export interface LocationCoordinates {
 export interface ITurf extends ITurfBase {
   _id: string;
 }
-
 
 export type NewTurf = ITurfBase & { _id?: string };

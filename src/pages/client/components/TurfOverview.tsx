@@ -31,7 +31,7 @@ const TurfOverview: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const today = new Date().toLocaleDateString("en-CA"); // Local YYYY-MM-DD for min
+  const today = new Date().toLocaleDateString("en-CA"); 
 
   useEffect(() => {
     const fetchTurf = async () => {
@@ -57,33 +57,23 @@ const TurfOverview: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    const fetchSlots = async () => {
-      if (!id || !selectedDate) return;
+  const fetchSlots = async () => {
+    if (!id || !selectedDate) return;
 
-      try {
-        const slotData = await getSlots(id, selectedDate);
-        console.log("SloootDaaaataaa", slotData);
+    try {
+      const slotData = await getSlots(id, selectedDate);
+      console.log("Slots from backend:", slotData);
 
-        const slotsWithUniqueIds = Array.isArray(slotData)
-          ? slotData.map((slot, index) => ({
-              ...slot,
-              id:
-                slot.id ||
-                `slot-${index}-${Date.now()}-${Math.random()
-                  .toString(36)
-                  .substr(2, 9)}`,
-            }))
-          : [];
+      setSlots(Array.isArray(slotData) ? slotData : []);
+    } catch (err) {
+      console.error("Error fetching slots:", err);
+      setError("Could not fetch slots");
+    }
+  };
 
-        setSlots(slotsWithUniqueIds);
-      } catch (err) {
-        console.error("Error fetching slots:", err);
-        setError("An error occurred while fetching slot details");
-      }
-    };
+  fetchSlots();
+}, [id, selectedDate]);
 
-    fetchSlots();
-  }, [id, selectedDate]);
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) =>
@@ -168,7 +158,7 @@ const TurfOverview: React.FC = () => {
   };
 
   const getAvailableSlots = () => {
-    return slots.filter((slot) => !isDefaultSlot(slot));
+    return slots.filter((slot) => !isDefaultSlot(slot)  && !slot.isBooked);
   };
 
   if (loading) {

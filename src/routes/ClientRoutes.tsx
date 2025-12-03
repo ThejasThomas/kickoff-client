@@ -17,6 +17,11 @@ import { ClientProfile } from "@/pages/client/components/ClientProfilePage";
 const ClientRoutes = () => {
   return (
     <Routes>
+      <Route 
+    path="/paymentpage"
+    element={<TurfPaymentPage />}
+  />
+      
       <Route index element={<NoAuthRoute element={<ClientAuth />} />} />
       <Route
         path="/"
@@ -36,7 +41,7 @@ const ClientRoutes = () => {
           }
         />{" "}
         <Route path="turfoverview/:id" element={<TurfOverview />} />
-        <Route path="paymentpage" element={<TurfPaymentPage />} />
+        {/* <Route path="paymentpage" element={<TurfPaymentPage />} /> */}
         <Route path="allturfdisplay" element={<AllTurfsPage />} />
         <Route path="bookinghistory" element={<ClientPastBookingsPage />} />
         <Route path="upcomingbookings" element={<CurrentBookingPage />} />
