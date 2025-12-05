@@ -3,6 +3,7 @@ import type { ITurf, ITurfBase } from "./Turf";
 import type { IAdmin, IClient, ITurfOwner, UserDTO } from "./User";
 import type { IBookings } from "./Booking_type";
 import type { IRules } from "./rules_type";
+import type { IWalletTransaction } from "./wallet_type";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -74,6 +75,8 @@ export  interface SlotResponse {
   slots:ISlot[]
 }
 
+
+
 export interface IBookResponse {
   success:boolean,
   message:string,
@@ -90,3 +93,22 @@ export interface GetUpcomingBookings{
   search?:string;
 }
 
+
+export interface IAddMoneyResponse{
+  success:boolean;
+  message:string;
+  transaction:IWalletTransaction
+}
+
+export interface IWalletHistoryResponse {
+  success: boolean;
+  transactions: IWalletTransaction[];
+  total:number;
+  page:number;
+  limit:number
+}
+
+export interface IWalletBalanceResponse {
+  success:boolean;
+  balance:number
+}

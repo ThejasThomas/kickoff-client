@@ -1,12 +1,15 @@
 import { axiosInstance } from "@/api/private_axios";
 import { CLIENT_ROUTE } from "@/constants/client_route";
 import type { IBookings } from "@/types/Booking_type";
-import type {
-  GetUpcomingBookings,
-  IAuthResponse,
-  IBookResponse,
-  ITurffResponse,
-  SlotResponse,
+import {
+  type GetUpcomingBookings,
+  type IAddMoneyResponse,
+  type IAuthResponse,
+  type IBookResponse,
+  type ITurffResponse,
+  type IWalletBalanceResponse,
+  type IWalletHistoryResponse,
+  type SlotResponse,
 } from "@/types/Response";
 import type { ISlot } from "@/types/Slot";
 import type { ITurf } from "@/types/Turf";
@@ -120,6 +123,29 @@ export const getTurfs = async (
     throw error;
   }
 };
+
+export const addMoney=async (amount:number,reason:string):Promise<IAddMoneyResponse>=>{
+  const response =await axiosInstance.post<IAddMoneyResponse>(CLIENT_ROUTE.ADDMONEY,{
+    amount,
+    reason
+  })
+  return response.data;
+}
+export const getWalletBalance =async ()=>{
+  const response=await axiosInstance.get<IWalletBalanceResponse>(
+    CLIENT_ROUTE.GET_WALLET_BALANCE
+  )
+  return response.data
+}
+export const getTransactionHistory=async (page=1,limit=2)=>{
+  const response=await axiosInstance.get<IWalletHistoryResponse>(
+    CLIENT_ROUTE.GET_TRANSACTION_HISTORY,
+    {
+      params:{page,limit}
+    }
+  )
+  return response.data;
+}
 
 
 

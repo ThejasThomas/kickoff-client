@@ -13,15 +13,13 @@ import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";
 import ClientPastBookingsPage from "@/pages/client/ClientPastBookingsPage";
 import { ClientProfile } from "@/pages/client/components/ClientProfilePage";
+import WalletPage from "@/pages/client/Wallet";
 
 const ClientRoutes = () => {
   return (
     <Routes>
-      <Route 
-    path="/paymentpage"
-    element={<TurfPaymentPage />}
-  />
-      
+      <Route path="/paymentpage" element={<TurfPaymentPage />} />
+
       <Route index element={<NoAuthRoute element={<ClientAuth />} />} />
       <Route
         path="/"
@@ -45,6 +43,7 @@ const ClientRoutes = () => {
         <Route path="allturfdisplay" element={<AllTurfsPage />} />
         <Route path="bookinghistory" element={<ClientPastBookingsPage />} />
         <Route path="upcomingbookings" element={<CurrentBookingPage />} />
+        <Route path="wallet" element={<WalletPage />} />
         <Route path="bookings/details" element={<BookingViewDetailsPage />} />
         <Route path="clientprofile" element={<ClientProfile />} />
       </Route>

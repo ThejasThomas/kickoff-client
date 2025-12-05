@@ -15,6 +15,7 @@ import {
   Star,
   Zap,
   X,
+  Wallet,
 } from "lucide-react"
 import { Button } from "../ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
@@ -68,6 +69,12 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
           path: "/bookinghistory",
           description: "Past Activities",
         },
+        {
+          icon:Wallet,
+          label:"Wallet",
+          path:"/wallet",
+          description:"Wallet details"
+        }
       ]
     case "admin":
       return [

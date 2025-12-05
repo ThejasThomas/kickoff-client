@@ -12,6 +12,9 @@ export const CLIENT_ROUTE ={
     GET_UPCOMING_BOOKINGS:`${BASE_URL.CLIENT}/get-upcoming-bookings`,
     GETPROFILE:`${BASE_URL.CLIENT}/get-user-profile`,
     GETURFBYID:`${BASE_URL.CLIENT}/get-turfdetails`,
+    ADDMONEY:`${BASE_URL.CLIENT}/add-money`,
+    GET_TRANSACTION_HISTORY:`${BASE_URL.CLIENT}/transactionhistory`,
+    GET_WALLET_BALANCE:`${BASE_URL.CLIENT}/walletbalance`,
     REFRESH_TOKEN:`${BASE_URL.CLIENT}/refresh-token`,
     LOGOUT:`${BASE_URL.CLIENT}/logout`,
 }
