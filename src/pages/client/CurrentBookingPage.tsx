@@ -1,4 +1,7 @@
-import { getupcomingBookings } from "@/services/client/clientService";
+import {
+  getupcomingBookings,
+  requestCancelBooking,
+} from "@/services/client/clientService";
 import type { IBookings } from "@/types/Booking_type";
 import type { IBookResponse } from "@/types/Response";
 import { useEffect, useState, useCallback } from "react";
@@ -42,6 +45,8 @@ const CurrentBookingPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState<string>("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
+  const [cancelReason, setCancelReason] = useState("");
+
   const [cancelDialog, setCancelDialog] = useState<{
     isOpen: boolean;
     bookingIndex: number | null;
@@ -131,20 +136,30 @@ const CurrentBookingPage = () => {
   ) => {
     setCancelLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (!cancelReason.trim()) {
+        errorToast("Please enter a reason for cancellation.");
+        setCancelLoading(false);
+        return;
+      }
+      console.log('bookingIDDD',booking._id)
+
+      const res = await requestCancelBooking(booking._id!, cancelReason);
+
+      successToast("Cancellation request submitted!");
 
       const updatedBookings = [...bookings];
       updatedBookings[bookingIndex] = {
         ...booking,
-        status: "cancelled",
+        status: "pending_cancel",
       };
       setBookings(updatedBookings);
-      successToast("Booking Cancelled");
 
       setCancelDialog({ isOpen: false, bookingIndex: null, booking: null });
-    } catch (error) {
-      errorToast("Cancellation Failed");
-      console.log(error);
+      setCancelReason("");
+    } catch (error:any) {
+      const msg=error?.response?.data?.message||"Failed to send cancellation request"
+
+      errorToast(msg);
     } finally {
       setCancelLoading(false);
     }
@@ -412,11 +427,11 @@ const CurrentBookingPage = () => {
               Cancel Booking
             </DialogTitle>
             <DialogDescription className="text-gray-600 text-lg">
-              Are you sure you want to cancel this turf booking? This action
-              cannot be undone.
+              Provide a cancellation reason and confirm your request.
             </DialogDescription>
           </DialogHeader>
 
+          {/* Booking Details */}
           {cancelDialog.booking && (
             <div className="py-6 space-y-4 border-y border-gray-100">
               <div className="bg-gray-50 rounded-xl p-4 space-y-3">
@@ -426,6 +441,7 @@ const CurrentBookingPage = () => {
                     {formatDate(cancelDialog.booking.date)}
                   </span>
                 </div>
+
                 <div className="flex items-center gap-3 text-sm">
                   <Clock className="h-4 w-4 text-gray-600" />
                   <span className="font-medium text-gray-900">
@@ -433,6 +449,7 @@ const CurrentBookingPage = () => {
                     {formatTime(cancelDialog.booking.endTime)}
                   </span>
                 </div>
+
                 <div className="flex items-center gap-3 text-sm">
                   <DollarSign className="h-4 w-4 text-gray-600" />
                   <span className="font-bold text-gray-900 text-lg">
@@ -443,7 +460,22 @@ const CurrentBookingPage = () => {
             </div>
           )}
 
-          <DialogFooter className="flex gap-3 pt-4">
+          {/* Reason Input */}
+          <div className="mt-6">
+            <label className="text-gray-700 font-medium">
+              Reason for Cancellation
+            </label>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Please explain why you want to cancel..."
+              className="w-full mt-2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:outline-none"
+              rows={3}
+            />
+          </div>
+
+          {/* Buttons */}
+          <DialogFooter className="flex gap-3 pt-6">
             <motion.button
               onClick={() =>
                 setCancelDialog({
@@ -459,6 +491,7 @@ const CurrentBookingPage = () => {
             >
               Keep Booking
             </motion.button>
+
             <motion.button
               onClick={() => {
                 if (
@@ -476,7 +509,7 @@ const CurrentBookingPage = () => {
               whileTap={{ scale: 0.98 }}
               className="flex-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-200 shadow-lg disabled:opacity-50"
             >
-              {cancelLoading ? "Cancelling..." : "Cancel Booking"}
+              {cancelLoading ? "Submitting..." : "Submit Request"}
             </motion.button>
           </DialogFooter>
         </DialogContent>

@@ -1,19 +1,23 @@
-
-import { Calendar, Clock, DollarSign, CreditCard, Star } from "lucide-react"
-import { motion } from "framer-motion"
-import { StatusBadge } from "./status-badge"
-import type { IBookings } from "@/types/Booking_type"
-import { formatDate } from "@/components/ui/format-date"
-import { formatTime } from "./format-date"
+import { Calendar, Clock, DollarSign, CreditCard, Star } from "lucide-react";
+import { motion } from "framer-motion";
+import { StatusBadge } from "./status-badge";
+import type { IBookings } from "@/types/Booking_type";
+import { formatDate } from "@/components/ui/format-date";
+import { formatTime } from "./format-date";
 
 interface BookingCardProps {
-  booking: IBookings
-  index: number
-  onViewDetails: (turfId: string, booking: IBookings) => void
-  onCancel?: (index: number, booking: IBookings) => void
+  booking: IBookings;
+  index: number;
+  onViewDetails: (turfId: string, booking: IBookings) => void;
+  onCancel?: (index: number, booking: IBookings) => void;
 }
 
-export const BookingCard = ({ booking, index, onViewDetails, onCancel }: BookingCardProps) => {
+export const BookingCard = ({
+  booking,
+  index,
+  onViewDetails,
+  onCancel,
+}: BookingCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -31,7 +35,9 @@ export const BookingCard = ({ booking, index, onViewDetails, onCancel }: Booking
                 <Star className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Turf Booking</h3>
+                <h3 className="text-lg font-bold text-gray-900">
+                  Turf Booking
+                </h3>
                 <p className="text-sm text-gray-500"></p>
               </div>
             </div>
@@ -46,7 +52,9 @@ export const BookingCard = ({ booking, index, onViewDetails, onCancel }: Booking
           <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
             <Calendar className="h-4 w-4 text-gray-600" />
           </div>
-          <span className="font-medium text-gray-900">{formatDate(booking.date)}</span>
+          <span className="font-medium text-gray-900">
+            {formatDate(booking.date)}
+          </span>
         </div>
 
         <div className="flex items-center gap-3 text-sm group-hover:text-emerald-600 transition-colors">
@@ -62,7 +70,9 @@ export const BookingCard = ({ booking, index, onViewDetails, onCancel }: Booking
           <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
             <DollarSign className="h-4 w-4 text-gray-600" />
           </div>
-          <span className="font-bold text-gray-900 text-lg">${booking.price}</span>
+          <span className="font-bold text-gray-900 text-lg">
+            ${booking.price}
+          </span>
         </div>
 
         <div className="flex items-center gap-3 text-sm">
@@ -75,6 +85,7 @@ export const BookingCard = ({ booking, index, onViewDetails, onCancel }: Booking
         {/* Action Buttons */}
         <div className="pt-6 border-t border-gray-100">
           <div className="flex gap-3">
+            {/* View Details */}
             <motion.button
               onClick={() => onViewDetails(booking.turfId, booking)}
               whileHover={{ scale: 1.02 }}
@@ -83,7 +94,9 @@ export const BookingCard = ({ booking, index, onViewDetails, onCancel }: Booking
             >
               View Details
             </motion.button>
-            {booking.status.toLowerCase() === "confirmed" && onCancel && (
+
+            {/* --- SHOW ONLY WHEN CONFIRMED --- */}
+            {booking.status === "confirmed" && onCancel && (
               <motion.button
                 onClick={() => onCancel(index, booking)}
                 whileHover={{ scale: 1.02 }}
@@ -93,9 +106,23 @@ export const BookingCard = ({ booking, index, onViewDetails, onCancel }: Booking
                 Cancel
               </motion.button>
             )}
+
+            {/* --- SHOW LABEL WHEN PENDING CANCELLATION --- */}
+            {booking.status === "pending_cancel" && (
+              <div className="flex-1 bg-yellow-100 text-yellow-700 py-3 px-4 rounded-xl font-semibold text-center">
+                Cancellation Requested
+              </div>
+            )}
+
+            {/* Optional: Show cancelled label */}
+            {booking.status === "cancelled" && (
+              <div className="flex-1 bg-red-100 text-red-600 py-3 px-4 rounded-xl font-semibold text-center">
+                Cancelled
+              </div>
+            )}
           </div>
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};

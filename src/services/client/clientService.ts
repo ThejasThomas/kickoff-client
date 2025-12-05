@@ -146,6 +146,17 @@ export const getTransactionHistory=async (page=1,limit=2)=>{
   )
   return response.data;
 }
+export const requestCancelBooking =async(
+  bookingId:string,
+  reason:string
+)=>{
+  const response=await axiosInstance.post(
+    `${CLIENT_ROUTE.CANCEL_BOOKING_REQUEST}/${bookingId}`,
+    {reason}
+  )
+  return response.data;
+}
+
 
 
 
