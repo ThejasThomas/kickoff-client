@@ -17,12 +17,14 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getTurfById, getSlots } from "@/services/client/clientService";
 import type { ISlot } from "@/types/Slot";
+import HostGameForm from "./HostGameForm";
 
 const TurfOverview: React.FC = () => {
   const [turf, setTurf] = useState<ITurf | null>(null);
   const [slots, setSlots] = useState<ISlot[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [hostingMode, setHostingMode] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toLocaleDateString("en-CA")
   );
@@ -31,7 +33,7 @@ const TurfOverview: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const today = new Date().toLocaleDateString("en-CA"); 
+  const today = new Date().toLocaleDateString("en-CA");
 
   useEffect(() => {
     const fetchTurf = async () => {
@@ -57,23 +59,22 @@ const TurfOverview: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-  const fetchSlots = async () => {
-    if (!id || !selectedDate) return;
+    const fetchSlots = async () => {
+      if (!id || !selectedDate) return;
 
-    try {
-      const slotData = await getSlots(id, selectedDate);
-      console.log("Slots from backend:", slotData);
+      try {
+        const slotData = await getSlots(id, selectedDate);
+        console.log("Slots from backend:", slotData);
 
-      setSlots(Array.isArray(slotData) ? slotData : []);
-    } catch (err) {
-      console.error("Error fetching slots:", err);
-      setError("Could not fetch slots");
-    }
-  };
+        setSlots(Array.isArray(slotData) ? slotData : []);
+      } catch (err) {
+        console.error("Error fetching slots:", err);
+        setError("Could not fetch slots");
+      }
+    };
 
-  fetchSlots();
-}, [id, selectedDate]);
-
+    fetchSlots();
+  }, [id, selectedDate]);
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) =>
@@ -124,6 +125,7 @@ const TurfOverview: React.FC = () => {
     const formattedSlots = selectedSlotDetails.map(
       (slot) => `${slot.startTime} - ${slot.endTime}`
     );
+    
 
     const bookingData = {
       turfId: id,
@@ -158,8 +160,37 @@ const TurfOverview: React.FC = () => {
   };
 
   const getAvailableSlots = () => {
-    return slots.filter((slot) => !isDefaultSlot(slot)  && !slot.isBooked);
+    return slots.filter((slot) => !isDefaultSlot(slot) && !slot.isBooked);
   };
+  const handleHostGameContinue = (formData: {
+  slotDate: string;
+  startTime: string;
+  endTime: string;
+  courtType: string;
+  pricePerPlayer: number;
+  slotId: string;
+}) => {
+  if (!turf) return;
+
+  const hostGameData = {
+    turfId: turf._id,
+    turfName: turf.turfName,
+    location: `${turf.location.address}, ${turf.location.city}`,
+    courtType: formData.courtType,
+    slotDate: formData.slotDate,
+    startTime: formData.startTime,
+    endTime: formData.endTime,
+    pricePerPlayer: formData.pricePerPlayer,
+    slotId: formData.slotId,
+    totalAmount: formData.pricePerPlayer,
+    images: turf.images,
+  };
+
+  navigate("/host-game-payment", {
+    state: { hostGameData },
+  });
+};
+
 
   if (loading) {
     return (
@@ -392,6 +423,12 @@ const TurfOverview: React.FC = () => {
                   Base price per hour
                 </p>
               </div>
+              <button
+                onClick={() => setHostingMode(true)}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg mb-4 font-semibold"
+              >
+                Host a Game
+              </button>
 
               {/* Date Selection */}
               <div className="p-6 border-b border-border">
@@ -411,7 +448,15 @@ const TurfOverview: React.FC = () => {
               </div>
 
               {/* Available Slots */}
-              <div className="p-6">
+              {hostingMode ? (
+   <HostGameForm
+      turf={turf}
+      selectedDate={selectedDate}
+      slots={slots}
+      onCancel={() => setHostingMode(false)}
+      onSubmit={(formData) => handleHostGameContinue(formData)}
+   />
+) : (<div className="p-6">
                 <h3 className="text-lg font-semibold text-card-foreground mb-4">
                   Available Time Slots
                 </h3>
@@ -485,10 +530,11 @@ const TurfOverview: React.FC = () => {
                     ))}
                   </div>
                 )}
-              </div>
+              </div>)}
+              
 
               {/* Total and Continue Button */}
-              {selectedSlots.length > 0 && (
+              {!hostingMode && selectedSlots.length > 0 && (
                 <motion.div
                   className="p-6 border-t border-border"
                   initial={{ opacity: 0, y: 10 }}

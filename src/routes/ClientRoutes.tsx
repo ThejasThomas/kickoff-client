@@ -14,6 +14,7 @@ import { Route, Routes } from "react-router-dom";
 import ClientPastBookingsPage from "@/pages/client/ClientPastBookingsPage";
 import { ClientProfile } from "@/pages/client/components/ClientProfilePage";
 import WalletPage from "@/pages/client/Wallet";
+import HostGamePaymentPage from "@/pages/client/components/HostGamePaymentPage";
 
 const ClientRoutes = () => {
   return (
@@ -44,6 +45,7 @@ const ClientRoutes = () => {
         <Route path="bookinghistory" element={<ClientPastBookingsPage />} />
         <Route path="upcomingbookings" element={<CurrentBookingPage />} />
         <Route path="wallet" element={<WalletPage />} />
+        <Route path="host-game-payment" element={<HostGamePaymentPage/>}/>
         <Route path="bookings/details" element={<BookingViewDetailsPage />} />
         <Route path="clientprofile" element={<ClientProfile />} />
       </Route>

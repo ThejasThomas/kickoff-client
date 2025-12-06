@@ -5,6 +5,7 @@ import type { IBookings } from "./Booking_type";
 import type { IRules } from "./rules_type";
 import type { IWalletTransaction } from "./wallet_type";
 import type { ICancelRequestItem } from "./cancel_requests_type";
+import type { IHostedGameItem } from "./host_game_type";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -121,4 +122,13 @@ export interface ICancelRequestResponse {
 export interface IHandleCancelActionResponse {
   success: boolean;
   message: string;
+}
+export interface ICreateHostedGameResponse {
+  success: boolean;
+  message: string;
+  game: IHostedGameItem;
+}
+export interface IHostedGameListResponse {
+  success: boolean;
+  games: IHostedGameItem[];
 }

@@ -15,6 +15,8 @@ export const CLIENT_ROUTE ={
     ADDMONEY:`${BASE_URL.CLIENT}/add-money`,
     GET_TRANSACTION_HISTORY:`${BASE_URL.CLIENT}/transactionhistory`,
     GET_WALLET_BALANCE:`${BASE_URL.CLIENT}/walletbalance`,
+    HOST_GAME:`${BASE_URL.CLIENT}/host-game`,
+    GET_HOSTED_GAME:`${BASE_URL.CLIENT}/get-hosted-game`,
     CANCEL_BOOKING_REQUEST:`${BASE_URL.CLIENT}/cancel-request`,
     REFRESH_TOKEN:`${BASE_URL.CLIENT}/refresh-token`,
     LOGOUT:`${BASE_URL.CLIENT}/logout`,

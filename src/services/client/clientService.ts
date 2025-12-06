@@ -6,6 +6,8 @@ import {
   type IAddMoneyResponse,
   type IAuthResponse,
   type IBookResponse,
+  type ICreateHostedGameResponse,
+  type IHostedGameListResponse,
   type ITurffResponse,
   type IWalletBalanceResponse,
   type IWalletHistoryResponse,
@@ -42,19 +44,20 @@ export const getClientProfile = async (): Promise<IClient> => {
   return response.data;
 };
 
-export const updateClientProfile =async (clientData:IUpdateClient):Promise<void> =>{
-  console.log('reach api')
-  const response =await axiosInstance.patch(
+export const updateClientProfile = async (
+  clientData: IUpdateClient
+): Promise<void> => {
+  console.log("reach api");
+  const response = await axiosInstance.patch(
     CLIENT_ROUTE.UPDATE_USER_DETAILS,
     clientData
-  )
+  );
   return response.data;
-}
+};
 
 export const getSlots = async (
   turfId: string,
   date: string
-
 ): Promise<ISlot[]> => {
   const response = await axiosInstance.get<SlotResponse>(
     `${CLIENT_ROUTE.GETSLOTS}/${turfId}?date=${date}`
@@ -73,16 +76,16 @@ export const bookSlots = async (
 };
 
 export const getupcomingBookings = async (
-  params:GetUpcomingBookings ={}
+  params: GetUpcomingBookings = {}
 ): Promise<IBookResponse> => {
   const response = await axiosInstance.get<IBookResponse>(
     CLIENT_ROUTE.GET_UPCOMING_BOOKINGS,
     {
-      params:{
-        page:params.page || 1,
-        limit:params.limit || 10,
-        search:params.search || "",
-      }
+      params: {
+        page: params.page || 1,
+        limit: params.limit || 10,
+        search: params.search || "",
+      },
     }
   );
   return response.data;
@@ -124,41 +127,65 @@ export const getTurfs = async (
   }
 };
 
-export const addMoney=async (amount:number,reason:string):Promise<IAddMoneyResponse>=>{
-  const response =await axiosInstance.post<IAddMoneyResponse>(CLIENT_ROUTE.ADDMONEY,{
-    amount,
-    reason
-  })
+export const addMoney = async (
+  amount: number,
+  reason: string
+): Promise<IAddMoneyResponse> => {
+  const response = await axiosInstance.post<IAddMoneyResponse>(
+    CLIENT_ROUTE.ADDMONEY,
+    {
+      amount,
+      reason,
+    }
+  );
   return response.data;
-}
-export const getWalletBalance =async ()=>{
-  const response=await axiosInstance.get<IWalletBalanceResponse>(
+};
+export const getWalletBalance = async () => {
+  const response = await axiosInstance.get<IWalletBalanceResponse>(
     CLIENT_ROUTE.GET_WALLET_BALANCE
-  )
-  return response.data
-}
-export const getTransactionHistory=async (page=1,limit=2)=>{
-  const response=await axiosInstance.get<IWalletHistoryResponse>(
+  );
+  return response.data;
+};
+export const getTransactionHistory = async (page = 1, limit = 2) => {
+  const response = await axiosInstance.get<IWalletHistoryResponse>(
     CLIENT_ROUTE.GET_TRANSACTION_HISTORY,
     {
-      params:{page,limit}
+      params: { page, limit },
     }
-  )
+  );
   return response.data;
-}
-export const requestCancelBooking =async(
-  bookingId:string,
-  reason:string
-)=>{
-  const response=await axiosInstance.post(
+};
+export const requestCancelBooking = async (
+  bookingId: string,
+  reason: string
+) => {
+  const response = await axiosInstance.post(
     `${CLIENT_ROUTE.CANCEL_BOOKING_REQUEST}/${bookingId}`,
-    {reason}
-  )
+    { reason }
+  );
   return response.data;
-}
+};
 
-
-
+export const hostGame = async (data: {
+  turfId: string;
+  courtType: string;
+  slotDate: string;
+  startTime: string;
+  endTime: string;
+  pricePerPlayer: number;
+}): Promise<ICreateHostedGameResponse> => {
+  const response = await axiosInstance.post<ICreateHostedGameResponse>(
+    CLIENT_ROUTE.HOST_GAME,
+    data
+  );
+  return response.data;
+};
+export const getHostedGames = async (): Promise<IHostedGameListResponse> => {
+  const response = await axiosInstance.get<IHostedGameListResponse>(
+    CLIENT_ROUTE.GET_HOSTED_GAME
+  );
+  return response.data;
+};
 
 export const getTurfsByLocation = async (
   latitude: number,
