@@ -4,8 +4,10 @@ import type {
   GetMyTurfsParams,
   IAuthResponse,
   IBookResponse,
+  ICancelRequestResponse,
   IGenerateRulesResponse,
   IGenerateSlotsResponse,
+  IHandleCancelActionResponse,
   ITurffResponse,
   ITurfOwnerDetailsResponse,
   ITurfResponse,
@@ -146,6 +148,27 @@ export const getusersBookings = async ({
   );
   return response.data;
 };
+
+export const getCancelRequests =async():Promise<ICancelRequestResponse> => {
+  const response =await axiosInstance.get<ICancelRequestResponse>(
+    OWNER_ROUTE.GET_CANCEL_REQUESTS
+  )
+  return {
+    success:response.data.success,
+    data:response.data.data || []
+  }
+}
+
+export const handleCancelRequestAction =async (
+  requestId:string,
+  action:"approved"|"rejected"
+):Promise<IHandleCancelActionResponse> =>{
+    const response=await axiosInstance.put<IHandleCancelActionResponse>(
+      `${OWNER_ROUTE.HANDLE_CANCEL_REQUEST}/${requestId}`,
+      {action}
+    )
+    return response.data
+}
 
 export const retryAdminApproval = async (
   userId: string

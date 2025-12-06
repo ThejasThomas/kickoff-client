@@ -7,4 +7,5 @@ export const sidebarItems = [
     { icon: CircleQuestionMark, label: "Turfs Reapply", path: "/turfOwner/re-apply-turf"},
   { icon: Calendar, label: "Add Slots", path: "/turfOwner/add-slots" },
   { icon: ClipboardList, label: "Bookings", path: "/turfOwner/turfsbooking"},
+  {icon:PlusCircle ,label:"Cancel Requests",path:"/turfOwner/cancel-booking-requests"},
 ];

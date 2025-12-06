@@ -4,6 +4,7 @@ import type { IAdmin, IClient, ITurfOwner, UserDTO } from "./User";
 import type { IBookings } from "./Booking_type";
 import type { IRules } from "./rules_type";
 import type { IWalletTransaction } from "./wallet_type";
+import type { ICancelRequestItem } from "./cancel_requests_type";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -111,4 +112,13 @@ export interface IWalletHistoryResponse {
 export interface IWalletBalanceResponse {
   success:boolean;
   balance:number
+}
+export interface ICancelRequestResponse {
+  success: boolean;
+  data: ICancelRequestItem[];
+}
+
+export interface IHandleCancelActionResponse {
+  success: boolean;
+  message: string;
 }
