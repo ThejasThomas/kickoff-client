@@ -16,6 +16,7 @@ import {
   Zap,
   X,
   Wallet,
+  Footprints,
 } from "lucide-react"
 import { Button } from "../ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
@@ -68,6 +69,12 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
           label: "Booking History",
           path: "/bookinghistory",
           description: "Past Activities",
+        },
+        {
+          icon:Footprints,
+          label:"Hosted Games",
+          path:"/hosted-games",
+          description:"Hosted Games"
         },
         {
           icon:Wallet,

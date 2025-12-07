@@ -14,7 +14,7 @@ import {
 import type { ITurf } from "@/types/Turf";
 import type React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getTurfById, getSlots } from "@/services/client/clientService";
 import type { ISlot } from "@/types/Slot";
 import HostGameForm from "./HostGameForm";
@@ -32,6 +32,12 @@ const TurfOverview: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+
+const backPath = (location.state as any)?.from;
+const backGame = (location.state as any)?.game;
+
+
 
   const today = new Date().toLocaleDateString("en-CA");
 
@@ -251,6 +257,19 @@ const TurfOverview: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section with Image Carousel */}
+      {backPath && (
+  <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    onClick={() => navigate(backPath,{
+      state:{game:backGame}
+    })}
+    className="absolute top-6 left-6 z-20 flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-2 rounded-lg font-semibold text-gray-800 shadow hover:bg-white transition"
+  >
+    ← Back to Hosted Game
+  </motion.button>
+)}
+
       <div className="relative h-[60vh] overflow-hidden">
         <motion.img
           key={currentImageIndex}

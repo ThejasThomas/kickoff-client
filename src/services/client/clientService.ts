@@ -184,8 +184,23 @@ export const getHostedGames = async (): Promise<IHostedGameListResponse> => {
   const response = await axiosInstance.get<IHostedGameListResponse>(
     CLIENT_ROUTE.GET_HOSTED_GAME
   );
+  console.log("dataaaaa",response.data)
   return response.data;
 };
+export const joinHostedGame =async(gameId:string)=>{
+  const response =await axiosInstance.post(
+    CLIENT_ROUTE.JOIN_HOSTED_GAME,
+    {gameId}
+  );
+  return response.data
+}
+export const getHostedGamesById =async(id:string)=>{
+  console.log('Tomyyy iddd',id)
+  const response=await axiosInstance.get(
+    `${CLIENT_ROUTE.GET_SINGLE_HOSTED_GAME}/${id}`
+  )
+  return response.data
+}
 
 export const getTurfsByLocation = async (
   latitude: number,

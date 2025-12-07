@@ -15,6 +15,8 @@ import ClientPastBookingsPage from "@/pages/client/ClientPastBookingsPage";
 import { ClientProfile } from "@/pages/client/components/ClientProfilePage";
 import WalletPage from "@/pages/client/Wallet";
 import HostGamePaymentPage from "@/pages/client/components/HostGamePaymentPage";
+import HostedGamesPage from "@/pages/client/components/HostedGamesPage";
+import JoinHostedGamePage from "@/pages/client/components/JoinHostedGamePage";
 
 const ClientRoutes = () => {
   return (
@@ -48,6 +50,8 @@ const ClientRoutes = () => {
         <Route path="host-game-payment" element={<HostGamePaymentPage/>}/>
         <Route path="bookings/details" element={<BookingViewDetailsPage />} />
         <Route path="clientprofile" element={<ClientProfile />} />
+        <Route path="hosted-games" element={<HostedGamesPage/>}/>
+        <Route path="hosted-games/join-hosted-game/:id" element={<JoinHostedGamePage/>}/>
       </Route>
 
       <Route

@@ -1,3 +1,15 @@
+export interface IHostedGamePlayer {
+  userId: string;
+  status: "pending" | "paid" | "cancelled";
+  joinedAt?: string;
+
+  user?: {
+    name: string;
+    email: string;
+    phoneNumber?: string;
+  } | null;
+}
+
 export interface IHostedGameItem {
   _id: string;
   hostUserId: string;
@@ -12,17 +24,11 @@ export interface IHostedGameItem {
   capacity: number;
   status: "open" | "full" | "cancelled" | "completed";
 
-  players: {
-    userId: string;
-    status: "pending" | "paid" | "cancelled";
-    paymentId?: string;
-    joinedAt?: string;
-  }[];
+  players: IHostedGamePlayer[];
 
   createdAt: string;
   updatedAt: string;
 
-  // populated data
   turf?: {
     turfName: string;
     location: {
@@ -30,11 +36,11 @@ export interface IHostedGameItem {
       city: string;
     };
     images: string[];
-  };
+  } | null;
 
   hostUser?: {
     name: string;
     email: string;
     phoneNumber?: string;
-  };
+  } | null;
 }
