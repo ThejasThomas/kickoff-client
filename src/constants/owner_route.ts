@@ -9,6 +9,7 @@ export const OWNER_ROUTE = {
   GET_BOOKED_USER_DETAILS:`${BASE_URL.OWNER}/getbookedclient-details`,
   GETURFBYID:`${BASE_URL.OWNER}/get-turfdetails`,
   GET_MY_TURF:`${BASE_URL.OWNER}/get-my-turf`,
+  GET_SINGLE_HOSTED_GAME:`${BASE_URL.OWNER}/get-single-hosted-game`,
   ADD_RULES:`${BASE_URL.OWNER}/add-rules`,
   GET_RULES:`${BASE_URL.OWNER}/get-rules`,
   GET_ALL_BOOKINGS:`${BASE_URL.OWNER}/get-all-bookings`,

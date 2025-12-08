@@ -130,6 +130,14 @@ export const getbookedUsersDetails = async (
   return response.data;
 };
 
+export const getHostedGamesByIdOwner =async(id:string)=>{
+  console.log('Tomyyy iddd',id)
+  const response=await axiosInstance.get(
+    `${OWNER_ROUTE.GET_SINGLE_HOSTED_GAME}/${id}`
+  )
+  return response.data
+}
+
 export const getusersBookings = async ({
   turfId,
   date,
