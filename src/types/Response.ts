@@ -6,6 +6,7 @@ import type { IRules } from "./rules_type";
 import type { IWalletTransaction } from "./wallet_type";
 import type { ICancelRequestItem } from "./cancel_requests_type";
 import type { IHostedGameItem } from "./host_game_type";
+import type { IBlockedSlot } from "./blocked_slot_type";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -132,3 +133,19 @@ export interface IHostedGameListResponse {
   success: boolean;
   games: IHostedGameItem[];
 }
+
+export interface ICheckSlotAvailabilityResponse {
+  success: boolean;
+  message: string;
+  result: {
+    status: "AVAILABLE" | "NORMAL_BOOKED" | "HOSTED_GAME" | "BLOCKED";
+    booking?:IBookings
+    hostedGame?:IHostedGameItem
+    blockedSlot?:IBlockedSlot
+  };
+}
+export interface ICancelSlotResponse {
+  success: boolean;
+  message: string;
+}
+

@@ -14,6 +14,7 @@ import { EditTurfWrapper } from "@/pages/turfOwner/components/EditTurfWrapper";
 import { OwnerProfile } from "@/pages/turfOwner/components/OwnerProfile";
 import { RequestProfileUpdate } from "@/pages/turfOwner/components/RequestUpdatePage";
 import { RetryUpdateTurfWrapper } from "@/pages/turfOwner/components/RetryUpdateTurfWrapper";
+import SlotCancellationPage from "@/pages/turfOwner/components/SlotCancellationPage";
 import TurfOwnerHomePage from "@/pages/turfOwner/components/TurfOwnerHomePage";
 import TurfReApplyPage from "@/pages/turfOwner/components/TurfReapplyPage";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
@@ -62,6 +63,7 @@ const TurfOwnerRoutes = () => {
         <Route path="/edit-turf/:id" element={<EditTurfWrapper />} />
         <Route path="/view-slots/:id" element={<ViewSlotsPage/>} />
         <Route path="/re-apply-turf" element={<TurfReApplyPage/>}/>
+        <Route path="/slot-cancellation" element={<SlotCancellationPage/>}/>
         <Route path="/cancel-booking-requests" element={<CancelRequestsPage/>}/>
         <Route path="/turfsbooking" element={<ApprovedTurfsPage/>} />
         <Route path="/bookings/:turfId" element={<BookingsPage/>} />

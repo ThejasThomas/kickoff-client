@@ -35,13 +35,13 @@ const TurfRulesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const daysOfWeek = [
+    "sunday",
     "monday",
     "tuesday",
     "wednesday",
     "thursday",
     "friday",
     "saturday",
-    "sunday",
   ];
 
   useEffect(() => {

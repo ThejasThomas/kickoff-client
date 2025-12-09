@@ -5,6 +5,8 @@ import type {
   IAuthResponse,
   IBookResponse,
   ICancelRequestResponse,
+  ICancelSlotResponse,
+  ICheckSlotAvailabilityResponse,
   IGenerateRulesResponse,
   IGenerateSlotsResponse,
   IHandleCancelActionResponse,
@@ -176,6 +178,40 @@ export const handleCancelRequestAction =async (
       {action}
     )
     return response.data
+}
+export const checkSlotAvailability = async (
+  turfId:string,
+  date:string,
+  startTime:string,
+  endTime:string
+):Promise<ICheckSlotAvailabilityResponse>=>{
+  const response=await axiosInstance.get<ICheckSlotAvailabilityResponse>(
+    OWNER_ROUTE.CHECK_SLOT_AVAILABILITY,
+    {
+      params:{
+        turfId,
+        date,
+        startTime,
+        endTime
+      }
+    }
+  )
+  return response.data
+}
+export const cancelSlot =async(
+  data:{
+    turfId:string;
+    date:string,
+    startTime:string;
+    endTime:string
+  }
+
+):Promise<ICancelSlotResponse>=>{
+  const response =await axiosInstance.post<ICancelSlotResponse>(
+    OWNER_ROUTE.CANCEL_SLOT,
+    data
+  )
+  return response.data;
 }
 
 export const retryAdminApproval = async (
