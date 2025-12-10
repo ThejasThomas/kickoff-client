@@ -21,6 +21,7 @@ const CancelRequestsPage = () => {
     setLoading(true);
     try {
       const res = await getCancelRequests();
+      console.log('res',res)
       if (res.success) setRequests(res.data);
     } catch {
       errorToast("Failed to fetch cancel requests");
@@ -34,7 +35,7 @@ const CancelRequestsPage = () => {
     setActionLoading(true);
 
     try {
-      const res = await handleCancelRequestAction(selected._id, action);
+      const res = await handleCancelRequestAction(selected._id,action,selected.userId);
 
       successToast(res.message);
 

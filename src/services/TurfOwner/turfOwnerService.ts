@@ -135,13 +135,13 @@ export const getbookedUsersDetails = async (
   return response.data;
 };
 
-export const getHostedGamesByIdOwner =async(id:string)=>{
-  console.log('Tomyyy iddd',id)
-  const response=await axiosInstance.get(
+export const getHostedGamesByIdOwner = async (id: string) => {
+  console.log("Tomyyy iddd", id);
+  const response = await axiosInstance.get(
     `${OWNER_ROUTE.GET_SINGLE_HOSTED_GAME}/${id}`
-  )
-  return response.data
-}
+  );
+  return response.data;
+};
 
 export const getusersBookings = async ({
   turfId,
@@ -162,60 +162,58 @@ export const getusersBookings = async ({
   return response.data;
 };
 
-export const getCancelRequests =async():Promise<ICancelRequestResponse> => {
-  const response =await axiosInstance.get<ICancelRequestResponse>(
+export const getCancelRequests = async (): Promise<ICancelRequestResponse> => {
+  const response = await axiosInstance.get<ICancelRequestResponse>(
     OWNER_ROUTE.GET_CANCEL_REQUESTS
-  )
+  );
   return {
-    success:response.data.success,
-    data:response.data.data || []
-  }
-}
+    success: response.data.success,
+    data: response.data.data || [],
+  };
+};
 
-export const handleCancelRequestAction =async (
-  requestId:string,
-  action:"approved"|"rejected"
-):Promise<IHandleCancelActionResponse> =>{
-    const response=await axiosInstance.put<IHandleCancelActionResponse>(
-      `${OWNER_ROUTE.HANDLE_CANCEL_REQUEST}/${requestId}`,
-      {action}
-    )
-    return response.data
-}
+export const handleCancelRequestAction = async (
+  requestId: string,
+  action: "approved" | "rejected",
+  userId:string
+): Promise<IHandleCancelActionResponse> => {
+  const response = await axiosInstance.put<IHandleCancelActionResponse>(
+    `${OWNER_ROUTE.HANDLE_CANCEL_REQUEST}/${requestId}/${userId}`,
+    { action}
+  );
+  return response.data;
+};
 export const checkSlotAvailability = async (
-  turfId:string,
-  date:string,
-  startTime:string,
-  endTime:string
-):Promise<ICheckSlotAvailabilityResponse>=>{
-  const response=await axiosInstance.get<ICheckSlotAvailabilityResponse>(
+  turfId: string,
+  date: string,
+  startTime: string,
+  endTime: string
+): Promise<ICheckSlotAvailabilityResponse> => {
+  const response = await axiosInstance.get<ICheckSlotAvailabilityResponse>(
     OWNER_ROUTE.CHECK_SLOT_AVAILABILITY,
     {
-      params:{
+      params: {
         turfId,
         date,
         startTime,
-        endTime
-      }
+        endTime,
+      },
     }
-  )
-  return response.data
-}
-export const cancelSlot =async(
-  data:{
-    turfId:string;
-    date:string,
-    startTime:string;
-    endTime:string
-  }
-
-):Promise<ICancelSlotResponse>=>{
-  const response =await axiosInstance.post<ICancelSlotResponse>(
+  );
+  return response.data;
+};
+export const cancelSlot = async (data: {
+  turfId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}): Promise<ICancelSlotResponse> => {
+  const response = await axiosInstance.post<ICancelSlotResponse>(
     OWNER_ROUTE.CANCEL_SLOT,
     data
-  )
+  );
   return response.data;
-}
+};
 export const getSlots = async (
   turfId: string,
   date: string

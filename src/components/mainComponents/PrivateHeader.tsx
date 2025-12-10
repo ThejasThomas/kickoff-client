@@ -1,6 +1,6 @@
 import type { IAdmin, IClient, ITurfOwner, UserDTO } from "@/types/User";
 import { Tooltip } from "@mui/material";
-import { LogOut, Menu, User as UserIcon, Settings, ChevronDown } from "lucide-react";
+import { LogOut, Menu, User as UserIcon, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import {
@@ -69,14 +69,14 @@ export function PrivateHeader({
     navigate(profileRoutes[user?.role || 'client']);
   };
 
-  const handleSettingsClick = () => {
-    const settingsRoutes = {
-      client: '/client/settings',
-      turfOwner: '/turfOwner/settings',
-      admin: '/admin/settings'
-    };
-    navigate(settingsRoutes[user?.role || 'client']);
-  };
+  // const handleSettingsClick = () => {
+  //   const settingsRoutes = {
+  //     client: '/client/settings',
+  //     turfOwner: '/turfOwner/settings',
+  //     admin: '/admin/settings'
+  //   };
+  //   navigate(settingsRoutes[user?.role || 'client']);
+  // };
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
@@ -170,7 +170,7 @@ export function PrivateHeader({
                 )}
 
                 {/* Settings */}
-                {showSettings && (
+                {/* {showSettings && (
                   <DropdownMenuItem
                     className="cursor-pointer"
                     onClick={handleSettingsClick}
@@ -178,7 +178,7 @@ export function PrivateHeader({
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
-                )}
+                )} */}
 
                 {(showProfile || showSettings) && <DropdownMenuSeparator />}
 

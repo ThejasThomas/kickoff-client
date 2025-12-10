@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Link, useLocation } from "react-router-dom"
-import { cn } from "@/lib/utils"
+import type React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import {
   LogOut,
   Home,
@@ -17,35 +17,34 @@ import {
   X,
   Wallet,
   Footprints,
-} from "lucide-react"
-import { Button } from "../ui/button"
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
-
+} from "lucide-react";
+import { Button } from "../ui/button";
+// import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
 
 interface SidebarItemType {
-  icon: React.ElementType
-  label: string
-  path: string
-  description?: string
+  icon: React.ElementType;
+  label: string;
+  path: string;
+  description?: string;
 }
 
 interface SidebarProps {
-  isVisible?: boolean
-  isOpen?: boolean
-  onClose: () => void
-  handleLogout?: () => void
-  className?: string
-  role?: "admin" | "client" | "turfOwner"
-  sidebarItems?: SidebarItemType[]
-  title?: string
-  showLogoutButton?: boolean
+  isVisible?: boolean;
+  isOpen?: boolean;
+  onClose: () => void;
+  handleLogout?: () => void;
+  className?: string;
+  role?: "admin" | "client" | "turfOwner";
+  sidebarItems?: SidebarItemType[];
+  title?: string;
+  showLogoutButton?: boolean;
 }
 
 interface NavItemProps {
-  item: SidebarItemType
-  isActive: boolean
-  onClick: () => void
-  index: number
+  item: SidebarItemType;
+  isActive: boolean;
+  onClick: () => void;
+  index: number;
 }
 
 const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
@@ -71,18 +70,18 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
           description: "Past Activities",
         },
         {
-          icon:Footprints,
-          label:"Hosted Games",
-          path:"/hosted-games",
-          description:"Hosted Games"
+          icon: Footprints,
+          label: "Hosted Games",
+          path: "/hosted-games",
+          description: "Hosted Games",
         },
         {
-          icon:Wallet,
-          label:"Wallet",
-          path:"/wallet",
-          description:"Wallet details"
-        }
-      ]
+          icon: Wallet,
+          label: "Wallet",
+          path: "/wallet",
+          description: "Wallet details",
+        },
+      ];
     case "admin":
       return [
         {
@@ -103,7 +102,7 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
           path: "/admin/users",
           description: "User Management",
         },
-      ]
+      ];
     case "turfOwner":
       return [
         {
@@ -124,14 +123,14 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
           path: "/turf-owner/bookings",
           description: "Booking Management",
         },
-      ]
+      ];
     default:
-      return []
+      return [];
   }
-}
+};
 
 const SidebarItem = ({ item, isActive, onClick, index }: NavItemProps) => {
-  const Icon = item.icon
+  const Icon = item.icon;
 
   return (
     <motion.div
@@ -145,7 +144,7 @@ const SidebarItem = ({ item, isActive, onClick, index }: NavItemProps) => {
           "group relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-300 overflow-hidden",
           isActive
             ? "bg-gradient-to-r from-emerald-500 to-blue-500 text-white shadow-lg hover:shadow-xl"
-            : "text-gray-300 hover:bg-gradient-to-r hover:from-emerald-500/10 hover:to-blue-500/10 hover:text-white",
+            : "text-gray-300 hover:bg-gradient-to-r hover:from-emerald-500/10 hover:to-blue-500/10 hover:text-white"
         )}
         onClick={onClick}
       >
@@ -164,13 +163,17 @@ const SidebarItem = ({ item, isActive, onClick, index }: NavItemProps) => {
         <div
           className={cn(
             "relative z-10 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300",
-            isActive ? "bg-white/20 shadow-inner" : "bg-gray-700/50 group-hover:bg-emerald-500/20",
+            isActive
+              ? "bg-white/20 shadow-inner"
+              : "bg-gray-700/50 group-hover:bg-emerald-500/20"
           )}
         >
           <Icon
             className={cn(
               "w-5 h-5 transition-all duration-300",
-              isActive ? "text-white" : "text-gray-400 group-hover:text-emerald-400",
+              isActive
+                ? "text-white"
+                : "text-gray-400 group-hover:text-emerald-400"
             )}
           />
         </div>
@@ -180,7 +183,7 @@ const SidebarItem = ({ item, isActive, onClick, index }: NavItemProps) => {
           <p
             className={cn(
               "font-semibold transition-colors duration-300 truncate",
-              isActive ? "text-white" : "text-gray-300 group-hover:text-white",
+              isActive ? "text-white" : "text-gray-300 group-hover:text-white"
             )}
           >
             {item.label}
@@ -189,7 +192,9 @@ const SidebarItem = ({ item, isActive, onClick, index }: NavItemProps) => {
             <p
               className={cn(
                 "text-xs transition-colors duration-300 truncate",
-                isActive ? "text-white/80" : "text-gray-500 group-hover:text-gray-300",
+                isActive
+                  ? "text-white/80"
+                  : "text-gray-500 group-hover:text-gray-300"
               )}
             >
               {item.description}
@@ -209,8 +214,8 @@ const SidebarItem = ({ item, isActive, onClick, index }: NavItemProps) => {
         )}
       </Link>
     </motion.div>
-  )
-}
+  );
+};
 
 export function Sidebar({
   isVisible,
@@ -223,13 +228,15 @@ export function Sidebar({
   title = "KickOff Arena",
   showLogoutButton = true,
 }: SidebarProps) {
-  const location = useLocation()
+  const location = useLocation();
 
-  const sidebarOpen = isVisible ?? isOpen ?? false
-  const items = sidebarItems ?? getDefaultSidebarItems(role)
+  const sidebarOpen = isVisible ?? isOpen ?? false;
+  const items = sidebarItems ?? getDefaultSidebarItems(role);
 
   // Determine active item
-  const activeIndex = items.findIndex((item) => location.pathname.startsWith(item.path))
+  const activeIndex = items.findIndex((item) =>
+    location.pathname.startsWith(item.path)
+  );
 
   const getUserInitials = (name: string) => {
     return (
@@ -238,8 +245,8 @@ export function Sidebar({
         .map((n) => n[0])
         .join("")
         .toUpperCase() || "U"
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -267,7 +274,7 @@ export function Sidebar({
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className={cn(
               "fixed left-0 top-0 z-50 h-full w-80 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border-r border-gray-700/50 shadow-2xl",
-              className,
+              className
             )}
           >
             {/* Header */}
@@ -310,7 +317,7 @@ export function Sidebar({
               transition={{ delay: 0.2 }}
               className="p-6"
             >
-              <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20">
+              {/* <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20">
                 <div className="relative">
                   <Avatar className="w-12 h-12 border-2 border-emerald-400/50">
                     <AvatarImage src="/placeholder.svg" alt="User" />
@@ -326,7 +333,7 @@ export function Sidebar({
                   <p className="font-semibold text-white truncate">Welcome Back!</p>
 
                 </div>
-              </div>
+              </div> */}
             </motion.div>
 
             {/* Navigation */}
@@ -334,7 +341,9 @@ export function Sidebar({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-4">
                   <Zap className="w-4 h-4 text-emerald-400" />
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Navigation</span>
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    Navigation
+                  </span>
                 </div>
 
                 {items.map((item, index) => (
@@ -361,8 +370,8 @@ export function Sidebar({
                   variant="ghost"
                   className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl p-4 transition-all duration-300 group"
                   onClick={() => {
-                    handleLogout()
-                    onClose()
+                    handleLogout();
+                    onClose();
                   }}
                 >
                   <div className="w-10 h-10 rounded-lg bg-red-500/10 group-hover:bg-red-500/20 flex items-center justify-center mr-3 transition-all duration-300">
@@ -379,5 +388,5 @@ export function Sidebar({
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }
