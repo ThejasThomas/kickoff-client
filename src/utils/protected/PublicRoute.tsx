@@ -22,7 +22,7 @@ export const NoAuthRoute =({element}:NoAuthRouteProps)=>{
     if(session) {
         const roleRedirects:Record<string, string>={
             client:'/home',
-            turfOwner:'/turfOwner/home',
+            turfOwner:'/turfOwner/owner-earnings',
             admin:'/admin/dashboard'
         }
         return <Navigate to={roleRedirects[session.type]||'unauthorized'}/>

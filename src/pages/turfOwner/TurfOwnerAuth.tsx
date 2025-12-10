@@ -36,7 +36,7 @@ export const TurfOwnerAuth = () => {
         onSuccess: (data) => {
           successToast(data.message);
           dispatch(clientLogin(data.user as IClient));
-          navigate("/turfOwner/home");
+          navigate("/turfOwner/owner-earnings");
         },
         onError: (error: any) => errorToast(error.response.data.message),
       }

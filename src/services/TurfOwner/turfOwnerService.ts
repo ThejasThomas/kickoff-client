@@ -1,5 +1,6 @@
 import { axiosInstance } from "@/api/private_axios";
 import { OWNER_ROUTE } from "@/constants/owner_route";
+import type { IBookings } from "@/types/Booking_type";
 import type {
   GetMyTurfsParams,
   IAuthResponse,
@@ -13,8 +14,10 @@ import type {
   ITurffResponse,
   ITurfOwnerDetailsResponse,
   ITurfResponse,
+  SlotResponse,
 } from "@/types/Response";
 import type { IRules } from "@/types/rules_type";
+import type { ISlot } from "@/types/Slot";
 import type { GenerateSlotsData } from "@/types/Slots";
 import type { ITurf, ITurfBase, NewTurf } from "@/types/Turf";
 import type {
@@ -213,6 +216,25 @@ export const cancelSlot =async(
   )
   return response.data;
 }
+export const getSlots = async (
+  turfId: string,
+  date: string
+): Promise<ISlot[]> => {
+  const response = await axiosInstance.get<SlotResponse>(
+    `${OWNER_ROUTE.GET_SLOTS}/${turfId}?date=${date}`
+  );
+  return response.data.slots;
+};
+export const bookSlots = async (
+  bookData: Partial<IBookings>
+): Promise<IBookResponse> => {
+  console.log("bookiokkkktheee sloottt", bookData);
+  const response = await axiosInstance.post<IBookResponse>(
+    OWNER_ROUTE.BOOKSLOT,
+    bookData
+  );
+  return response.data;
+};
 
 export const retryAdminApproval = async (
   userId: string

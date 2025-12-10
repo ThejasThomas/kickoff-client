@@ -4,10 +4,12 @@ import TurfOwnerLayout from "@/components/layouts/TurfOwnerLayout";
 import AddSlotsPage from "@/pages/turfOwner/AddSlots";
 import CancelRequestsPage from "@/pages/turfOwner/BookingsCancelrequests";
 import MyTurfPage from "@/pages/turfOwner/MyTurfPage";
+import OwnerEarnings from "@/pages/turfOwner/OwnerEarnings";
 import RegisterTurfPage from "@/pages/turfOwner/RegisterTurfPage";
 import GenerateSlotsPage from "@/pages/turfOwner/SlotBookingPage";
 import { TurfOwnerAuth } from "@/pages/turfOwner/TurfOwnerAuth";
 import ViewSlotsPage from "@/pages/turfOwner/ViewSlotsPage";
+import AddOfflineBooking from "@/pages/turfOwner/components/Bookings/AddOfflineBooking";
 import ApprovedTurfsPage from "@/pages/turfOwner/components/Bookings/Turfs.Page";
 import BookingsPage from "@/pages/turfOwner/components/Bookings/UsersBookings";
 import { EditTurfWrapper } from "@/pages/turfOwner/components/EditTurfWrapper";
@@ -63,7 +65,9 @@ const TurfOwnerRoutes = () => {
         <Route path="/edit-turf/:id" element={<EditTurfWrapper />} />
         <Route path="/view-slots/:id" element={<ViewSlotsPage/>} />
         <Route path="/re-apply-turf" element={<TurfReApplyPage/>}/>
-        <Route path="/slot-cancellation" element={<SlotCancellationPage/>}/>
+        <Route path="/add-offline-booking/:turfId" element={<AddOfflineBooking/>}/>
+        <Route path="/slot-cancellation" element={<SlotCancellationPage/>}/>\
+        <Route path="/owner-earnings" element={<OwnerEarnings/>}/>
         <Route path="/cancel-booking-requests" element={<CancelRequestsPage/>}/>
         <Route path="/turfsbooking" element={<ApprovedTurfsPage/>} />
         <Route path="/bookings/:turfId" element={<BookingsPage/>} />

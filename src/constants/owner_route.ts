@@ -12,6 +12,8 @@ export const OWNER_ROUTE = {
   GET_SINGLE_HOSTED_GAME:`${BASE_URL.OWNER}/get-single-hosted-game`,
   ADD_RULES:`${BASE_URL.OWNER}/add-rules`,
   GET_RULES:`${BASE_URL.OWNER}/get-rules`,
+  GET_SLOTS:`${BASE_URL.OWNER}/getslots`,
+  BOOKSLOT:`${BASE_URL.OWNER}/bookslot`,
   CANCEL_SLOT:`${BASE_URL.OWNER}/cancel-slot`,
   CHECK_SLOT_AVAILABILITY:`${BASE_URL.OWNER}/check-slot-availability`,
   GET_ALL_BOOKINGS:`${BASE_URL.OWNER}/get-all-bookings`,

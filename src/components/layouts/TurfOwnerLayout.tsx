@@ -26,7 +26,7 @@ export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = (
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isHomePage = location.pathname === '/turfOwner/home';
+  const isHomePage = location.pathname === '/turfOwner/owner-earnings';
   const navbarBgClass = isHomePage ? 'bg-transparent' : 'bg-black';
   
   const handleLogout = () => {

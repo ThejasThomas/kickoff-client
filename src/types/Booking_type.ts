@@ -7,7 +7,7 @@ export interface IBookings {
   endTime: string;
   date: string;
 
-  bookingType: "normal" | "hosted_game";
+  bookingType: "normal" | "hosted_game"|"offline"
 
   price: number;
   status: "open" | "full" | "cancelled" | "completed" | "confirmed";
