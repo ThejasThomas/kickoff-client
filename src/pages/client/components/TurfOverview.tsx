@@ -106,10 +106,8 @@ const backGame = (location.state as any)?.game;
   };
 
   const getTotalPrice = () => {
-    return selectedSlots.reduce((total, slotId) => {
-      const slot = slots.find((s) => s.id === slotId);
-      return total + (slot?.price || 0);
-    }, 0);
+   if (!turf) return 0;
+  return selectedSlots.length * turf.pricePerHour;
   };
 
   const handleContinue = () => {
@@ -123,7 +121,7 @@ const backGame = (location.state as any)?.game;
         id: slotId,
         startTime: slot?.startTime,
         endTime: slot?.endTime,
-        price: slot?.price,
+        price: turf?.pricePerHour,
         duration: slot?.duration,
       };
     });
@@ -530,7 +528,7 @@ const backGame = (location.state as any)?.game;
                               {slot.startTime} - {slot.endTime}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {slot.duration} hour • ₹{slot.price}
+                              {slot.duration} hour • ₹{turf.pricePerHour}
                             </p>
                           </div>
                           <div className="flex items-center">

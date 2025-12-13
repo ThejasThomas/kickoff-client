@@ -17,8 +17,8 @@ interface PlaceSuggestionsProps {
   className?: string
   inputClassName?: string
   debounceDelay?: number
-  country?: string // e.g., "in" for India
-  types?: string[] // e.g., ["geocode"]
+  country?: string 
+  types?: string[] 
 }
 
 const PlaceSuggestions: React.FC<PlaceSuggestionsProps> = ({

@@ -282,7 +282,7 @@ const BookingViewDetailsPage = () => {
                       Payment Status
                     </span>
                     <StatusBadge
-                      status={booking.paymentStatus}
+                      status={booking.paymentStatus ?? "unpaid"}
                       variant="payment"
                     />
                   </div>
@@ -344,7 +344,7 @@ const BookingViewDetailsPage = () => {
                   <div className="flex gap-3">
                     <StatusBadge status={booking.status} variant="booking" />
                     <StatusBadge
-                      status={booking.paymentStatus}
+                      status={booking.paymentStatus??"unpaid"}
                       variant="payment"
                     />
                   </div>

@@ -59,7 +59,7 @@ const CurrentBookingPage = () => {
   const [cancelLoading, setCancelLoading] = useState(false);
   const { errorToast, successToast } = useToaster();
 
-  const pageSize = 6;
+  const pageSize = 4;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -141,7 +141,7 @@ const CurrentBookingPage = () => {
         setCancelLoading(false);
         return;
       }
-      console.log('bookingIDDD',booking._id)
+      console.log("bookingIDDD", booking._id);
 
       const res = await requestCancelBooking(booking._id!, cancelReason);
 
@@ -150,14 +150,15 @@ const CurrentBookingPage = () => {
       const updatedBookings = [...bookings];
       updatedBookings[bookingIndex] = {
         ...booking,
-        status: "pending_cancel",
+        status: "pending",
       };
       setBookings(updatedBookings);
 
       setCancelDialog({ isOpen: false, bookingIndex: null, booking: null });
       setCancelReason("");
-    } catch (error:any) {
-      const msg=error?.response?.data?.message||"Failed to send cancellation request"
+    } catch (error: any) {
+      const msg =
+        error?.response?.data?.message || "Failed to send cancellation request";
 
       errorToast(msg);
     } finally {
@@ -249,6 +250,7 @@ const CurrentBookingPage = () => {
           }}
         />
       </div>
+      
 
       <div className="relative z-10 p-6">
         <div className="max-w-7xl mx-auto">
@@ -257,6 +259,23 @@ const CurrentBookingPage = () => {
             title="Upcoming Bookings"
             description={`Manage your turf reservations and track your ${totalBookings} upcoming games`}
           />
+          <motion.div
+            onClick={() => navigate("/home")}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            className="relative overflow-hidden px-6 py-2 w-fit cursor-pointer 
+             rounded-lg bg-slate-900 text-white font-medium 
+             shadow-md hover:shadow-lg transition-all group"
+          >
+            <span className="relative z-10">Back To Home</span>
+
+            {/* Hover highlight */}
+            <span
+              className="absolute inset-0 bg-slate-700 translate-x-[-100%] 
+               group-hover:translate-x-0 transition-transform duration-300"
+            ></span>
+          </motion.div>
+          
 
           {/* Search Bar */}
           <motion.div

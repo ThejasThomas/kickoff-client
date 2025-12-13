@@ -23,7 +23,7 @@ const ApprovedTurfsPage: React.FC = () => {
     getMyTurfs(
       {
         page: currentPage,
-        limit: 8,
+        limit: 4,
         search: searchTerm || undefined,
         status: 'approved',
       },

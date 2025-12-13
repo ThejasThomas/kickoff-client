@@ -10,9 +10,10 @@ export interface IBookings {
   bookingType: "normal" | "hosted_game"|"offline"
 
   price: number;
-  status: "open" | "full" | "cancelled" | "completed" | "confirmed";
+  status: "open" | "full" | "cancelled" | "completed" | "confirmed"|"pending"
 
   paymentStatus?: string;   
+  paymentMethod:string
   createdAt: string;
 
   hostedGameId?:string

@@ -58,7 +58,6 @@ const AllTurfsPage: React.FC = () => {
 
   const pageSize = 12
 
-  // Extract city name from location object
   const extractCityFromLocation = (location: SelectedLocation): string => {
     if (location.city) return location.city
 
@@ -67,12 +66,10 @@ const AllTurfsPage: React.FC = () => {
       if (cityName) return cityName
     }
 
-    // Fallback: extract from display_name (first part before comma)
     const parts = location.display_name.split(",")
     return parts[0]?.trim() || ""
   }
 
-  // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchInput)
@@ -100,10 +97,8 @@ const AllTurfsPage: React.FC = () => {
         setSearchLoading(true)
       }
 
-      // Prepare search parameters
       let searchQuery = debouncedSearchTerm
 
-      // If a location is selected, use the city as the search query
       if (selectedLocation && cityFilter) {
         searchQuery = cityFilter
       }
@@ -195,7 +190,6 @@ const AllTurfsPage: React.FC = () => {
     setCurrentPage(1)
   }
 
-  // Frontend filtering for price and advanced sorting
   const filteredAndSortedTurfs = useMemo(() => {
     return [...turfs]
       .filter((turf) => {

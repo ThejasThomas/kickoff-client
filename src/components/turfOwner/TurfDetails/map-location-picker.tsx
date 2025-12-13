@@ -1,13 +1,23 @@
 import type { LocationCoordinates } from "@/types/Turf";
 import { MapPin } from "lucide-react";
 import { useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface TurfLocationPickerProps {
   coordinates: LocationCoordinates;
   onLocationChange?: (coords: LocationCoordinates) => void;
-  onAddressChange?: (address: { address: string; city: string; state: string }) => void;
+  onAddressChange?: (address: {
+    address: string;
+    city: string;
+    state: string;
+  }) => void;
   height?: string;
   showCard?: boolean;
   title?: string;
@@ -22,7 +32,7 @@ const reverseGeocode = async (lat: number, lng: number) => {
       `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${OPENCAGE_API_KEY}`
     );
     const data = await response.json();
-    
+
     if (data.results && data.results.length > 0) {
       const components = data.results[0].components;
 
@@ -44,10 +54,14 @@ const reverseGeocode = async (lat: number, lng: number) => {
 // Component to handle map clicks
 const LocationPicker = ({
   onLocationChange,
-  onAddressChange
+  onAddressChange,
 }: {
   onLocationChange: (coords: LocationCoordinates) => void;
-  onAddressChange?: (address: { address: string; city: string; state: string }) => void;
+  onAddressChange?: (address: {
+    address: string;
+    city: string;
+    state: string;
+  }) => void;
 }) => {
   useMapEvents({
     async click(e: any) {
@@ -70,7 +84,7 @@ const LocationPicker = ({
           console.error("Error in reverse geocoding:", error);
         }
       }
-    }
+    },
   });
   return null;
 };
@@ -78,7 +92,7 @@ const LocationPicker = ({
 // Component to update map center when coordinates change
 const MapUpdater = ({ coordinates }: { coordinates: LocationCoordinates }) => {
   const map = useMap();
-  
+
   useEffect(() => {
     if (coordinates.lat && coordinates.lng) {
       map.setView([coordinates.lat, coordinates.lng], map.getZoom());
@@ -88,71 +102,112 @@ const MapUpdater = ({ coordinates }: { coordinates: LocationCoordinates }) => {
   return null;
 };
 
-const getDirectionUrl = (lat: number, lng: number) => 
+const getDirectionUrl = (lat: number, lng: number) =>
   `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 
 export default function TurfLocationPicker({
   coordinates,
   onLocationChange,
   onAddressChange,
-  height = '400px',
+  height = "400px",
   showCard = true,
   title,
-  readonly = false
+  readonly = false,
 }: TurfLocationPickerProps) {
-  
-  // Fix the title logic
-  const displayTitle = title !== undefined 
-    ? title 
-    : (!readonly ? "Select Location" : "Location");
+  const displayTitle =
+    title !== undefined ? title : !readonly ? "Select Location" : "Location";
 
-  // Ensure coordinates are valid
-  const safeCoordinates = useMemo(() => ({
-    lat: coordinates?.lat || 12.9716,
-    lng: coordinates?.lng || 77.5946
-  }), [coordinates]);
+  const safeCoordinates = useMemo(
+    () => ({
+      lat: coordinates?.lat || 12.9716,
+      lng: coordinates?.lng || 77.5946,
+    }),
+    [coordinates]
+  );
+  const handleUseMyLocation = async () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by this browser.");
+      return;
+    }
 
-  // Memoize center to prevent unnecessary re-renders
-  const center = useMemo(() => 
-    [safeCoordinates.lat, safeCoordinates.lng] as [number, number], 
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const newCoords = { lat: latitude, lng: longitude };
+
+        // Update marker position
+        onLocationChange?.(newCoords);
+
+        // Reverse geocode and update address
+        if (onAddressChange) {
+          const addressData = await reverseGeocode(latitude, longitude);
+          if (addressData) {
+            onAddressChange({
+              address: addressData.address,
+              city: addressData.city,
+              state: addressData.state,
+            });
+          }
+        }
+      },
+      (error) => {
+        console.error("Location Error:", error);
+        alert("Unable to retrieve your location.");
+      }
+    );
+  };
+
+  const center = useMemo(
+    () => [safeCoordinates.lat, safeCoordinates.lng] as [number, number],
     [safeCoordinates.lat, safeCoordinates.lng]
   );
 
-  // Memoize marker position
-  const markerPosition = useMemo(() => 
-    [safeCoordinates.lat, safeCoordinates.lng] as [number, number], 
+  const markerPosition = useMemo(
+    () => [safeCoordinates.lat, safeCoordinates.lng] as [number, number],
     [safeCoordinates.lat, safeCoordinates.lng]
   );
-  
-  // console.log('TurfLocationPicker coordinates:', safeCoordinates);
 
   const mapContent = (
     <div className="space-y-4">
-      <div style={{ height }} className="w-full rounded-lg overflow-hidden shadow-md">
-        <MapContainer 
-          center={center} 
-          zoom={13} 
+      {!readonly && (
+        <div className="flex justify-end mb-2">
+          <button
+            type="button"
+            onClick={handleUseMyLocation}
+            className="px-3 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
+          >
+            Use Current Location
+          </button>
+        </div>
+      )}
+      <div
+        style={{ height }}
+        className="w-full rounded-lg overflow-hidden shadow-md"
+      >
+        <MapContainer
+          center={center}
+          zoom={13}
           style={{ height: "100%", width: "100%" }}
           scrollWheelZoom={true}
           zoomControl={true}
-          key={`map-${Math.floor(safeCoordinates.lat * 1000)}-${Math.floor(safeCoordinates.lng * 1000)}`}
+          key={`map-${Math.floor(safeCoordinates.lat * 1000)}-${Math.floor(
+            safeCoordinates.lng * 1000
+          )}`}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          
-          {/* Marker showing current selected location */}
+
           <Marker position={markerPosition} />
-          
-          {/* Map updater to handle coordinate changes */}
+
           <MapUpdater coordinates={safeCoordinates} />
-          
-          {/* Location picker for click events (only in edit mode) */}
+
           {!readonly && onLocationChange && (
-            <LocationPicker 
-              onLocationChange={onLocationChange} 
-              onAddressChange={onAddressChange} 
+            <LocationPicker
+              onLocationChange={onLocationChange}
+              onAddressChange={onAddressChange}
             />
           )}
         </MapContainer>
@@ -163,7 +218,8 @@ export default function TurfLocationPicker({
         <div className="flex items-center">
           <MapPin className="w-4 h-4 mr-2 text-green-600" />
           <span>
-            Selected coordinates: {safeCoordinates.lat.toFixed(6)}, {safeCoordinates.lng.toFixed(6)}
+            Selected coordinates: {safeCoordinates.lat.toFixed(6)},{" "}
+            {safeCoordinates.lng.toFixed(6)}
           </span>
         </div>
         {readonly && (

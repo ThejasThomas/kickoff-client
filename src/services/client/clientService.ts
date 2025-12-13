@@ -180,9 +180,10 @@ export const hostGame = async (data: {
   );
   return response.data;
 };
-export const getHostedGames = async (): Promise<IHostedGameListResponse> => {
+export const getHostedGames = async (params:{page?:number;limit?:number;search?:string;minPrice?:number;maxPrice?:number}): Promise<IHostedGameListResponse> => {
   const response = await axiosInstance.get<IHostedGameListResponse>(
-    CLIENT_ROUTE.GET_HOSTED_GAME
+    CLIENT_ROUTE.GET_HOSTED_GAME,
+    {params}
   );
   console.log("dataaaaa",response.data)
   return response.data;
