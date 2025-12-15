@@ -1,6 +1,8 @@
 import { axiosInstance } from "@/api/private_axios";
 import { CLIENT_ROUTE } from "@/constants/client_route";
 import type { IBookings } from "@/types/Booking_type";
+import type { ChatMessage } from "@/types/chat_message._type";
+import type { ChatPageData } from "@/types/chat_pageData";
 import {
   type GetUpcomingBookings,
   type IAddMoneyResponse,
@@ -199,6 +201,19 @@ export const getHostedGamesById =async(id:string)=>{
   console.log('Tomyyy iddd',id)
   const response=await axiosInstance.get(
     `${CLIENT_ROUTE.GET_SINGLE_HOSTED_GAME}/${id}`
+  )
+  return response.data
+}
+
+export const getMyChatGroups =async()=>{
+  const response =await axiosInstance.get(
+    `${CLIENT_ROUTE.MY_CHAT_GROUPS}`
+  )
+  return response.data
+}
+export const getChatPageData =async (groupId:string):Promise<ChatPageData>=>{
+  const response =await axiosInstance.get(
+    `${CLIENT_ROUTE.GET_CHATS}/${groupId}`
   )
   return response.data
 }

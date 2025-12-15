@@ -51,7 +51,6 @@ const reverseGeocode = async (lat: number, lng: number) => {
   }
 };
 
-// Component to handle map clicks
 const LocationPicker = ({
   onLocationChange,
   onAddressChange,
@@ -131,31 +130,43 @@ export default function TurfLocationPicker({
     }
 
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
+  async (position) => {
+    const { latitude, longitude, accuracy } = position.coords;
 
-        const newCoords = { lat: latitude, lng: longitude };
+    console.log("GPS accuracy (meters):", accuracy);
 
-        // Update marker position
-        onLocationChange?.(newCoords);
+    if (accuracy > 1000) {
+      alert(
+        "Location accuracy is low. Please zoom and adjust the pin manually."
+      );
+    }
 
-        // Reverse geocode and update address
-        if (onAddressChange) {
-          const addressData = await reverseGeocode(latitude, longitude);
-          if (addressData) {
-            onAddressChange({
-              address: addressData.address,
-              city: addressData.city,
-              state: addressData.state,
-            });
-          }
-        }
-      },
-      (error) => {
-        console.error("Location Error:", error);
-        alert("Unable to retrieve your location.");
+    
+    const newCoords = { lat: latitude, lng: longitude };
+    onLocationChange?.(newCoords);
+
+    if (onAddressChange) {
+      const addressData = await reverseGeocode(latitude, longitude);
+      if (addressData) {
+        onAddressChange({
+          address: addressData.address,
+          city: addressData.city,
+          state: addressData.state,
+        });
       }
-    );
+    }
+  },
+  (error) => {
+    console.error("Location Error:", error);
+    alert("Unable to retrieve your location.");
+  },
+  {
+    enableHighAccuracy: true,   
+    timeout: 15000,
+    maximumAge: 0,            
+  }
+);
+
   };
 
   const center = useMemo(

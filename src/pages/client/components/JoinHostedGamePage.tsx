@@ -1,8 +1,6 @@
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { IndianRupee, MapPin, Clock, Users, Phone, Mail } from "lucide-react";
 import { motion } from "framer-motion";
-import Cookies from "js-cookie";
-
 import type { IHostedGameItem } from "@/types/host_game_type";
 import type { RootState } from "@/store/store";
 import { useSelector } from "react-redux";

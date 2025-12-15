@@ -1,4 +1,3 @@
-"use client";
 
 import type React from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,6 +16,7 @@ import {
   X,
   Wallet,
   Footprints,
+  Group,
 } from "lucide-react";
 import { Button } from "../ui/button";
 // import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
@@ -81,6 +81,12 @@ const getDefaultSidebarItems = (role: string): SidebarItemType[] => {
           path: "/wallet",
           description: "Wallet details",
         },
+        {
+          icon:Group,
+          label:"ChatGroups",
+          path:"/chatGroups",
+          description:"Chat Groups"
+        }
       ];
     case "admin":
       return [
