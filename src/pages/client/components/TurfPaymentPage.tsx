@@ -82,7 +82,7 @@ const TurfPaymentPage = () => {
 
     if (!hasHandledStripe) {
       if (status === "success" && sessionId && dataToUse) {
-        console.log("🚀 Calling handleStripeSuccess", { sessionId });
+        console.log("Calling handleStripeSuccess", { sessionId });
         setHasHandledStripe(true);
         handleStripeSuccess(sessionId, dataToUse);
       } else if (status === "cancelled") {

@@ -11,6 +11,7 @@ import type {
   IGenerateRulesResponse,
   IGenerateSlotsResponse,
   IHandleCancelActionResponse,
+  IOwnerWalletTransactionResponse,
   ITurffResponse,
   ITurfOwnerDetailsResponse,
   ITurfResponse,
@@ -175,11 +176,25 @@ export const getCancelRequests = async (): Promise<ICancelRequestResponse> => {
 export const handleCancelRequestAction = async (
   requestId: string,
   action: "approved" | "rejected",
-  userId:string
+  userId: string
 ): Promise<IHandleCancelActionResponse> => {
   const response = await axiosInstance.put<IHandleCancelActionResponse>(
     `${OWNER_ROUTE.HANDLE_CANCEL_REQUEST}/${requestId}/${userId}`,
-    { action}
+    { action }
+  );
+  return response.data;
+};
+export const getOwnerWalletTransactions = async (
+  page = 1,
+  limit = 10
+): Promise<IOwnerWalletTransactionResponse> => {
+  const response = await axiosInstance.get<IOwnerWalletTransactionResponse>(
+    
+    OWNER_ROUTE.GET_WALLET_TRANSACTION,
+    {
+      params: { page, limit },
+    }
+    
   );
   return response.data;
 };

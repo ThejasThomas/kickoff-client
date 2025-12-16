@@ -7,6 +7,7 @@ import type { IWalletTransaction } from "./wallet_type";
 import type { ICancelRequestItem } from "./cancel_requests_type";
 import type { IHostedGameItem } from "./host_game_type";
 import type { IBlockedSlot } from "./blocked_slot_type";
+import type { OwnerWalletTransaction } from "./ownerWallet_transactions";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -148,4 +149,15 @@ export interface ICancelSlotResponse {
   success: boolean;
   message: string;
 }
+
+
+export interface IOwnerWalletTransactionResponse {
+  success: boolean;
+  transactions: OwnerWalletTransaction[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 
