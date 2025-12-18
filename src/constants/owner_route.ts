@@ -12,6 +12,7 @@ export const OWNER_ROUTE = {
   GET_SINGLE_HOSTED_GAME:`${BASE_URL.OWNER}/get-single-hosted-game`,
   ADD_RULES:`${BASE_URL.OWNER}/add-rules`,
   GET_RULES:`${BASE_URL.OWNER}/get-rules`,
+  GET_OWNER_WALLET:`${BASE_URL.OWNER}/get-wallet`,
   GET_SLOTS:`${BASE_URL.OWNER}/getslots`,
   BOOKSLOT:`${BASE_URL.OWNER}/bookslot`,
   GET_OWNER_DASHBOARD:`${BASE_URL.OWNER}/dashboard`,

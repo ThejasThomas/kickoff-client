@@ -4,6 +4,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import { AdminAuth } from "@/pages/admin/AdminAuth";
 import AdminDashboard from "@/pages/admin/sub-pages/AdminDashboard";
 import AdminTurfsForReview from "@/pages/admin/sub-pages/AdminTurfsForReview";
+import AdminWalletPage from "@/pages/admin/sub-pages/AdminWallet";
 import OwnerManagement from "@/pages/admin/sub-pages/OwnerManagement";
 import VendorVerification from "@/pages/admin/sub-pages/OwnerVerification";
 import TurfsManagement from "@/pages/admin/sub-pages/TurfsManagement";
@@ -106,6 +107,17 @@ const AdminRoutes = () => {
           element: (
             <AdminLayout>
               <AdminTurfsForReview />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/wallet"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <AdminWalletPage />
             </AdminLayout>
           ),
           allowedRoles: ["admin"],

@@ -42,10 +42,16 @@ const sidebarItems: SidebarItem[] = [
     route: "/admin/turfs-verification",
   },
   {
+    icon:Shield,
+    label:"Wallet",
+    route:"/admin/wallet",
+  },
+  {
     icon:ShieldAlert,
     label:"Review Managemnet",
     route:"/admin/turfs-for-review"
-  }
+  },
+  
 ];
 
 interface AdminLayoutProps {

@@ -10,6 +10,7 @@ import RegisterTurfPage from "@/pages/turfOwner/RegisterTurfPage";
 import GenerateSlotsPage from "@/pages/turfOwner/SlotBookingPage";
 import { TurfOwnerAuth } from "@/pages/turfOwner/TurfOwnerAuth";
 import ViewSlotsPage from "@/pages/turfOwner/ViewSlotsPage";
+import OwnerWalletPage from "@/pages/turfOwner/WalletPage";
 import AddOfflineBooking from "@/pages/turfOwner/components/Bookings/AddOfflineBooking";
 import ApprovedTurfsPage from "@/pages/turfOwner/components/Bookings/Turfs.Page";
 import BookingsPage from "@/pages/turfOwner/components/Bookings/UsersBookings";
@@ -71,6 +72,7 @@ const TurfOwnerRoutes = () => {
         <Route path="/slot-cancellation" element={<SlotCancellationPage/>}/>\
         <Route path="/owner-earnings" element={<OwnerEarnings/>}/>
         <Route path="/cancel-booking-requests" element={<CancelRequestsPage/>}/>
+        <Route path="/wallet" element={<OwnerWalletPage/>}/>
         <Route path="/turfsbooking" element={<ApprovedTurfsPage/>} />
         <Route path="/bookings/:turfId" element={<BookingsPage/>} />
         

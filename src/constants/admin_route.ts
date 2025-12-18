@@ -6,6 +6,8 @@ export const ADMIN_ROUTES={
     USERS:`${BASE_URL.ADMIN}/users`,
     TURFS:`${BASE_URL.ADMIN}/turfs`,
     STATUS:`${BASE_URL.ADMIN}/status`,
+    ADMIN_WALLET:`${BASE_URL.ADMIN}/wallet`,
+    ADMIN_WALLET_TRANSACTIONS:`${BASE_URL.ADMIN}/wallet-transaction`,
     GET_TURFS_REVIEWS:`${BASE_URL.ADMIN}/get-turf-reviews`,
     DELETE_REVIEWS:`${BASE_URL.ADMIN}/delete-review`,
     LOGOUT:`${BASE_URL.ADMIN}/logout`,

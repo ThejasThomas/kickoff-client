@@ -23,8 +23,8 @@ export const ConfirmationModal = ({
   onConfirm,
   onClose,
 }: ConfirmationModalProps) => {
-  const handleConfirm = () => {
-    onConfirm();
+  const handleConfirm =async () => {
+    await onConfirm();
     onClose();
   };
 

@@ -9,6 +9,7 @@ import type { IHostedGameItem } from "./host_game_type";
 import type { IBlockedSlot } from "./blocked_slot_type";
 import type { OwnerWalletTransaction } from "./ownerWallet_transactions";
 import type { ITurfReview } from "./turfReview_type";
+import type { AdminWalletTransaction } from "./admin_wallet_type";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -177,5 +178,14 @@ export interface TurfsResponse {
   success: boolean;
   turfs: ITurf[];
   currentPage: number;
+  totalPages: number;
+}
+
+
+export interface AdminWalletTransactionResponse {
+  success: boolean;
+  transactions: AdminWalletTransaction[];
+  total: number;
+  page: number;
   totalPages: number;
 }

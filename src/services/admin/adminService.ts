@@ -1,7 +1,8 @@
 // import { adminAxiosInstance } from "@/api/admin_axios";
 import { axiosInstance } from "@/api/private_axios";
 import { ADMIN_ROUTES } from "@/constants/admin_route";
-import type { IAuthResponse, IAxiosResponse } from "@/types/Response";
+import type { AdminWallet } from "@/types/admin_wallet_type";
+import type { AdminWalletTransactionResponse, IAuthResponse, IAxiosResponse } from "@/types/Response";
 import type {
   GetAllTurfsResponse,
   GetAllUsersResponse,
@@ -107,6 +108,42 @@ export const adminService = {
   return response.data
  },
 
+ getAdminWallet:async():Promise<{success:boolean;wallet:AdminWallet}>=>{
+  try{
+    const response = await axiosInstance.get(
+      `${ADMIN_ROUTES.ADMIN_WALLET}`
+    )
+    return response.data;
+  }catch(error){
+    return{
+      success:true,
+      wallet:{balance:0}
+    }
+  }
+ },
+
+ getAdminwalletTransactions:async(
+  page=1,
+  limit=10
+ ):Promise<AdminWalletTransactionResponse>=>{
+  try{
+    const response=await axiosInstance.get<AdminWalletTransactionResponse>(
+      ADMIN_ROUTES.ADMIN_WALLET_TRANSACTIONS,
+      {
+        params:{page,limit}
+      }
+    )
+    return response.data
+  }catch{
+    return{
+      success: false,
+        transactions: [],
+        total: 0,
+        page: 1,
+        totalPages: 1,
+    }
+  }
+ },
   updateEntityStatus: async (
     entityType: "client" | "turfOwner" | "turf",
     entityId: string,

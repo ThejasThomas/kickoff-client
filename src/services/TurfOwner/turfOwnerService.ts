@@ -189,12 +189,10 @@ export const getOwnerWalletTransactions = async (
   limit = 10
 ): Promise<IOwnerWalletTransactionResponse> => {
   const response = await axiosInstance.get<IOwnerWalletTransactionResponse>(
-    
     OWNER_ROUTE.GET_WALLET_TRANSACTION,
     {
       params: { page, limit },
     }
-    
   );
   return response.data;
 };
@@ -248,16 +246,17 @@ export const bookSlots = async (
   );
   return response.data;
 };
-export const getOwnerDashboard =async(days=7)=>{
-  const response=await axiosInstance.get(
-    OWNER_ROUTE.GET_OWNER_DASHBOARD,
-    {
-      params:{days}
-    }
-  )
-  return response.data
-}
+export const getOwnerDashboard = async (days = 7) => {
+  const response = await axiosInstance.get(OWNER_ROUTE.GET_OWNER_DASHBOARD, {
+    params: { days },
+  });
+  return response.data;
+};
 
+export const getOwnerWallet = async () => {
+  const response = await axiosInstance.get(OWNER_ROUTE.GET_OWNER_WALLET);
+  return response.data;
+};
 export const retryAdminApproval = async (
   userId: string
 ): Promise<{ status: turfOwnerStatus }> => {
