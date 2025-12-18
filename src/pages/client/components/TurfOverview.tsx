@@ -15,9 +15,10 @@ import type { ITurf } from "@/types/Turf";
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { getTurfById, getSlots } from "@/services/client/clientService";
+import { getTurfById, getSlots, getTurfReviews } from "@/services/client/clientService";
 import type { ISlot } from "@/types/Slot";
 import HostGameForm from "./HostGameForm";
+import type { ITurfReview } from "@/types/turfReview_type";
 
 const TurfOverview: React.FC = () => {
   const [turf, setTurf] = useState<ITurf | null>(null);
@@ -28,6 +29,11 @@ const TurfOverview: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toLocaleDateString("en-CA")
   );
+  const [reviews, setReviews] = useState<ITurfReview[]>([]);
+const [reviewPage, setReviewPage] = useState(1);
+const [reviewTotalPages, setReviewTotalPages] = useState(1);
+const [reviewLoading, setReviewLoading] = useState(false);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -63,6 +69,26 @@ const backGame = (location.state as any)?.game;
 
     fetchTurf();
   }, [id]);
+  useEffect(() => {
+  if (!id) return;
+
+  const fetchReviews = async () => {
+    try {
+      setReviewLoading(true);
+      const res = await getTurfReviews(id, reviewPage, 5);
+
+      setReviews(res.reviews);
+      setReviewTotalPages(res.totalPages);
+    } catch (err) {
+      console.error("Failed to load reviews", err);
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  fetchReviews();
+}, [id, reviewPage]);
+
 
   useEffect(() => {
     const fetchSlots = async () => {
@@ -418,7 +444,73 @@ const backGame = (location.state as any)?.game;
                 </div>
               </motion.div>
             )}
+            {/* Reviews Section */}
+<motion.div
+  className="bg-card rounded-xl p-6 border border-border"
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.5 }}
+>
+  <h2 className="text-2xl font-bold text-card-foreground mb-4">
+    User Reviews
+  </h2>
+
+  {reviewLoading ? (
+    <p className="text-muted-foreground">Loading reviews...</p>
+  ) : reviews.length === 0 ? (
+    <p className="text-muted-foreground">
+      No reviews yet. Be the first to review this turf!
+    </p>
+  ) : (
+    <div className="space-y-4">
+      {reviews.map((review) => (
+        <div
+          key={review._id}
+          className="border border-border rounded-lg p-4"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <p className="font-semibold text-card-foreground">
+              {review.userName}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {new Date(review.createdAt).toLocaleDateString()}
+            </p>
           </div>
+
+          <p className="text-muted-foreground">{review.comment}</p>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* Pagination */}
+  {reviewTotalPages > 1 && (
+    <div className="flex justify-between items-center mt-6">
+      <button
+        disabled={reviewPage === 1}
+        onClick={() => setReviewPage((p) => p - 1)}
+        className="px-4 py-2 rounded-lg border disabled:opacity-50"
+      >
+        Previous
+      </button>
+
+      <span className="text-sm text-muted-foreground">
+        Page {reviewPage} of {reviewTotalPages}
+      </span>
+
+      <button
+        disabled={reviewPage === reviewTotalPages}
+        onClick={() => setReviewPage((p) => p + 1)}
+        className="px-4 py-2 rounded-lg border disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  )}
+</motion.div>
+
+          </div>
+          
 
           {/* Right Column - Booking Section */}
           <div className="lg:col-span-1">

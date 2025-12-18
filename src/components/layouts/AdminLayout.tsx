@@ -6,6 +6,7 @@ import {
   Users,
   UserCheck,
   Shield,
+  ShieldAlert,
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
@@ -40,6 +41,11 @@ const sidebarItems: SidebarItem[] = [
     label: "Turfs verification",
     route: "/admin/turfs-verification",
   },
+  {
+    icon:ShieldAlert,
+    label:"Review Managemnet",
+    route:"/admin/turfs-for-review"
+  }
 ];
 
 interface AdminLayoutProps {

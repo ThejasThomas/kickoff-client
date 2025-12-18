@@ -3,9 +3,11 @@ import ResetPassword from "@/components/auth/ResetPassword";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { AdminAuth } from "@/pages/admin/AdminAuth";
 import AdminDashboard from "@/pages/admin/sub-pages/AdminDashboard";
+import AdminTurfsForReview from "@/pages/admin/sub-pages/AdminTurfsForReview";
 import OwnerManagement from "@/pages/admin/sub-pages/OwnerManagement";
 import VendorVerification from "@/pages/admin/sub-pages/OwnerVerification";
 import TurfsManagement from "@/pages/admin/sub-pages/TurfsManagement";
+import AdminTurfReviews from "@/pages/admin/sub-pages/TurfsReviewManagement";
 import TurfVerification from "@/pages/admin/sub-pages/TurfsVerification";
 import UserManagement from "@/pages/admin/sub-pages/UsersManagement";
 import { ProtectedRoute } from "@/utils/protected/ProtectedRoute";
@@ -32,14 +34,95 @@ const AdminRoutes = () => {
           />
         }
       />
-        <Route path="/dashboard" element={ProtectedRoute({element: <AdminLayout><AdminDashboard/></AdminLayout>,allowedRoles: ["admin"]})}/>
-      <Route path="/owner-verification" element={ProtectedRoute({element: <AdminLayout><VendorVerification /></AdminLayout>,allowedRoles: ["admin"]})}/>
-      <Route path="/owner-management" element={ProtectedRoute({ element: <AdminLayout><OwnerManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
-      <Route path="/users-management" element={ ProtectedRoute({element:<AdminLayout><UserManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
-      <Route path="/turfs-verification" element={ProtectedRoute({element:<AdminLayout><TurfVerification/></AdminLayout>,allowedRoles:["admin"]})}/>
-      <Route path="/turfs-management" element={ProtectedRoute({element:<AdminLayout><TurfsManagement/></AdminLayout>,allowedRoles:["admin"]})}/>
+      <Route
+        path="/dashboard"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <AdminDashboard />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/owner-verification"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <VendorVerification />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/owner-management"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <OwnerManagement />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/users-management"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <UserManagement />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/turfs-verification"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <TurfVerification />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/review-management/:turfId"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <AdminTurfReviews />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/turfs-for-review"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <AdminTurfsForReview />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
 
-      
+      <Route
+        path="/turfs-management"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <TurfsManagement />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
     </Routes>
   );
 };

@@ -14,6 +14,7 @@ export const OWNER_ROUTE = {
   GET_RULES:`${BASE_URL.OWNER}/get-rules`,
   GET_SLOTS:`${BASE_URL.OWNER}/getslots`,
   BOOKSLOT:`${BASE_URL.OWNER}/bookslot`,
+  GET_OWNER_DASHBOARD:`${BASE_URL.OWNER}/dashboard`,
   GET_WALLET_TRANSACTION:`${BASE_URL.OWNER}/transactions`,
   CANCEL_SLOT:`${BASE_URL.OWNER}/cancel-slot`,
   CHECK_SLOT_AVAILABILITY:`${BASE_URL.OWNER}/check-slot-availability`,

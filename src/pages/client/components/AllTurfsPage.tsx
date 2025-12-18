@@ -113,7 +113,6 @@ const AllTurfsPage: React.FC = () => {
       console.log("🔍 Fetching turfs with params:", params)
 
       const response: ITurffResponse = await getTurfs(params)
-      console.log("✅ API response:", response)
 
       if (response.success) {
         setTurfs(response.turfs || [])

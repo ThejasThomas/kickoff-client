@@ -1,22 +1,25 @@
 import { axiosInstance } from "@/api/private_axios";
 import { CLIENT_ROUTE } from "@/constants/client_route";
+import type { IAddReviewPayload } from "@/types/addReview_type";
 import type { IBookings } from "@/types/Booking_type";
-import type { ChatMessage } from "@/types/chat_message._type";
 import type { ChatPageData } from "@/types/chat_pageData";
 import {
   type GetUpcomingBookings,
   type IAddMoneyResponse,
+  type IAddReviewResponse,
   type IAuthResponse,
   type IBookResponse,
   type ICreateHostedGameResponse,
   type IHostedGameListResponse,
   type ITurffResponse,
+  type ITurfReviewResponse,
   type IWalletBalanceResponse,
   type IWalletHistoryResponse,
   type SlotResponse,
 } from "@/types/Response";
 import type { ISlot } from "@/types/Slot";
 import type { ITurf } from "@/types/Turf";
+import type { ITurfReview } from "@/types/turfReview_type";
 import type { GetTurfsParams, IClient, IUpdateClient } from "@/types/User";
 
 export type IUpdateClientData = Pick<
@@ -116,7 +119,7 @@ export const getTurfs = async (
       {
         params: {
           page: params.page || 1,
-          limit: params.limit || 10,
+          limit: params.limit || 5,
           search: params.search || "",
           status: params.status || "",
         },
@@ -182,38 +185,67 @@ export const hostGame = async (data: {
   );
   return response.data;
 };
-export const getHostedGames = async (params:{page?:number;limit?:number;search?:string;minPrice?:number;maxPrice?:number}): Promise<IHostedGameListResponse> => {
+export const getHostedGames = async (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+}): Promise<IHostedGameListResponse> => {
   const response = await axiosInstance.get<IHostedGameListResponse>(
     CLIENT_ROUTE.GET_HOSTED_GAME,
-    {params}
+    { params }
   );
-  console.log("dataaaaa",response.data)
+  console.log("dataaaaa", response.data);
   return response.data;
 };
-export const joinHostedGame =async(gameId:string)=>{
-  const response =await axiosInstance.post(
-    CLIENT_ROUTE.JOIN_HOSTED_GAME,
-    {gameId}
-  );
-  return response.data
-}
-export const getHostedGamesById =async(id:string)=>{
-  console.log('Tomyyy iddd',id)
-  const response=await axiosInstance.get(
+export const joinHostedGame = async (gameId: string) => {
+  const response = await axiosInstance.post(CLIENT_ROUTE.JOIN_HOSTED_GAME, {
+    gameId,
+  });
+  return response.data;
+};
+export const getHostedGamesById = async (id: string) => {
+  console.log("Tomyyy iddd", id);
+  const response = await axiosInstance.get(
     `${CLIENT_ROUTE.GET_SINGLE_HOSTED_GAME}/${id}`
-  )
-  return response.data
-}
+  );
+  return response.data;
+};
 
-export const getMyChatGroups =async()=>{
-  const response =await axiosInstance.get(
-    `${CLIENT_ROUTE.MY_CHAT_GROUPS}`
-  )
-  return response.data
-}
-export const getChatPageData =async (groupId:string):Promise<ChatPageData>=>{
-  const response =await axiosInstance.get(
+export const getMyChatGroups = async () => {
+  const response = await axiosInstance.get(`${CLIENT_ROUTE.MY_CHAT_GROUPS}`);
+  return response.data;
+};
+export const getChatPageData = async (
+  groupId: string
+): Promise<ChatPageData> => {
+  const response = await axiosInstance.get(
     `${CLIENT_ROUTE.GET_CHATS}/${groupId}`
+  );
+  return response.data;
+};
+export const addReview = async (
+  payload: IAddReviewPayload
+): Promise<IAddReviewResponse> => {
+  const response = await axiosInstance.post<IAddReviewResponse>(
+    CLIENT_ROUTE.ADD_REVIEW,
+    payload
+  );
+  return response.data;
+};
+
+export const getTurfReviews =async (turfId:string,page=1,limit=5):Promise<ITurfReviewResponse>=>{
+  const response =await axiosInstance.get<{
+    success:boolean;
+    reviews:ITurfReview[];
+    total:number;
+    page:number;
+    totalPages:number;
+  }>(
+    `${CLIENT_ROUTE.GET_TURF_REVIEWS}/${turfId}`,{
+      params:{page,limit},
+    }
   )
   return response.data
 }

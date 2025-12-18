@@ -1,6 +1,7 @@
 import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
 import TurfOwnerLayout from "@/components/layouts/TurfOwnerLayout";
+import WalletTransactionsPage from "@/components/turfOwner/WalletTransactionPage";
 import AddSlotsPage from "@/pages/turfOwner/AddSlots";
 import CancelRequestsPage from "@/pages/turfOwner/BookingsCancelrequests";
 import MyTurfPage from "@/pages/turfOwner/MyTurfPage";
@@ -65,6 +66,7 @@ const TurfOwnerRoutes = () => {
         <Route path="/edit-turf/:id" element={<EditTurfWrapper />} />
         <Route path="/view-slots/:id" element={<ViewSlotsPage/>} />
         <Route path="/re-apply-turf" element={<TurfReApplyPage/>}/>
+        <Route path="/transactions" element={<WalletTransactionsPage/>}/>
         <Route path="/add-offline-booking/:turfId" element={<AddOfflineBooking/>}/>
         <Route path="/slot-cancellation" element={<SlotCancellationPage/>}/>\
         <Route path="/owner-earnings" element={<OwnerEarnings/>}/>

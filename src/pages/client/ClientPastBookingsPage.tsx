@@ -1,33 +1,46 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getpastbookings } from "@/services/client/clientService";
+import {
+  addReview,
+  getpastbookings,
+  getTurfById,
+} from "@/services/client/clientService";
 import type { IBookings } from "@/types/Booking_type";
 import type { IBookResponse } from "@/types/Response";
 import { useToaster } from "@/hooks/ui/useToaster";
-import {  AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { PageHeader } from "@/components/ui/image-header";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BookingCard } from "@/components/ui/booking-cardd";
+import type { ITurf } from "@/types/Turf";
+import AddReviewModal from "@/components/ReusableComponents/ReviewModal";
+import toast from "react-hot-toast";
 
 const ClientPastBookingsPage = () => {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<IBookings[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { errorToast } = useToaster();
+  const [selectedBooking, setSelectedBooking] = useState<IBookings | null>(
+    null
+  );
+    const {successToast,errorToast} =useToaster()
+  
+  const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null);
+
 
   const fetchBookings = async () => {
     setLoading(true);
     setError(null);
     try {
       const response: IBookResponse = await getpastbookings();
+      console.log("resp[onse", response);
       if (response.success) {
-        const pastBookings = response.bookings.map(booking => ({
+        const pastBookings = response.bookings.map((booking) => ({
           ...booking,
-          status: "completed",
+          status: "completed" as const,
         }));
         setBookings(pastBookings);
         console.log("Past Bookings:", pastBookings);
@@ -38,7 +51,7 @@ const ClientPastBookingsPage = () => {
     } catch (err) {
       setError("Failed to fetch past bookings");
       errorToast("Failed to fetch past bookings");
-      console.log(err)
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -47,6 +60,15 @@ const ClientPastBookingsPage = () => {
   useEffect(() => {
     fetchBookings();
   }, []);
+  const handleAddReview = async (booking: IBookings) => {
+    try {
+      const turf = await getTurfById(booking.turfId);
+      setSelectedTurf(turf);
+      setSelectedBooking(booking);
+    } catch (err) {
+      errorToast("Failed to load turf details");
+    }
+  };
 
   if (loading) {
     return (
@@ -138,6 +160,7 @@ const ClientPastBookingsPage = () => {
                     key={index}
                     booking={booking}
                     index={index}
+                    onAddReview={handleAddReview}
                   />
                 ))}
               </AnimatePresence>
@@ -145,6 +168,34 @@ const ClientPastBookingsPage = () => {
           )}
         </div>
       </div>
+      {selectedBooking && selectedTurf && (
+        <AddReviewModal
+          turf={selectedTurf}
+          bookingId={selectedBooking._id}
+          onClose={() => {
+            setSelectedBooking(null);
+            setSelectedTurf(null);
+          }}
+          onSubmit={async (data) => {
+            try {
+              await addReview({
+                bookingId: selectedBooking._id,
+                turfId: selectedBooking.turfId,
+                comment: data.comment,
+              });
+
+              successToast("Review submitted successfully");
+
+              fetchBookings();
+            } catch (err) {
+              errorToast("Failed to submit review");
+            } finally {
+              setSelectedBooking(null);
+              setSelectedTurf(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

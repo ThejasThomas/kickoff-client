@@ -12,9 +12,10 @@ export interface IBookings {
   price: number;
   status: "open" | "full" | "cancelled" | "completed" | "confirmed"|"pending"
 
-  paymentStatus?: string;   
+  paymentStatus: string;   
   paymentMethod:string
   createdAt: string;
+  hasReviewed?: boolean;
 
   hostedGameId?:string
 }

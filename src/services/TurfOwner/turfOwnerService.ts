@@ -248,6 +248,15 @@ export const bookSlots = async (
   );
   return response.data;
 };
+export const getOwnerDashboard =async(days=7)=>{
+  const response=await axiosInstance.get(
+    OWNER_ROUTE.GET_OWNER_DASHBOARD,
+    {
+      params:{days}
+    }
+  )
+  return response.data
+}
 
 export const retryAdminApproval = async (
   userId: string

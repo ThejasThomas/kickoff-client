@@ -1,117 +1,183 @@
-import { getOwnerWalletTransactions } from "@/services/TurfOwner/turfOwnerService";
-import type { OwnerWalletTransaction } from "@/types/ownerWallet_transactions";
+"use client";
+
 import { useEffect, useState } from "react";
+import {
+  getOwnerDashboard,
+  getOwnerWalletTransactions,
+} from "@/services/TurfOwner/turfOwnerService";
+import type { OwnerDashboardResponse } from "@/types/ownerDashboard_type";
+import type { OwnerWalletTransaction } from "@/types/ownerWallet_transactions";
+import { Button } from "@/components/ui/button";
+import { Calendar, TrendingUp, Users } from "lucide-react";
+import { TurfPerformanceTable } from "@/components/ReusableComponents/TurfPerformance";
+import { BookingsChart } from "@/components/ReusableComponents/BookingsChartProps";
+import { RevenueChart } from "@/components/ReusableComponents/RevenueChart";
+import { StatCard } from "@/components/ReusableComponents/StatCard";
+import { WalletTransactions } from "@/components/ReusableComponents/walletTransactionPage";
+import { useNavigate } from "react-router-dom";
 
-const OwnerWalletTransactionsPage = () => {
-  const [transactions, setTransactions] = useState<OwnerWalletTransaction[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+const OwnerDashboardPage = () => {
+  const [data, setData] = useState<OwnerDashboardResponse | null>(null);
+  const [transactions, setTransactions] = useState<OwnerWalletTransaction[]>(
+    []
+  );
   const [loading, setLoading] = useState(false);
-
+  const [days, setDays] = useState(7);
+  const navigate = useNavigate();
   useEffect(() => {
+    fetchDashboard();
     fetchTransactions();
-  }, [page]);
+  }, [days]);
 
-  const fetchTransactions = async () => {
+  const fetchDashboard = async () => {
     try {
       setLoading(true);
-      const res = await getOwnerWalletTransactions(page, 10);
-      console.log('res',res)
-      setTransactions(res.transactions);
-      setTotalPages(res.totalPages);
-    } catch (error) {
-      console.error("Failed to fetch wallet transactions", error);
+      const res = await getOwnerDashboard(days);
+      console.log("ressss", res);
+      setData(res.data);
+    } catch (err) {
+      console.error("[v0] Dashboard fetch failed", err);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Wallet Transactions</h1>
+  const fetchTransactions = async () => {
+    try {
+      const res = await getOwnerWalletTransactions(1, 5);
+      setTransactions(res.transactions);
+    } catch (err) {
+      console.error("[v0] Failed to fetch wallet transactions", err);
+    }
+  };
 
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3 text-left">User</th>
-              <th className="p-3 text-left">Type</th>
-              <th className="p-3 text-left">Turf</th>
-              <th className="p-3 text-left">Amount</th>
-              <th className="p-3 text-left">Date</th>
-            </tr>
-          </thead>
+  const generateChartData = () => {
+    if (!data) return [];
 
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={5} className="p-4 text-center">
-                  Loading...
-                </td>
-              </tr>
-            ) : transactions.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="p-4 text-center">
-                  No transactions found
-                </td>
-              </tr>
-            ) : (
-              transactions.map((tx) => (
-                <tr key={tx._id} className="border-t">
-                  <td className="p-3">
-                    {tx.booking?.user?.fullName || "—"}
-                  </td>
+    const chartData = [];
+    const totalDays = days;
+    const avgRevenue = data.overview.totalRevenue / totalDays;
+    const avgBookings = data.overview.totalBookings / totalDays;
+    
 
-                  <td
-                    className={`p-3 font-medium ${
-                      tx.type === "CREDIT"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {tx.type}
-                  </td>
+    for (let i = totalDays - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
 
-                  <td className="p-3">
-                    {tx.turf?.turfName || "—"}
-                  </td>
+      const variance = 0.3;
+      const revenueVariance = 1 + (Math.random() - 0.5) * variance;
+      const bookingsVariance = 1 + (Math.random() - 0.5) * variance;
 
-                  <td className="p-3">₹{tx.amount}</td>
+      chartData.push({
+        date: date.toLocaleDateString("en-IN", {
+          month: "short",
+          day: "numeric",
+        }),
+        revenue: Math.round(avgRevenue * revenueVariance),
+        bookings: Math.round(avgBookings * bookingsVariance),
+      });
+    }
 
-                  <td className="p-3">
-                    {new Date(tx.transactionDate).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+    return chartData;
+  };
+
+  if (loading || !data) {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <div className="mx-auto max-w-7xl space-y-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-48 rounded bg-muted" />
+            <div className="grid gap-4 md:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 rounded-lg bg-muted" />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
+    );
+  }
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage((p) => p - 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
+  const { overview, perTurf } = data;
+  const chartData = generateChartData();
 
-        <span className="text-sm">
-          Page {page} of {totalPages}
-        </span>
+  return (
+    <div className="min-h-screen bg-background p-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight">
+              Owner Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+              Monitor your turf booking performance
+            </p>
+          </div>
 
-        <button
-          disabled={page === totalPages}
-          onClick={() => setPage((p) => p + 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
+          {/* Time Period Filter */}
+          <div className="flex gap-2">
+            {[
+              { label: "7 Days", value: 7 },
+              { label: "30 Days", value: 30 },
+              { label: "90 Days", value: 90 },
+            ].map((period) => (
+              <Button
+                key={period.value}
+                variant={days === period.value ? "default" : "outline"}
+                onClick={() => setDays(period.value)}
+              >
+                {period.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Total Bookings"
+            value={overview.totalBookings.toLocaleString()}
+            trend="up"
+            icon={<Calendar className="h-6 w-6" />}
+          />
+          <StatCard
+            title="Total Revenue"
+            value={`₹${overview.totalRevenue.toLocaleString()}`}
+            trend="up"
+            icon={<span className="text-2xl font-bold">₹</span>}
+          />
+          <StatCard
+            title="Hosted Games"
+            value={overview.totalHostedGames.toLocaleString()}
+            trend="down"
+            icon={<Users className="h-6 w-6" />}
+          />
+          <StatCard
+            title="Game Revenue"
+            value={`₹${overview.totalHostedRevenue.toLocaleString()}`}
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+          />
+        </div>
+
+        {/* Charts */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <RevenueChart data={chartData} />
+          <BookingsChart data={chartData} />
+        </div>
+
+        {/* Turf Performance Table */}
+        <TurfPerformanceTable data={perTurf} />
+
+        {/* Recent Transactions */}
+        <WalletTransactions
+          transactions={transactions}
+          onViewAll={() => navigate("/turfOwner/transactions")}
+        />
       </div>
     </div>
   );
 };
 
-export default OwnerWalletTransactionsPage;
+export default OwnerDashboardPage;

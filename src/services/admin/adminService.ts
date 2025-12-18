@@ -86,6 +86,27 @@ export const adminService = {
     }
   },
 
+ getTurfsReviewAdmin:async (
+  turfId:string,
+  page =1,
+  limit=10
+ )=>{
+  const response =await axiosInstance.get(
+    `${ADMIN_ROUTES.GET_TURFS_REVIEWS}/${turfId}`,
+    {
+      params:{page,limit}
+    }
+  )
+  return response.data;
+ },
+ deleteReviewAdmin:async(
+  reviewId:string
+ )=>{
+  const response =await axiosInstance.delete(`${ADMIN_ROUTES.DELETE_REVIEWS}/${reviewId}`)
+
+  return response.data
+ },
+
   updateEntityStatus: async (
     entityType: "client" | "turfOwner" | "turf",
     entityId: string,
