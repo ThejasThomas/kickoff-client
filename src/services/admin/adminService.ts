@@ -2,6 +2,7 @@
 import { axiosInstance } from "@/api/private_axios";
 import { ADMIN_ROUTES } from "@/constants/admin_route";
 import type { AdminWallet } from "@/types/admin_wallet_type";
+import type { AdminDashboardEntity, RevenuePeriod } from "@/types/adminDashboard_type";
 import type { AdminWalletTransactionResponse, IAuthResponse, IAxiosResponse } from "@/types/Response";
 import type {
   GetAllTurfsResponse,
@@ -171,4 +172,16 @@ export const adminService = {
       };
     }
   },
+  getDashboard:async(
+    period:RevenuePeriod
+  ):Promise<{success:boolean;data:AdminDashboardEntity}>=>{
+    const response = await axiosInstance.get(
+      ADMIN_ROUTES.GET_DASHBOARD,
+      {
+        params:{period},
+      }
+    )
+    return response.data;
+  }
+
 };

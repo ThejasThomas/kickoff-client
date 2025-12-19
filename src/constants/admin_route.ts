@@ -10,6 +10,7 @@ export const ADMIN_ROUTES={
     ADMIN_WALLET_TRANSACTIONS:`${BASE_URL.ADMIN}/wallet-transaction`,
     GET_TURFS_REVIEWS:`${BASE_URL.ADMIN}/get-turf-reviews`,
     DELETE_REVIEWS:`${BASE_URL.ADMIN}/delete-review`,
+    GET_DASHBOARD:`${BASE_URL.ADMIN}/get-dashboard`,
     LOGOUT:`${BASE_URL.ADMIN}/logout`,
     
 }
