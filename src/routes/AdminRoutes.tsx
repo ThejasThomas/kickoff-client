@@ -7,6 +7,8 @@ import AdminTurfsForReview from "@/pages/admin/sub-pages/AdminTurfsForReview";
 import AdminWalletPage from "@/pages/admin/sub-pages/AdminWallet";
 import OwnerManagement from "@/pages/admin/sub-pages/OwnerManagement";
 import VendorVerification from "@/pages/admin/sub-pages/OwnerVerification";
+import AdminOwnerWalletTransactions from "@/pages/admin/sub-pages/TransactionDetailsPAge";
+import TransactionViewDetails from "@/pages/admin/sub-pages/TrasactionDetails";
 import TurfsManagement from "@/pages/admin/sub-pages/TurfsManagement";
 import AdminTurfReviews from "@/pages/admin/sub-pages/TurfsReviewManagement";
 import TurfVerification from "@/pages/admin/sub-pages/TurfsVerification";
@@ -118,6 +120,28 @@ const AdminRoutes = () => {
           element: (
             <AdminLayout>
               <AdminWalletPage />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/transactions"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <AdminOwnerWalletTransactions />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/transaction-view-detail/:transactionId"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <TransactionViewDetails />
             </AdminLayout>
           ),
           allowedRoles: ["admin"],

@@ -3,6 +3,7 @@ import { axiosInstance } from "@/api/private_axios";
 import { ADMIN_ROUTES } from "@/constants/admin_route";
 import type { AdminWallet } from "@/types/admin_wallet_type";
 import type { AdminDashboardEntity, RevenuePeriod } from "@/types/adminDashboard_type";
+import type { AllOwnerWalletTransactionResponse } from "@/types/owner_wallet_transaction_type";
 import type { AdminWalletTransactionResponse, IAuthResponse, IAxiosResponse } from "@/types/Response";
 import type {
   GetAllTurfsResponse,
@@ -172,6 +173,24 @@ export const adminService = {
       };
     }
   },
+  getTransactionDetails:async(transactionId:string)=>{
+    const response=await axiosInstance.get(
+      `${ADMIN_ROUTES.TRANSACTION_DETAILS}/${transactionId}`
+    )
+    return response.data
+  },
+
+  getAllOwnerTransactions:async(
+    page=1,
+    limit=10
+  ):Promise<AllOwnerWalletTransactionResponse>=>{
+    const response =await axiosInstance.get(
+      ADMIN_ROUTES.ALL_OWNER_WALLET_TRANSACTIONS,
+      {params:{page,limit}}
+    );
+    return response.data;
+  },
+
   getDashboard:async(
     period:RevenuePeriod
   ):Promise<{success:boolean;data:AdminDashboardEntity}>=>{

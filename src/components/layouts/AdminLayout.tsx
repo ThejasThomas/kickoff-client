@@ -47,6 +47,11 @@ const sidebarItems: SidebarItem[] = [
     route:"/admin/wallet",
   },
   {
+    icon:Shield,
+    label:"Transactions",
+    route:"/admin/transactions"
+  },
+  {
     icon:ShieldAlert,
     label:"Review Managemnet",
     route:"/admin/turfs-for-review"
