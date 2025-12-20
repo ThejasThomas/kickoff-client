@@ -8,7 +8,7 @@ import {
 import type { OwnerDashboardResponse } from "@/types/ownerDashboard_type";
 import type { OwnerWalletTransaction } from "@/types/ownerWallet_transactions";
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, Users } from "lucide-react";
+import { Calendar, TrendingUp, Users, Download } from "lucide-react";
 import { TurfPerformanceTable } from "@/components/ReusableComponents/TurfPerformance";
 import { BookingsChart } from "@/components/ReusableComponents/BookingsChartProps";
 import { RevenueChart } from "@/components/ReusableComponents/RevenueChart";
@@ -81,6 +81,24 @@ const OwnerDashboardPage = () => {
     return chartData;
   };
 
+  const handleDownloadReport = () => {
+    if (!data) {
+      alert("Loading dashboard data first...");
+      return;
+    }
+    const reportData = {
+      type: "dashboard" as const,
+      date: new Date().toLocaleDateString(),
+      invoiceNumber: `OWNER-REPORT-${Date.now().toString().slice(-6)}`,
+      overview: data.overview,
+      perTurf: data.perTurf,
+      transactions: transactions, 
+      period: `${days} Days`,
+    };
+    const encodedData = encodeURIComponent(JSON.stringify(reportData));
+    navigate(`/turfOwner/owner-invoice-download?data=${encodedData}`);
+  };
+
   if (loading || !data) {
     return (
       <div className="min-h-screen bg-background p-8">
@@ -115,21 +133,30 @@ const OwnerDashboardPage = () => {
             </p>
           </div>
 
-          {/* Time Period Filter */}
-          <div className="flex gap-2">
-            {[
-              { label: "7 Days", value: 7 },
-              { label: "30 Days", value: 30 },
-              { label: "90 Days", value: 90 },
-            ].map((period) => (
-              <Button
-                key={period.value}
-                variant={days === period.value ? "default" : "outline"}
-                onClick={() => setDays(period.value)}
-              >
-                {period.label}
-              </Button>
-            ))}
+          {/* Time Period Filter & Download */}
+          <div className="flex flex-col sm:flex-row gap-2 items-end">
+            <div className="flex gap-2">
+              {[
+                { label: "7 Days", value: 7 },
+                { label: "30 Days", value: 30 },
+                { label: "90 Days", value: 90 },
+              ].map((period) => (
+                <Button
+                  key={period.value}
+                  variant={days === period.value ? "default" : "outline"}
+                  onClick={() => setDays(period.value)}
+                >
+                  {period.label}
+                </Button>
+              ))}
+            </div>
+            <Button
+              onClick={handleDownloadReport}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Download className="h-4 w-4" />
+              Download Report
+            </Button>
           </div>
         </div>
 

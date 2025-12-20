@@ -19,6 +19,7 @@ import HostedGamesPage from "@/pages/client/components/HostedGamesPage";
 import JoinHostedGamePage from "@/pages/client/components/JoinHostedGamePage";
 import ChatGroup from "@/pages/client/components/ChatGroup";
 import ChatPage from "@/pages/client/components/ChatPage";
+import InvoiceUserBookingsPage from "@/pages/client/components/BookingsDownloadPage";
 
 const ClientRoutes = () => {
   return (
@@ -54,6 +55,7 @@ const ClientRoutes = () => {
         <Route path="clientprofile" element={<ClientProfile />} />
         <Route path="chatGroups" element={<ChatGroup/>}/>
         <Route path="chats/:groupId" element={<ChatPage/>}/>
+        <Route path="invoiceuserbookings" element={<InvoiceUserBookingsPage/>}/>
         <Route path="hosted-games" element={<HostedGamesPage/>}/>
         <Route path="hosted-games/join-hosted-game/:id" element={<JoinHostedGamePage/>}/>
       </Route>

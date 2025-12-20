@@ -49,6 +49,7 @@ export const getClientProfile = async (): Promise<IClient> => {
   return response.data;
 };
 
+
 export const updateClientProfile = async (
   clientData: IUpdateClient
 ): Promise<void> => {

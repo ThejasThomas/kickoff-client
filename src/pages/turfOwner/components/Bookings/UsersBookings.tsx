@@ -1,7 +1,7 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { Calendar, Clock, User, AlertCircle, X, Plus, ArrowLeft, ChevronRight } from "lucide-react"
+import { Calendar, Clock, User, AlertCircle, X, Plus, ArrowLeft, ChevronRight, Download } from "lucide-react"
 import type { IBookings } from "@/types/Booking_type"
 import type { IBookResponse } from "@/types/Response"
 import { useGetUsersBookings } from "@/hooks/turfOwner/getBookings"
@@ -128,6 +128,27 @@ const BookingsPage: React.FC = () => {
     }
   }
 
+  const handleDownloadReport = () => {
+    if (bookingsData.length === 0) {
+      toast.error("No bookings to download");
+      return;
+    }
+    const enrichedBookings = bookingsData.map(booking => ({
+      ...booking,
+      userName: booking.userId && userCache[booking.userId] ? userCache[booking.userId].fullName : (booking.bookingType === "offline" ? "Walk-in Player" : "N/A"),
+    }));
+    const reportData = {
+      type: "turf-bookings" as const,
+      date: selectedDate,
+      turfId,
+      bookings: enrichedBookings,
+      totalBookings: bookingsData.length,
+      totalRevenue: bookingsData.reduce((sum, b) => sum + (b.price || 0), 0),
+    };
+    const encodedData = encodeURIComponent(JSON.stringify(reportData));
+    navigate(`/turfOwner/invoice-owner-bookings?data=${encodedData}`);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "confirmed":
@@ -219,6 +240,13 @@ const BookingsPage: React.FC = () => {
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Booking</span>
+                </button>
+                <button
+                  onClick={handleDownloadReport}
+                  className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm hover:shadow-md"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Report</span>
                 </button>
                 <button
                   onClick={() => navigate(-1)}

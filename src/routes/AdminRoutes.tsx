@@ -5,6 +5,7 @@ import { AdminAuth } from "@/pages/admin/AdminAuth";
 import AdminDashboard from "@/pages/admin/sub-pages/AdminDashboard";
 import AdminTurfsForReview from "@/pages/admin/sub-pages/AdminTurfsForReview";
 import AdminWalletPage from "@/pages/admin/sub-pages/AdminWallet";
+import AdminInvoiceDownloadPage from "@/pages/admin/sub-pages/InvoiceDownloadPage";
 import OwnerManagement from "@/pages/admin/sub-pages/OwnerManagement";
 import VendorVerification from "@/pages/admin/sub-pages/OwnerVerification";
 import AdminOwnerWalletTransactions from "@/pages/admin/sub-pages/TransactionDetailsPAge";
@@ -131,6 +132,17 @@ const AdminRoutes = () => {
           element: (
             <AdminLayout>
               <AdminOwnerWalletTransactions />
+            </AdminLayout>
+          ),
+          allowedRoles: ["admin"],
+        })}
+      />
+      <Route
+        path="/invoice-download"
+        element={ProtectedRoute({
+          element: (
+            <AdminLayout>
+              <AdminInvoiceDownloadPage />
             </AdminLayout>
           ),
           allowedRoles: ["admin"],

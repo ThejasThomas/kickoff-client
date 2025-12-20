@@ -16,7 +16,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { BookingCard } from "@/components/ui/booking-cardd";
 import type { ITurf } from "@/types/Turf";
 import AddReviewModal from "@/components/ReusableComponents/ReviewModal";
-import toast from "react-hot-toast";
+import { Download } from "lucide-react";
 
 const ClientPastBookingsPage = () => {
   const navigate = useNavigate();
@@ -26,17 +26,15 @@ const ClientPastBookingsPage = () => {
   const [selectedBooking, setSelectedBooking] = useState<IBookings | null>(
     null
   );
-    const {successToast,errorToast} =useToaster()
-  
+  const { successToast, errorToast } = useToaster();
   const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null);
-
 
   const fetchBookings = async () => {
     setLoading(true);
     setError(null);
     try {
       const response: IBookResponse = await getpastbookings();
-      console.log("resp[onse", response);
+      console.log("response", response);
       if (response.success) {
         const pastBookings = response.bookings.map((booking) => ({
           ...booking,
@@ -60,6 +58,7 @@ const ClientPastBookingsPage = () => {
   useEffect(() => {
     fetchBookings();
   }, []);
+
   const handleAddReview = async (booking: IBookings) => {
     try {
       const turf = await getTurfById(booking.turfId);
@@ -68,6 +67,21 @@ const ClientPastBookingsPage = () => {
     } catch (err) {
       errorToast("Failed to load turf details");
     }
+  };
+
+  const handleDownloadReport = () => {
+    if (bookings.length === 0) {
+      errorToast("No bookings to download");
+      return;
+    }
+    const reportData = {
+      type: "bookings" as const,
+      date: new Date().toLocaleDateString(),
+      invoiceNumber: `USER-REPORT-${Date.now().toString().slice(-6)}`,
+      bookings,
+    };
+    const encodedData = encodeURIComponent(JSON.stringify(reportData));
+    navigate(`/invoiceuserbookings?data=${encodedData}`);
   };
 
   if (loading) {
@@ -82,7 +96,6 @@ const ClientPastBookingsPage = () => {
             }}
           />
         </div>
-
         <div className="relative z-10 p-6">
           <div className="max-w-7xl mx-auto">
             <LoadingSkeleton type="header" />
@@ -105,7 +118,6 @@ const ClientPastBookingsPage = () => {
             }}
           />
         </div>
-
         <div className="relative z-10 p-6">
           <div className="max-w-4xl mx-auto">
             <PageHeader
@@ -136,15 +148,22 @@ const ClientPastBookingsPage = () => {
           }}
         />
       </div>
-
       <div className="relative z-10 p-6">
         <div className="max-w-7xl mx-auto">
-          <PageHeader
-            badge="Your History"
-            title="Past Bookings"
-            description="View your completed turf reservations"
-          />
-
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <PageHeader
+              badge="Your History"
+              title="Past Bookings"
+              description="View your completed turf reservations"
+            />
+            <button
+              onClick={handleDownloadReport}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-all"
+            >
+              <Download className="w-4 h-4" />
+              Download Report
+            </button>
+          </div>
           {bookings.length === 0 ? (
             <EmptyState
               title="No past bookings"
@@ -183,9 +202,7 @@ const ClientPastBookingsPage = () => {
                 turfId: selectedBooking.turfId,
                 comment: data.comment,
               });
-
               successToast("Review submitted successfully");
-
               fetchBookings();
             } catch (err) {
               errorToast("Failed to submit review");

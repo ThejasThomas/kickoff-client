@@ -1,3 +1,4 @@
+"use client"
 
 import {
   getUsersChartData,
@@ -20,23 +21,21 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
-import { Users, Building2, UserCog, Calendar, DollarSign } from "lucide-react"
+import { Users, Building2, UserCog, Calendar, Download } from "lucide-react"
 import { AnalyticsCard } from "@/components/ui/AnalyticsCard"
 import { OverviewCard } from "@/components/ui/OverViewCard"
-import { renderCustomLabel } from "@/components/ui/renderCustomLabel";
+import { renderCustomLabel } from "@/components/ui/renderCustomLabel"
 import type { AdminDashboardEntity, RevenuePeriod } from "@/types/adminDashboard_type"
 import { adminService } from "@/services/admin/adminService"
-
+import { useNavigate } from "react-router-dom"
 
 const PERIODS: RevenuePeriod[] = ["daily", "weekly", "monthly", "yearly"]
-
-
 
 const AdminDashboard = () => {
   const [data, setData] = useState<AdminDashboardEntity | null>(null)
   const [period, setPeriod] = useState<RevenuePeriod>("monthly")
   const [loading, setLoading] = useState(true)
-
+const navigate=useNavigate()
   useEffect(() => {
     fetchDashboard()
   }, [period])
@@ -54,6 +53,31 @@ const AdminDashboard = () => {
     }
   }
 
+  const handleDownloadInvoice = () => {
+    if (!data) return
+
+    const invoiceData = {
+      type: "dashboard",
+      date: new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }),
+      invoiceNumber: `INV-DASH-${Date.now()}`,
+      users: data.users,
+      turfs: data.turfs,
+      owners: data.owners,
+      bookings: data.bookings,
+      revenue: {
+        totalBalance: data.revenue.totalBalance,
+        period: period,
+      },
+    }
+
+    const encodedData = encodeURIComponent(JSON.stringify(invoiceData))
+   navigate(`/admin/invoice-download?data=${encodedData}`)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
@@ -67,14 +91,9 @@ const AdminDashboard = () => {
 
   if (!data) return null
   const usersChartData = getUsersChartData(data)
-const turfsChartData = getTurfsChartData(data)
-const ownersChartData = getOwnersChartData(data)
-const bookingsChartData = getBookingsChartData(data)
-
-
-  
-
- 
+  const turfsChartData = getTurfsChartData(data)
+  const ownersChartData = getOwnersChartData(data)
+  const bookingsChartData = getBookingsChartData(data)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-4 md:p-6 lg:p-8">
@@ -89,6 +108,14 @@ const bookingsChartData = getBookingsChartData(data)
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={handleDownloadInvoice}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-lg font-medium transition-all shadow-lg"
+            >
+              <Download className="w-4 h-4" />
+              Download Invoice
+            </button>
+
             <label className="text-slate-400 text-sm font-medium">Revenue Period:</label>
             <select
               value={period}
