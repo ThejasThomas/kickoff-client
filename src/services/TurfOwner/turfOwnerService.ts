@@ -187,7 +187,7 @@ export const handleCancelRequestAction = async (
 };
 export const getOwnerWalletTransactions = async (
   page = 1,
-  limit = 10
+  limit = 5
 ): Promise<IOwnerWalletTransactionResponse> => {
   const response = await axiosInstance.get<IOwnerWalletTransactionResponse>(
     OWNER_ROUTE.GET_WALLET_TRANSACTION,

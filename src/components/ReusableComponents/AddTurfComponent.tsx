@@ -178,7 +178,6 @@ const AddTurfPage: React.FC<AddTurfPageProps> = ({ onSubmit, onCancel }) => {
     return formik.isValid && hasValidImages && !isUploadingImages;
   };
 
-  // Color system: green (primary), blue (accent), neutrals (white, gray)
   return (
     <main className="min-h-screen bg-gray-50">
       <header className="bg-green-600 text-white shadow-sm">

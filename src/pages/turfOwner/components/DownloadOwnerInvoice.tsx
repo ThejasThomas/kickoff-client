@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Download,
-  Printer,
   ArrowLeft,
   Calendar,
   DollarSign,
@@ -52,9 +51,7 @@ const OwnerInvoiceDownloadPage = () => {
     setLoading(false);
   }, []);
 
-  const handlePrint = () => {
-    window.print();
-  };
+
 
   const handleGoBack = () => {
     navigate(-1);
@@ -175,14 +172,7 @@ const OwnerInvoiceDownloadPage = () => {
         </button>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg transition-all border border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={generatingPDF}
-          >
-            <Printer className="w-4 h-4" />
-            Print
-          </button>
+          
           <button
             onClick={handleDownloadPDF}
             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"

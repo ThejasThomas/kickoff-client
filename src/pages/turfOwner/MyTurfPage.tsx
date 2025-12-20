@@ -1,31 +1,36 @@
-"use client"
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import { Search, Plus, MapPin, Phone, Clock, Users } from "lucide-react"
-import { useGetMyTurf } from "@/hooks/turfOwner/getMyTurf"
-import type { ITurffResponse } from "@/types/Response"
-import type { ITurf } from "@/types/Turf"
-import { useNavigate } from "react-router-dom"
-import TurfDetails from "@/components/ReusableComponents/ViewTurfDetailedPage"
+import type React from "react";
+import { useEffect, useState } from "react";
+import {  Plus, MapPin, Phone, Clock, Users } from "lucide-react";
+import { useGetMyTurf } from "@/hooks/turfOwner/getMyTurf";
+import type { ITurffResponse } from "@/types/Response";
+import type { ITurf } from "@/types/Turf";
+import { useNavigate } from "react-router-dom";
+import TurfDetails from "@/components/ReusableComponents/ViewTurfDetailedPage";
 
 const MyTurfPage: React.FC = () => {
-  type TurfStatus = "active" | "inactive" | "approved" | "rejected" | "pending" | "blocked"
-  const [currentPage, setCurrentPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<TurfStatus | "">("")
-  const [searchInput, setSearchInput] = useState("")
-  const [turfsData, setTurfsData] = useState<ITurffResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null)
-  const navigate = useNavigate()
+  type TurfStatus =
+    | "active"
+    | "inactive"
+    | "approved"
+    | "rejected"
+    | "pending"
+    | "blocked";
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TurfStatus | "">("");
+  const [searchInput, setSearchInput] = useState("");
+  const [turfsData, setTurfsData] = useState<ITurffResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null);
+  const navigate = useNavigate();
 
-  const { mutate: getMyTurfs, isPending } = useGetMyTurf()
+  const { mutate: getMyTurfs, isPending } = useGetMyTurf();
 
   const fetchTurfs = () => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     getMyTurfs(
       {
@@ -36,30 +41,27 @@ const MyTurfPage: React.FC = () => {
       },
       {
         onSuccess: (data: ITurffResponse) => {
-          setTurfsData(data)
-          setIsLoading(false)
+          setTurfsData(data);
+          setIsLoading(false);
         },
         onError: (error: any) => {
-          setError(error.message || "Failed to fetch turfs")
-          setIsLoading(false)
+          setError(error.message || "Failed to fetch turfs");
+          setIsLoading(false);
         },
-      },
-    )
-  }
+      }
+    );
+  };
 
   useEffect(() => {
-    fetchTurfs()
-  }, [currentPage, searchTerm, statusFilter])
+    fetchTurfs();
+  }, [currentPage, searchTerm, statusFilter]);
 
-  const handleSearch = () => {
-    setSearchTerm(searchInput)
-    setCurrentPage(1)
-  }
+  
 
   const handleStatusFilter = (status: TurfStatus) => {
-    setStatusFilter(status === statusFilter ? "" : status)
-    setCurrentPage(1)
-  }
+    setStatusFilter(status === statusFilter ? "" : status);
+    setCurrentPage(1);
+  };
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -69,11 +71,14 @@ const MyTurfPage: React.FC = () => {
       rejected: "bg-red-50 text-red-700 border-red-200",
       pending: "bg-amber-50 text-amber-700 border-amber-200",
       blocked: "bg-zinc-100 text-zinc-800 border-zinc-200",
-    }
-    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800 border-gray-200"
-  }
+    };
+    return (
+      colors[status as keyof typeof colors] ||
+      "bg-gray-100 text-gray-800 border-gray-200"
+    );
+  };
 
-  const loading = isLoading || isPending
+  const loading = isLoading || isPending;
 
   if (loading && !turfsData) {
     return (
@@ -93,27 +98,32 @@ const MyTurfPage: React.FC = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error && !turfsData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Turfs</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Error Loading Turfs
+          </h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button onClick={fetchTurfs} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <button
+            onClick={fetchTurfs}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
             Try Again
           </button>
         </div>
       </div>
-    )
+    );
   }
 
-  const turfs = turfsData?.turfs || []
-  console.log("datasss", turfs)
+  const turfs = turfsData?.turfs || [];
+  console.log("datasss", turfs);
 
-  const totalPages = turfsData?.totalPages || 0
+  const totalPages = turfsData?.totalPages || 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,7 +144,7 @@ const MyTurfPage: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+          {/* <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -156,11 +166,13 @@ const MyTurfPage: React.FC = () => {
             >
               {loading ? "Searching..." : "Search"}
             </button>
-          </div>
+          </div> */}
 
           {/* Status Filters */}
           <div className="flex flex-wrap gap-2 mt-4">
-            {(["approved", "rejected", "pending", "blocked"] as TurfStatus[]).map((status) => (
+            {(
+              ["approved", "rejected", "pending", "blocked"] as TurfStatus[]
+            ).map((status) => (
               <button
                 key={status}
                 onClick={() => handleStatusFilter(status)}
@@ -181,10 +193,10 @@ const MyTurfPage: React.FC = () => {
             <div className="mt-4">
               <button
                 onClick={() => {
-                  setSearchTerm("")
-                  setSearchInput("")
-                  setStatusFilter("")
-                  setCurrentPage(1)
+                  setSearchTerm("");
+                  setSearchInput("");
+                  setStatusFilter("");
+                  setCurrentPage(1);
                 }}
                 className="text-sm text-blue-600 hover:text-blue-700"
               >
@@ -207,9 +219,13 @@ const MyTurfPage: React.FC = () => {
             <div className="text-gray-400 mb-4">
               <Users className="w-16 h-16 mx-auto" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Turfs Found</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No Turfs Found
+            </h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || statusFilter ? "Try adjusting your filters" : "Start by adding your first turf"}
+              {searchTerm || statusFilter
+                ? "Try adjusting your filters"
+                : "Start by adding your first turf"}
             </p>
             <button
               onClick={() => navigate("/turf/add")}
@@ -243,17 +259,22 @@ const MyTurfPage: React.FC = () => {
                     <div className="absolute top-4 right-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium border ring-1 ring-inset ${getStatusColor(
-                          turf.status,
+                          turf.status
                         )}`}
                       >
-                        {turf.status.charAt(0).toUpperCase() + turf.status.slice(1)}
+                        {turf.status.charAt(0).toUpperCase() +
+                          turf.status.slice(1)}
                       </span>
                     </div>
                   </div>
                   {/* Turf Details */}
                   <div className="p-4">
-                    <h3 className="font-bold text-lg text-gray-900 mb-2 truncate">{turf.turfName}</h3>
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{turf.description}</p>
+                    <h3 className="font-bold text-lg text-gray-900 mb-2 truncate">
+                      {turf.turfName}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                      {turf.description}
+                    </p>
 
                     {/* Location */}
                     <div className="flex items-center text-gray-500 text-sm mb-2">
@@ -281,7 +302,9 @@ const MyTurfPage: React.FC = () => {
                     {/* Action Buttons */}
                     <div className="mt-4 flex space-x-2">
                       <button
-                        onClick={() => navigate(`/turfOwner/edit-turf/${turf._id}`)}
+                        onClick={() =>
+                          navigate(`/turfOwner/edit-turf/${turf._id}`)
+                        }
                         className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-700 transition-colors"
                       >
                         Edit
@@ -302,30 +325,36 @@ const MyTurfPage: React.FC = () => {
             {totalPages > 1 && (
               <div className="mt-8 flex justify-center space-x-2">
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage === 1 || loading}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
                   Previous
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    disabled={loading}
-                    className={`px-4 py-2 border rounded-lg disabled:opacity-50 ${
-                      currentPage === page
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      disabled={loading}
+                      className={`px-4 py-2 border rounded-lg disabled:opacity-50 ${
+                        currentPage === page
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
 
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
                   disabled={currentPage === totalPages || loading}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
@@ -340,13 +369,16 @@ const MyTurfPage: React.FC = () => {
         {selectedTurf && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <TurfDetails turf={selectedTurf} onClose={() => setSelectedTurf(null)} />
+              <TurfDetails
+                turf={selectedTurf}
+                onClose={() => setSelectedTurf(null)}
+              />
             </div>
           </div>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MyTurfPage
+export default MyTurfPage;

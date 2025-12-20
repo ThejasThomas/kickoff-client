@@ -5,7 +5,7 @@ import {
   getOwnerDashboard,
   getOwnerWalletTransactions,
 } from "@/services/TurfOwner/turfOwnerService";
-import type { OwnerDashboardResponse } from "@/types/ownerDashboard_type";
+import type { OwnerDashboardResponse, TimeSeriesStat } from "@/types/ownerDashboard_type";
 import type { OwnerWalletTransaction } from "@/types/ownerWallet_transactions";
 import { Button } from "@/components/ui/button";
 import { Calendar, TrendingUp, Users, Download } from "lucide-react";
@@ -51,35 +51,29 @@ const OwnerDashboardPage = () => {
     }
   };
 
-  const generateChartData = () => {
-    if (!data) return [];
+  const getChartData = () => {
+  if (!data) return [];
 
-    const chartData = [];
-    const totalDays = days;
-    const avgRevenue = data.overview.totalRevenue / totalDays;
-    const avgBookings = data.overview.totalBookings / totalDays;
-    
+  let source: TimeSeriesStat[] = [];
 
-    for (let i = totalDays - 1; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
+  if (days === 7) {
+    source = data.bookings.daily;
+  } else if (days === 30 || days === 90) {
+    source = data.bookings.monthly;
+  }
 
-      const variance = 0.3;
-      const revenueVariance = 1 + (Math.random() - 0.5) * variance;
-      const bookingsVariance = 1 + (Math.random() - 0.5) * variance;
-
-      chartData.push({
-        date: date.toLocaleDateString("en-IN", {
+  return source.map((item) => ({
+    date: item.date
+      ? new Date(item.date).toLocaleDateString("en-IN", {
           month: "short",
           day: "numeric",
-        }),
-        revenue: Math.round(avgRevenue * revenueVariance),
-        bookings: Math.round(avgBookings * bookingsVariance),
-      });
-    }
+        })
+      : item.month || item.year?.toString() || "",
+    revenue: item.revenue,
+    bookings: item.bookings,
+  }));
+};
 
-    return chartData;
-  };
 
   const handleDownloadReport = () => {
     if (!data) {
@@ -117,7 +111,7 @@ const OwnerDashboardPage = () => {
   }
 
   const { overview, perTurf } = data;
-  const chartData = generateChartData();
+  const chartData = getChartData();
 
   return (
     <div className="min-h-screen bg-background p-8">

@@ -344,16 +344,6 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
     return isFormValid && hasValidImages && !isUploadingImages && !isUpdating;
   };
 
-  console.log("=== DEBUG INFO ===");
-  console.log("Current turf prop:", turf);
-  console.log("Current form values:", formik.values);
-  console.log("Current coordinates:", coordinates);
-  console.log("Current images:", images);
-  console.log("Form is valid:", formik.isValid);
-  console.log("Form is dirty:", formik.dirty);
-  console.log("Form errors:", formik.errors);
-  console.log("Form touched:", formik.touched);
-
   return (
     <main className="min-h-screen bg-gray-50">
       <header className="bg-green-600 text-white shadow-sm">
@@ -428,36 +418,7 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
       </div>
 
       <section className="mx-auto max-w-5xl px-4 py-6">
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs">
-          <h4 className="font-semibold text-yellow-800 mb-2">Debug Info:</h4>
-          <div className="space-y-1 text-yellow-700">
-            <div>Turf Name: {formik.values.turfName || "empty"}</div>
-            <div>Contact: {formik.values.contactNumber || "empty"}</div>
-            <div>Price: {formik.values.pricePerHour || "empty"}</div>
-            <div>Court Type: {formik.values.courtType || "empty"}</div>
-            <div>Status: {formik.values.status || "empty"}</div>
-            <div>Images: {images.length}</div>
-            <div>Amenities: {formik.values.amenities.join(", ") || "none"}</div>
-            <div>
-              Coordinates: {coordinates.lat.toFixed(4)},{" "}
-              {coordinates.lng.toFixed(4)}
-            </div>
-            <div>Turf Prop Exists: {turf ? "Yes" : "No"}</div>
-            <div>Form Valid: {formik.isValid.toString()}</div>
-            <div>Form Dirty: {formik.dirty.toString()}</div>
-            {Object.keys(formik.errors).length > 0 && (
-              <div>Form Errors: {JSON.stringify(formik.errors)}</div>
-            )}
-            {turf && (
-              <>
-                <div>Original Turf Name: {turf.turfName || "empty"}</div>
-                <div>Original Contact: {turf.contactNumber || "empty"}</div>
-                <div>Original Price: {turf.pricePerHour || "empty"}</div>
-                <div>Original Status: {turf.status || "empty"}</div>
-              </>
-            )}
-          </div>
-        </div>
+        
 
         <form onSubmit={formik.handleSubmit} className="space-y-6">
           <div

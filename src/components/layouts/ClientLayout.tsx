@@ -10,6 +10,7 @@ import { PrivateHeader } from "../mainComponents/PrivateHeader"
 import { clientLogout, refreshClientSessionThunk } from "@/store/slices/client_slice"
 import { logoutClient } from "@/services/auth/authService"
 import { useLogout } from "@/hooks/auth/useLogout"
+import { Footer } from "../mainComponents/Footer"
 
 export const ClientLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -58,6 +59,10 @@ export const ClientLayout = () => {
       <main className="w-full">
         <Outlet context={user} />
       </main>
+
+            <Footer role="client" />
+
+      
     </div>
   )
 }
