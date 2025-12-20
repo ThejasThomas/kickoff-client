@@ -32,7 +32,6 @@ export default function ChatPage() {
 
   const userId = useSelector((state: RootState) => state.client.client?.userId);
 
-  /* 1️⃣ Connect socket ONCE */
   useEffect(() => {
     if (!socket.connected) socket.connect();
 
@@ -45,7 +44,6 @@ export default function ChatPage() {
     };
   }, []);
 
-  /* 2️⃣ Load full chat page data (group + messages) */
   useEffect(() => {
     const loadChatPage = async () => {
       if (!groupId) return;
@@ -66,7 +64,6 @@ export default function ChatPage() {
     loadChatPage();
   }, [groupId]);
 
-  /* 3️⃣ Join socket group */
   useEffect(() => {
     if (!groupId) return;
 
@@ -129,7 +126,7 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-<div className="flex h-full items-center justify-center bg-background">
+      <div className="flex h-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="h-14 w-14 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
           <p className="text-sm font-medium text-muted-foreground">
@@ -161,7 +158,7 @@ export default function ChatPage() {
   return (
     <div className="flex h-[100dvh] flex-col bg-secondary/30 overflow-hidden">
       <header
-       className="flex-shrink-0 z-20 shadow-md backdrop-blur-sm"
+        className="flex-shrink-0 z-20 shadow-md backdrop-blur-sm"
         style={{
           background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
         }}
@@ -213,7 +210,7 @@ export default function ChatPage() {
         </div>
       </header>
 
-<main className="flex-1 overflow-y-auto p-4 overscroll-contain">
+      <main className="flex-1 overflow-y-auto p-4 overscroll-contain">
         <div className="mx-auto max-w-4xl space-y-3">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-4 py-32 text-center">

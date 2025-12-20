@@ -62,23 +62,23 @@ const TurfPaymentPage = () => {
     if (queryBookingData) {
       try {
         const decoded = decodeURIComponent(queryBookingData);
-        console.log("📦 decoded bookingData:", decoded);
+        console.log(" decoded bookingData:", decoded);
         dataFromQuery = JSON.parse(decoded);
-        console.log("✅ parsed bookingData:", dataFromQuery);
+        console.log(" parsed bookingData:", dataFromQuery);
 
         if (!bookingData) {
           setBookingData(dataFromQuery);
         }
       } catch (err) {
-        console.error("❌ Error parsing bookingData from URL:", err);
+        console.error(" Error parsing bookingData from URL:", err);
         errorToast("Invalid booking data in URL");
       }
     } else {
-      console.warn("⚠️ No bookingData param in URL");
+      console.warn(" No bookingData param in URL");
     }
 
     const dataToUse = dataFromQuery || bookingData;
-    console.log("📌 dataToUse for Stripe:", dataToUse);
+    console.log(" dataToUse for Stripe:", dataToUse);
 
     if (!hasHandledStripe) {
       if (status === "success" && sessionId && dataToUse) {
@@ -86,7 +86,7 @@ const TurfPaymentPage = () => {
         setHasHandledStripe(true);
         handleStripeSuccess(sessionId, dataToUse);
       } else if (status === "cancelled") {
-        console.log("💥 Stripe status cancelled");
+        console.log(" Stripe status cancelled");
         setHasHandledStripe(true);
         setShowError(true);
         errorToast("Payment was cancelled. Please try again.");

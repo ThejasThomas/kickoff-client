@@ -40,6 +40,18 @@ export const getTurfById = async (id: string): Promise<ITurf> => {
   );
   return response.data.turf;
 };
+export const holdSlot =async(data:{
+  turfId:string,
+  date:string,
+  startTime:string,
+  endTime:string
+})=>{
+  const response=await axiosInstance.post(
+    CLIENT_ROUTE.HOLD_SLOT,
+    data
+  )
+  return response.data;
+}
 
 export const getClientProfile = async (): Promise<IClient> => {
   console.log("GETPROFILE route:", CLIENT_ROUTE.GETPROFILE);

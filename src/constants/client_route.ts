@@ -14,6 +14,7 @@ export const CLIENT_ROUTE ={
     GETURFBYID:`${BASE_URL.CLIENT}/get-turfdetails`,
     GET_CHATS:`${BASE_URL.CLIENT}/get-chats`,
     ADDMONEY:`${BASE_URL.CLIENT}/add-money`,
+    HOLD_SLOT:`${BASE_URL.CLIENT}/hold-slot`,
     MY_CHAT_GROUPS:`${BASE_URL.CLIENT}/my-chat-groups`,
     JOIN_HOSTED_GAME:`${BASE_URL.CLIENT}/join-hosted-game`,
     GET_TRANSACTION_HISTORY:`${BASE_URL.CLIENT}/transactionhistory`,
