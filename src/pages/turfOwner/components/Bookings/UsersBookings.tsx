@@ -27,6 +27,7 @@ const BookingsPage: React.FC = () => {
   const [showHostedGameModal, setShowHostedGameModal] = useState(false)
   const [selectedHostedGame, setSelectedHostedGame] = useState<any | null>(null)
   const [hostedGameLoading, setHostedGameLoading] = useState(false)
+  console.log(selectedUserId)
 
   const { mutate: getBookings } = useGetUsersBookings()
 
@@ -68,6 +69,7 @@ const BookingsPage: React.FC = () => {
             [userId]: user,
           }))
         } catch (err) {
+          console.log(err)
           console.error("Failed to load user", userId)
         }
       }

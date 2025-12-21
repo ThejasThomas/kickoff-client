@@ -1,6 +1,8 @@
+"use client";
+
 import type { LocationCoordinates } from "@/types/Turf";
-import { MapPin } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { MapPin, Loader2, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -9,6 +11,9 @@ import {
   useMap,
 } from "react-leaflet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@mui/material";
 
 interface TurfLocationPickerProps {
   coordinates: LocationCoordinates;
@@ -25,6 +30,36 @@ interface TurfLocationPickerProps {
 }
 
 const OPENCAGE_API_KEY = "78eb4ee3dbbf4572b7e69d56f5252fb2";
+
+const forwardGeocode = async (searchQuery: string) => {
+  try {
+    const response = await fetch(
+      `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
+        searchQuery
+      )}&key=${OPENCAGE_API_KEY}&countrycode=in&limit=1`
+    );
+    const data = await response.json();
+
+    if (data.results && data.results.length > 0) {
+      const result = data.results[0];
+      return {
+        lat: result.geometry.lat,
+        lng: result.geometry.lng,
+        address: result.formatted,
+        city:
+          result.components.city ||
+          result.components.town ||
+          result.components.village ||
+          "",
+        state: result.components.state || result.components.region || "",
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("OpenCage forward geocoding failed:", error);
+    return null;
+  }
+};
 
 const reverseGeocode = async (lat: number, lng: number) => {
   try {
@@ -113,6 +148,10 @@ export default function TurfLocationPicker({
   title,
   readonly = false,
 }: TurfLocationPickerProps) {
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
   const displayTitle =
     title !== undefined ? title : !readonly ? "Select Location" : "Location";
 
@@ -123,50 +162,133 @@ export default function TurfLocationPicker({
     }),
     [coordinates]
   );
+
   const handleUseMyLocation = async () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by this browser.");
+      alert(
+        "Geolocation is not supported by your browser. Please update your browser or enter location manually."
+      );
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-  async (position) => {
-    const { latitude, longitude, accuracy } = position.coords;
-
-    console.log("GPS accuracy (meters):", accuracy);
-
-    if (accuracy > 1000) {
+    if (
+      window.location.protocol !== "https:" &&
+      window.location.hostname !== "localhost"
+    ) {
       alert(
-        "Location accuracy is low. Please zoom and adjust the pin manually."
+        "Geolocation requires a secure connection (HTTPS). Please access this site via HTTPS."
       );
+      return;
     }
 
-    
-    const newCoords = { lat: latitude, lng: longitude };
-    onLocationChange?.(newCoords);
+    setIsLoadingLocation(true);
 
-    if (onAddressChange) {
-      const addressData = await reverseGeocode(latitude, longitude);
-      if (addressData) {
-        onAddressChange({
-          address: addressData.address,
-          city: addressData.city,
-          state: addressData.state,
-        });
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude, accuracy } = position.coords;
+
+          console.log("[v0] GPS accuracy (meters):", accuracy);
+          console.log("[v0] Location retrieved:", { latitude, longitude });
+
+          const newCoords = { lat: latitude, lng: longitude };
+
+          if (onLocationChange) {
+            onLocationChange(newCoords);
+            console.log("[v0] Location updated successfully");
+          } else {
+            console.error("[v0] onLocationChange callback not provided");
+          }
+
+          if (onAddressChange) {
+            const addressData = await reverseGeocode(latitude, longitude);
+            if (addressData) {
+              onAddressChange({
+                address: addressData.address,
+                city: addressData.city,
+                state: addressData.state,
+              });
+              console.log("[v0] Address updated successfully");
+            }
+          }
+        } catch (error) {
+          console.error("[v0] Error processing location:", error);
+          alert("Error processing your location. Please try again.");
+        } finally {
+          setIsLoadingLocation(false);
+        }
+      },
+      (error) => {
+        setIsLoadingLocation(false);
+        console.error("[v0] Location Error:", error);
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert(
+              "Location permission denied. Please enable location access in your browser settings and try again."
+            );
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert(
+              "Location information is unavailable. Please check your device's location settings."
+            );
+            break;
+          case error.TIMEOUT:
+            alert(
+              "Location request timed out. Please try again or check your GPS signal."
+            );
+            break;
+          default:
+            alert("Unable to retrieve your location: " + error.message);
+            break;
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
       }
-    }
-  },
-  (error) => {
-    console.error("Location Error:", error);
-    alert("Unable to retrieve your location.");
-  },
-  {
-    enableHighAccuracy: true,   
-    timeout: 15000,
-    maximumAge: 0,            
-  }
-);
+    );
+  };
 
+  const handleSearchLocation = async () => {
+    if (!searchQuery.trim()) {
+      alert("Please enter a location to search");
+      return;
+    }
+
+    setIsSearching(true);
+
+    try {
+      const result = await forwardGeocode(searchQuery);
+
+      if (result) {
+        const newCoords = { lat: result.lat, lng: result.lng };
+
+        if (onLocationChange) {
+          onLocationChange(newCoords);
+        }
+
+        if (onAddressChange) {
+          onAddressChange({
+            address: result.address,
+            city: result.city,
+            state: result.state,
+          });
+        }
+
+        setSearchQuery(""); // Clear search after success
+      } else {
+        alert(
+          "Location not found. Please try a different search term (e.g., 'Maradu, Kochi')"
+        );
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      alert("Error searching for location. Please try again.");
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const center = useMemo(
@@ -182,15 +304,49 @@ export default function TurfLocationPicker({
   const mapContent = (
     <div className="space-y-4">
       {!readonly && (
-        <div className="flex justify-end mb-2">
-          <button
-            type="button"
-            onClick={handleUseMyLocation}
-            className="px-3 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
-          >
-            Use Current Location
-          </button>
-        </div>
+        <>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search location (e.g., Maradu, Kochi)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearchLocation()}
+                className="pl-10"
+                disabled={isSearching}
+              />
+            </div>
+            <Button
+              onClick={handleSearchLocation}
+              disabled={isSearching}
+              variant="outline"
+            >
+              {isSearching ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Search"
+              )}
+            </Button>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleUseMyLocation}
+              disabled={isLoadingLocation}
+              className="px-3 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isLoadingLocation && (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              )}
+              {isLoadingLocation
+                ? "Getting Location..."
+                : "Use Current Location"}
+            </button>
+          </div>
+        </>
       )}
       <div
         style={{ height }}

@@ -42,6 +42,7 @@ useEffect(() => {
 
       setGame(res.game);
     } catch (err) {
+      console.log(err)
       toast.error("Failed to load game");
       navigate("/hosted-games");
     }

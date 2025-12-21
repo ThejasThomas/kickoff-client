@@ -1,7 +1,7 @@
 import type { ISlot } from "./Slot";
 import type { ITurf } from "./Turf";
 
-interface HostGameFormProps {
+export interface HostGameFormProps {
   turf: ITurf;
   selectedDate: string;
   slots: ISlot[];

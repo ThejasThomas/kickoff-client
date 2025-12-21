@@ -117,6 +117,7 @@ export const adminService = {
     )
     return response.data;
   }catch(error){
+    console.log(error)
     return{
       success:true,
       wallet:{balance:0}

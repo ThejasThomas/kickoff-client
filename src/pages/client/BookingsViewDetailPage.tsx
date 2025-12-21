@@ -61,6 +61,7 @@ const BookingViewDetailsPage = () => {
           setError(response.message);
         }
       } catch (err) {
+        console.log(err)
         setError("Failed to fetch turf details");
         errorToast("Failed to fetch turf details");
       } finally {

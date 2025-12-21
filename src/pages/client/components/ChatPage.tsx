@@ -7,10 +7,6 @@ import {
   Info,
   X,
   Mail,
-  Phone,
-  Video,
-  Paperclip,
-  Smile,
 } from "lucide-react";
 import { socket } from "@/socket";
 import { useSelector } from "react-redux";

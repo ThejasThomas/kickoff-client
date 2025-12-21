@@ -25,6 +25,7 @@ const MyTurfPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null);
   const navigate = useNavigate();
+  console.log(searchInput)
 
   const { mutate: getMyTurfs, isPending } = useGetMyTurf();
 

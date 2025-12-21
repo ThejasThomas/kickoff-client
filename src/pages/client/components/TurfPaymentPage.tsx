@@ -36,7 +36,8 @@ const TurfPaymentPage = () => {
   const [searchParams] = useSearchParams();
 
   const status = searchParams.get("status");
-  const sessionId = searchParams.get("session_id");
+  // const sessionId = searchParams.get("session_id");
+
 
   useEffect(() => {
     console.log("heylooo its stripe");

@@ -75,31 +75,65 @@ const HostGameForm: React.FC<HostGameFormProps> = ({
   return (
     <div className="space-y-6">
       {/* Slot Selection */}
-      <div>
-        <label className="font-semibold">Select Game Slot</label>
-        <div className="space-y-2 mt-2">
-          {slots
-            .filter((s) => !s.isBooked)
-            .map((slot) => (
-              <div
-                key={slot.id}
-                onClick={() => setSelectedSlotId(slot.id)}
-                className={`p-4 border rounded-lg cursor-pointer flex justify-between ${
-                  selectedSlotId === slot.id
-                    ? "border-primary bg-primary/10"
-                    : "border-gray-300"
-                }`}
+      {/* Slot Selection */}
+<div>
+  <label className="font-semibold text-lg">Select Game Slot</label>
+
+  <div className="mt-3 max-h-96 overflow-y-auto pr-2 space-y-3">
+    {slots
+      .filter((s) => !s.isBooked)
+      .map((slot) => {
+        const isSelected = selectedSlotId === slot.id;
+
+        return (
+          <div
+            key={slot.id}
+            onClick={() => setSelectedSlotId(slot.id)}
+            className={`
+              group flex items-center justify-between p-4 rounded-xl border cursor-pointer
+              transition-all duration-200
+              ${
+                isSelected
+                  ? "border-primary bg-primary/10 shadow-md"
+                  : "border-border bg-background hover:border-primary/50 hover:shadow-sm"
+              }
+            `}
+          >
+            {/* Time Info */}
+            <div className="flex flex-col">
+              <span className="font-semibold text-base text-foreground">
+                {slot.startTime} – {slot.endTime}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                Available slot
+              </span>
+            </div>
+
+            {/* Right Indicator */}
+            <div className="flex items-center gap-3">
+              <span
+                className={`
+                  text-xs px-3 py-1 rounded-full
+                  ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground group-hover:bg-primary/10"
+                  }
+                `}
               >
-                <span>
-                  {slot.startTime} - {slot.endTime}
-                </span>
-                {selectedSlotId === slot.id && (
-                  <CheckCircle className="text-primary w-5 h-5" />
-                )}
-              </div>
-            ))}
-        </div>
-      </div>
+                Select
+              </span>
+
+              {isSelected && (
+                <CheckCircle className="w-5 h-5 text-primary" />
+              )}
+            </div>
+          </div>
+        );
+      })}
+  </div>
+</div>
+
 
       {/* Court Type */}
       <div>

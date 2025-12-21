@@ -30,6 +30,7 @@ const AddOfflineBooking: React.FC = () => {
         const res = await getSlots(turfId, selectedDate)
         setSlots(Array.isArray(res) ? res : [])
       } catch (err) {
+        console.log(err)
         toast.error("Failed to fetch slots")
       } finally {
         setLoading(false)

@@ -277,6 +277,7 @@ const [selectedLocation, setSelectedLocation] = useState<
         message: response.message,
       };
     } catch (error) {
+      console.log(error)
       return {
         success: false,
         users: [],

@@ -418,8 +418,6 @@ const EditTurfPage: React.FC<EditTurfPageProps> = ({
       </div>
 
       <section className="mx-auto max-w-5xl px-4 py-6">
-        
-
         <form onSubmit={formik.handleSubmit} className="space-y-6">
           <div
             id="details"

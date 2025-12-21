@@ -45,6 +45,7 @@ const HostedGamesPage = () => {
         setGames(res.games || [])
       }
     } catch (err) {
+      console.log(err)
       errorToast("Failed to load hosted games")
     } finally {
       setLoading(false)

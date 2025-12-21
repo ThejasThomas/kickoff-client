@@ -28,6 +28,9 @@ const HostGamePaymentPage = () => {
 
   const status = searchParams.get("status");
   const sessionId = searchParams.get("session_id");
+  console.log(paymentMethod)
+
+    console.log(isProcessing)
 
 useEffect(() => {
   if (location.state?.hostGameData) {

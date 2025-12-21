@@ -60,7 +60,9 @@ export const RequestProfileUpdate = ({
         const data = await getTurfOwnerProfile();
         console.log("data", data);
         setProfileData(data);
-      } catch (err) {}
+      } catch (err) {
+        console.log(err)
+      }
     };
 
     if (!initialData) {
@@ -140,6 +142,7 @@ export const RequestProfileUpdate = ({
         setIsEditing(false);
         successToast("Profile updated successfully!");
       } catch (err) {
+        console.log(err)
         errorToast("Failed to update profile");
       }
     },

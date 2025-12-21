@@ -56,6 +56,7 @@ const TurfReApplyPage: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
+    console.log(status)
     return 'bg-red-100 text-red-800 border-red-200';
   };
 

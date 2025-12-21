@@ -65,6 +65,7 @@ const ClientPastBookingsPage = () => {
       setSelectedTurf(turf);
       setSelectedBooking(booking);
     } catch (err) {
+      console.log(err)
       errorToast("Failed to load turf details");
     }
   };

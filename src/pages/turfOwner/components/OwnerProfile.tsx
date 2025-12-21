@@ -44,7 +44,7 @@ export const OwnerProfile = ({
 }: TurfOwnerProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { successToast, errorToast } = useToaster();
+  const {  errorToast } = useToaster();
   const { images, handleImageUpload, removeImage } = useImageUploader(
     "turfOwners",
     1
@@ -142,6 +142,7 @@ export const OwnerProfile = ({
         onSave(response.user);
         setIsEditing(false);
       } catch (err) {
+        console.log(err)
         errorToast("Failed to update profile");
       }
     },

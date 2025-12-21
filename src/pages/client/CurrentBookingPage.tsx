@@ -144,6 +144,7 @@ const CurrentBookingPage = () => {
       console.log("bookingIDDD", booking._id);
 
       const res = await requestCancelBooking(booking._id!, cancelReason);
+      console.log(res)
 
       successToast("Cancellation request submitted!");
 

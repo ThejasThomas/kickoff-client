@@ -15,11 +15,11 @@ import { useNavigate } from "react-router-dom";
 const ApprovedTurfsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchInput, setSearchInput] = useState("");
   const [turfsData, setTurfsData] = useState<ITurffResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  console.log(setSearchTerm)
 
   const { mutate: getMyTurfs, isPending } = useGetMyTurf();
 
@@ -51,12 +51,9 @@ const ApprovedTurfsPage: React.FC = () => {
     fetchTurfs();
   }, [currentPage, searchTerm]);
 
-  const handleSearch = () => {
-    setSearchTerm(searchInput);
-    setCurrentPage(1);
-  };
 
   const getStatusColor = (status: string) => {
+    console.log(status)
     return "bg-blue-100 text-blue-800 border-blue-200";
   };
 
