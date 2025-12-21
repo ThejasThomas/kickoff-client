@@ -1,5 +1,6 @@
 import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
+import NotFound from "@/components/common/NotFound";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { AdminAuth } from "@/pages/admin/AdminAuth";
 import AdminDashboard from "@/pages/admin/sub-pages/AdminDashboard";
@@ -171,6 +172,7 @@ const AdminRoutes = () => {
           allowedRoles: ["admin"],
         })}
       />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

@@ -20,6 +20,7 @@ import JoinHostedGamePage from "@/pages/client/components/JoinHostedGamePage";
 import ChatGroup from "@/pages/client/components/ChatGroup";
 import ChatPage from "@/pages/client/components/ChatPage";
 import InvoiceUserBookingsPage from "@/pages/client/components/BookingsDownloadPage";
+import NotFound from "@/components/common/NotFound";
 
 const ClientRoutes = () => {
   return (
@@ -77,6 +78,8 @@ const ClientRoutes = () => {
           />
         }
       ></Route>
+                <Route path="*" element={<NotFound />} />
+
     </Routes>
   );
 };

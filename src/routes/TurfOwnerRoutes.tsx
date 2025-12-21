@@ -1,5 +1,6 @@
 import ForgotPassword from "@/components/auth/ForgotPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
+import NotFound from "@/components/common/NotFound";
 import TurfOwnerLayout from "@/components/layouts/TurfOwnerLayout";
 import WalletTransactionsPage from "@/components/turfOwner/WalletTransactionPage";
 import AddSlotsPage from "@/pages/turfOwner/AddSlots";
@@ -100,6 +101,8 @@ const TurfOwnerRoutes = () => {
           />
         }
       />
+                      <Route path="*" element={<NotFound />} />
+
     </Routes>
   );
 };
