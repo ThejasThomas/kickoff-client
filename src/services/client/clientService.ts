@@ -1,17 +1,19 @@
 import { axiosInstance } from "@/api/private_axios";
 import { CLIENT_ROUTE } from "@/constants/client_route";
-import type { IAddReviewPayload } from "@/types/addReview_type";
+import type { IAddRatingPayload, IAddReviewPayload } from "@/types/addReview_type";
 import type { IBookings } from "@/types/Booking_type";
 import type { ChatPageData } from "@/types/chat_pageData";
 import {
   type GetUpcomingBookings,
   type IAddMoneyResponse,
+  type IAddRatingResponse,
   type IAddReviewResponse,
   type IAuthResponse,
   type IBookResponse,
   type ICreateHostedGameResponse,
   type IHostedGameListResponse,
   type ITurffResponse,
+  type ITurfRatingResponse,
   type ITurfReviewResponse,
   type IWalletBalanceResponse,
   type IWalletHistoryResponse,
@@ -247,6 +249,15 @@ export const addReview = async (
   );
   return response.data;
 };
+export const addRating =async(
+  data:IAddRatingPayload
+):Promise<IAddRatingResponse>=>{
+  const response =await axiosInstance.post(
+    CLIENT_ROUTE.ADD_RATING,
+    data
+  )
+  return response.data;
+}
 
 export const getTurfReviews =async (turfId:string,page=1,limit=5):Promise<ITurfReviewResponse>=>{
   const response =await axiosInstance.get<{
@@ -258,6 +269,20 @@ export const getTurfReviews =async (turfId:string,page=1,limit=5):Promise<ITurfR
   }>(
     `${CLIENT_ROUTE.GET_TURF_REVIEWS}/${turfId}`,{
       params:{page,limit},
+    }
+  )
+  return response.data
+}
+export const getTurfRatings =async(
+  turfId:string,
+  page =1,
+  limit=5
+
+):Promise<ITurfRatingResponse>=>{
+  const response =await axiosInstance.get(
+    `${CLIENT_ROUTE.GET_TURF_RATINGS}/${turfId}`,
+    {
+      params:{page,limit}
     }
   )
   return response.data

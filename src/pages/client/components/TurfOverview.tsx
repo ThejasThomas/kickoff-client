@@ -10,6 +10,7 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
+  Star,
 } from "lucide-react";
 import type { ITurf } from "@/types/Turf";
 import type React from "react";
@@ -20,11 +21,13 @@ import {
   getSlots,
   getTurfReviews,
   holdSlot,
+  getTurfRatings,
 } from "@/services/client/clientService";
 import type { ISlot } from "@/types/Slot";
 import HostGameForm from "./HostGameForm";
 import type { ITurfReview } from "@/types/turfReview_type";
 import { useToaster } from "@/hooks/ui/useToaster";
+import type { ITurfRating } from "@/types/turf_rating_type";
 
 const TurfOverview: React.FC = () => {
   const [turf, setTurf] = useState<ITurf | null>(null);
@@ -32,6 +35,7 @@ const TurfOverview: React.FC = () => {
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [hostingMode, setHostingMode] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toLocaleDateString("en-CA")
   );
@@ -39,18 +43,21 @@ const TurfOverview: React.FC = () => {
   const [reviewPage, setReviewPage] = useState(1);
   const [reviewTotalPages, setReviewTotalPages] = useState(1);
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [ratings, setRatings] = useState<ITurfRating[]>([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [ratingPage, setRatingPage] = useState(1);
+  const [ratingLoading, setRatingLoading] = useState(false);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-      const {errorToast} =useToaster();
-  
+  const { errorToast } = useToaster();
 
   const backPath = (location.state as any)?.from;
   const backGame = (location.state as any)?.game;
-  
 
   const today = new Date().toLocaleDateString("en-CA");
 
@@ -76,6 +83,8 @@ const TurfOverview: React.FC = () => {
 
     fetchTurf();
   }, [id]);
+
+
   useEffect(() => {
     if (!id) return;
 
@@ -113,6 +122,31 @@ const TurfOverview: React.FC = () => {
 
     fetchSlots();
   }, [id, selectedDate]);
+
+    useEffect(() => {
+    if (!id) return;
+
+    const fetchRatings = async () => {
+      try {
+        setRatingLoading(true);
+
+        const res = await getTurfRatings(id, ratingPage, 5);
+        console.log('ress',res)
+
+        if (res.success) {
+          setRatings(res.ratings);
+          setAverageRating(res.averageRating);
+          setTotalRatings(res.totalRatings);
+        }
+      } catch (err) {
+        console.error("Failed to fetch turf ratings", err);
+      } finally {
+        setRatingLoading(false);
+      }
+    };
+
+    fetchRatings();
+  }, [id, ratingPage]);
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) =>
@@ -195,7 +229,7 @@ const TurfOverview: React.FC = () => {
         state: { bookingData },
       });
     } catch (error: any) {
-      errorToast(error.response?.data?.message)
+      errorToast(error.response?.data?.message);
     }
   };
 
@@ -366,6 +400,25 @@ const TurfOverview: React.FC = () => {
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 text-balance">
                 {turf.turfName}
               </h1>
+              <div className="flex items-center gap-3 mt-3">
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={18}
+                className={
+                  star <= Math.round(averageRating)
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-gray-300"
+                }
+              />
+            ))}
+          </div>
+
+          {/* <span className="text-white text-sm">
+            {averageRating.toFixed(1)}
+          </span> */}
+        </div>
               <div className="flex items-center gap-4 text-white/90 text-lg">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
@@ -377,6 +430,7 @@ const TurfOverview: React.FC = () => {
             </motion.div>
           </div>
         </div>
+        
 
         {/* Image Indicators */}
         {turf.images && turf.images.length > 1 && (
@@ -393,6 +447,7 @@ const TurfOverview: React.FC = () => {
           </div>
         )}
       </div>
+      
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -503,6 +558,49 @@ const TurfOverview: React.FC = () => {
                   ))}
                 </div>
               )}
+              <motion.div className="bg-card rounded-xl p-6 border border-border mt-8">
+                <h2 className="text-2xl font-bold text-card-foreground mb-4">
+                  User Ratings
+                </h2>
+
+                {ratingLoading ? (
+                  <p className="text-muted-foreground">Loading ratings...</p>
+                ) : ratings.length === 0 ? (
+                  <p className="text-muted-foreground">No ratings yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {ratings.map((item, index) => (
+                      <div
+                        key={index}
+                        className="border border-border rounded-lg p-4"
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="font-semibold text-card-foreground">
+                            {item.userName}
+                          </p>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              size={16}
+                              className={
+                                star <= item.rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
 
               {/* Pagination */}
               {reviewTotalPages > 1 && (
@@ -523,6 +621,29 @@ const TurfOverview: React.FC = () => {
                     disabled={reviewPage === reviewTotalPages}
                     onClick={() => setReviewPage((p) => p + 1)}
                     className="px-4 py-2 rounded-lg border disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+              {totalRatings > 5 && (
+                <div className="flex justify-between items-center mt-4">
+                  <button
+                    disabled={ratingPage === 1}
+                    onClick={() => setRatingPage((p) => p - 1)}
+                    className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+
+                  <span className="text-sm text-muted-foreground">
+                    Page {ratingPage}
+                  </span>
+
+                  <button
+                    disabled={ratingPage * 5 >= totalRatings}
+                    onClick={() => setRatingPage((p) => p + 1)}
+                    className="px-4 py-2 border rounded-lg disabled:opacity-50"
                   >
                     Next
                   </button>

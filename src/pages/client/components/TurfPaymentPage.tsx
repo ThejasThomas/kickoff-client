@@ -38,7 +38,6 @@ const TurfPaymentPage = () => {
   const status = searchParams.get("status");
   // const sessionId = searchParams.get("session_id");
 
-
   useEffect(() => {
     console.log("heylooo its stripe");
     if (location.state?.bookingData && !bookingData) {
@@ -50,13 +49,6 @@ const TurfPaymentPage = () => {
     const status = searchParams.get("status");
     const sessionId = searchParams.get("session_id");
     const queryBookingData = searchParams.get("bookingData");
-
-    console.log("🔄 Stripe redirect effect ran", {
-      status,
-      sessionId,
-      queryBookingData,
-      hasHandledStripe,
-    });
 
     let dataFromQuery: any = null;
 
@@ -166,17 +158,18 @@ const TurfPaymentPage = () => {
         }
       }
 
-      successToast("Payment & Booking Confirmed! 🎉");
+      successToast("Payment & Booking Confirmed! ");
       setShowSuccess(true);
       setIsProcessing(false);
 
       setTimeout(() => navigate("/upcomingbookings"), 3000);
-    } catch (error) {
-      console.error("Stripe success handler error:", error);
-      errorToast(
-        error instanceof Error ? error.message : "Booking failed after payment"
-      );
-      setIsProcessing(false);
+    } catch (error: any) {
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+
+      errorToast(backendMessage);
       setShowError(true);
     }
   };

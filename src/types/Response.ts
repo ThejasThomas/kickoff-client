@@ -10,6 +10,8 @@ import type { IBlockedSlot } from "./blocked_slot_type";
 import type { OwnerWalletTransaction } from "./ownerWallet_transactions";
 import type { ITurfReview } from "./turfReview_type";
 import type { AdminWalletTransaction } from "./admin_wallet_type";
+import type { IRating } from "./addReview_type";
+import type { ITurfRating } from "./turf_rating_type";
 
 export interface IAxiosResponse {
   success: boolean;
@@ -179,6 +181,16 @@ export interface TurfsResponse {
   turfs: ITurf[];
   currentPage: number;
   totalPages: number;
+}
+export interface IAddRatingResponse {
+  success: boolean;
+  rating: IRating;
+}
+export interface ITurfRatingResponse {
+  success: boolean;
+  averageRating: number;
+  totalRatings: number;
+  ratings: ITurfRating[];
 }
 
 

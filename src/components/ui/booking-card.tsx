@@ -4,6 +4,7 @@ import { StatusBadge } from "./status-badge";
 import type { IBookings } from "@/types/Booking_type";
 import { formatDate } from "@/components/ui/format-date";
 import { formatTime } from "./format-date";
+import { isCancellationAllowed } from "@/lib/utils";
 
 interface BookingCardProps {
   booking: IBookings;
@@ -96,25 +97,25 @@ export const BookingCard = ({
             </motion.button>
 
             {/* --- SHOW ONLY WHEN CONFIRMED --- */}
-            {booking.status === "confirmed" && onCancel && (
-              <motion.button
-                onClick={() => onCancel(index, booking)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white py-3 px-4 rounded-xl font-semibold transition-all duration-200 shadow-lg"
-              >
-                Cancel
-              </motion.button>
-            )}
+            {booking.status === "confirmed" &&
+              onCancel &&
+              isCancellationAllowed(booking.date, booking.startTime) && (
+                <motion.button
+                  onClick={() => onCancel(index, booking)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white py-3 px-4 rounded-xl font-semibold transition-all duration-200 shadow-lg"
+                >
+                  Cancel
+                </motion.button>
+              )}
 
-            {/* --- SHOW LABEL WHEN PENDING CANCELLATION --- */}
-            {booking.status === "pending_cancel" && (
+            {booking.status === "pending" && (
               <div className="flex-1 bg-yellow-100 text-yellow-700 py-3 px-4 rounded-xl font-semibold text-center">
                 Cancellation Requested
               </div>
             )}
 
-            {/* Optional: Show cancelled label */}
             {booking.status === "cancelled" && (
               <div className="flex-1 bg-red-100 text-red-600 py-3 px-4 rounded-xl font-semibold text-center">
                 Cancelled

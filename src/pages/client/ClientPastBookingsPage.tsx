@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  addRating,
   addReview,
   getpastbookings,
   getTurfById,
@@ -17,12 +18,14 @@ import { BookingCard } from "@/components/ui/booking-cardd";
 import type { ITurf } from "@/types/Turf";
 import AddReviewModal from "@/components/ReusableComponents/ReviewModal";
 import { Download } from "lucide-react";
+import AddRatingModal from "@/components/modals/addRatingModal";
 
 const ClientPastBookingsPage = () => {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<IBookings[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<IBookings | null>(
     null
   );
@@ -65,10 +68,15 @@ const ClientPastBookingsPage = () => {
       setSelectedTurf(turf);
       setSelectedBooking(booking);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       errorToast("Failed to load turf details");
     }
   };
+  const handleAddRating = (booking: IBookings) => {
+  setSelectedBooking(booking);
+  setShowRatingModal(true);
+};
+
 
   const handleDownloadReport = () => {
     if (bookings.length === 0) {
@@ -181,6 +189,7 @@ const ClientPastBookingsPage = () => {
                     booking={booking}
                     index={index}
                     onAddReview={handleAddReview}
+                    onAddRating={handleAddRating}
                   />
                 ))}
               </AnimatePresence>
@@ -214,6 +223,33 @@ const ClientPastBookingsPage = () => {
           }}
         />
       )}
+      {showRatingModal && selectedBooking && (
+  <AddRatingModal
+    open={showRatingModal}
+    onClose={() => {
+      setShowRatingModal(false);
+      setSelectedBooking(null);
+    }}
+    onSubmit={async (rating) => {
+      try {
+        await addRating({
+          bookingId: selectedBooking._id,
+          turfId: selectedBooking.turfId,
+          rating,
+        });
+
+        successToast("Rating submitted successfully ⭐");
+        fetchBookings();
+      } catch {
+        errorToast("Failed to submit rating");
+      } finally {
+        setShowRatingModal(false);
+        setSelectedBooking(null);
+      }
+    }}
+  />
+)}
+
     </div>
   );
 };

@@ -16,6 +16,7 @@ export interface IBookings {
   paymentMethod:string
   createdAt: string;
   hasReviewed?: boolean;
+  hasRated?:boolean
 
   hostedGameId?:string
 }

@@ -15,5 +15,22 @@ export const COLORS = {
 };
 
 
+export const isCancellationAllowed = (
+  bookingDate: string,
+  startTime: string
+): boolean => {
+
+  const now = new Date();
+
+  const bookingStart = new Date(`${bookingDate}T${startTime}:00`);
+
+  const diffMs = bookingStart.getTime() - now.getTime();
+
+  const diffHours = diffMs / (1000 * 60 * 60);
+
+  return diffHours > 1;
+};
+
+
 
 
