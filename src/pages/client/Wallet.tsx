@@ -16,7 +16,6 @@ const WalletPage: React.FC = () => {
   const [triggerStripe, setTriggerStripe] = useState(false);
   const [transactionPayload, setTransactionPayload] = useState<any>(null);
 
-  // Pagination
   const [page, setPage] = useState(1);
   const [limit] = useState(2);
   const [total, setTotal] = useState(0);
@@ -25,7 +24,6 @@ const WalletPage: React.FC = () => {
     loadWalletData();
   }, [page]);
 
-  // Success redirect handler
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const success = params.get("success");

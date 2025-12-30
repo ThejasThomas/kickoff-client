@@ -24,7 +24,7 @@ const AdminWalletPage = () => {
 
   const fetchTransactions = async () => {
     setLoading(true);
-    const res = await adminService.getAdminwalletTransactions(page, 10);
+    const res = await adminService.getAdminwalletTransactions(page, 8);
     if (res.success) {
       setTransactions(res.transactions);
       setTotalPages(res.totalPages);
