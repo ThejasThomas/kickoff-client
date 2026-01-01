@@ -110,7 +110,7 @@ export const BookingCard = ({
                 </motion.button>
               )}
 
-            {booking.status === "pending" && (
+            {booking.status === "pending_cancel" && (
               <div className="flex-1 bg-yellow-100 text-yellow-700 py-3 px-4 rounded-xl font-semibold text-center">
                 Cancellation Requested
               </div>

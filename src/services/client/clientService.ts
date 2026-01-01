@@ -200,6 +200,29 @@ export const hostGame = async (data: {
   );
   return response.data;
 };
+export const getUpcomingHostedGamesByUser =async ({
+  page,
+  limit,
+  search
+}:{
+  page:number;
+  limit:number;
+  search:string;
+})=>{
+  const response =await axiosInstance.get(
+    CLIENT_ROUTE.GETUPCOMIG_HOSTED_GAME_BY_USER,
+    {params:{page,limit,search}}
+  )
+  return response.data;
+}
+export const cancelHostedGameRequest=async(gameId:string,reason:string)=>{
+  const response =await axiosInstance.post(
+    `${CLIENT_ROUTE.CANCEL_HOSTED_GAME_REQUEST}/${gameId}`,
+    {reason}
+  )
+  return response.data;
+}
+
 export const getHostedGames = async (params: {
   page?: number;
   limit?: number;

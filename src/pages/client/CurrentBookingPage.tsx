@@ -33,6 +33,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { BookingCard } from "@/components/ui/booking-card";
 import { formatDate } from "@/components/ui/format-date";
 import { formatTime } from "@/components/ui/format-date";
+import UpcomingHostedGames from "./components/UpcomingHostedGameByUser";
 
 const CurrentBookingPage = () => {
   const navigate = useNavigate();
@@ -46,6 +47,9 @@ const CurrentBookingPage = () => {
   const [searchInput, setSearchInput] = useState<string>("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
   const [cancelReason, setCancelReason] = useState("");
+const [viewType, setViewType] =
+  useState<"normal" | "hosted">("normal");
+
 
   const [cancelDialog, setCancelDialog] = useState<{
     isOpen: boolean;
@@ -151,7 +155,7 @@ const CurrentBookingPage = () => {
       const updatedBookings = [...bookings];
       updatedBookings[bookingIndex] = {
         ...booking,
-        status: "pending",
+        status: "pending_cancel",
       };
       setBookings(updatedBookings);
 
@@ -240,6 +244,8 @@ const CurrentBookingPage = () => {
     );
   }
 
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50">
       {/* Background Pattern */}
@@ -306,6 +312,34 @@ const CurrentBookingPage = () => {
               </div>
             </div>
           </motion.div>
+     {/* Tabs */}
+<div className="flex justify-center mb-10">
+  <div className="inline-flex bg-white rounded-xl p-1 shadow-sm border">
+    <button
+      onClick={() => setViewType("normal")}
+      className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${
+        viewType === "normal"
+          ? "bg-emerald-600 text-white shadow"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      Normal Bookings
+    </button>
+
+    <button
+      onClick={() => setViewType("hosted")}
+      className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${
+        viewType === "hosted"
+          ? "bg-emerald-600 text-white shadow"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      Hosted Games
+    </button>
+  </div>
+</div>
+
+
 
           {/* Results Info */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -325,42 +359,64 @@ const CurrentBookingPage = () => {
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="relative">
-            {searchLoading && (
-              <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
-                <div className="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3">
-                  <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
-                  <span className="text-gray-700 font-medium">
-                    Searching bookings...
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {bookings.length === 0 ? (
-              <EmptyState
-                title="No upcoming bookings"
-                description="You don't have any turf reservations scheduled yet. Ready to book your next game?"
-                actionLabel="Book a Turf"
-                onAction={() => navigate("/allturfdisplay")}
-              />
-            ) : (
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                <AnimatePresence>
-                  {bookings.map((booking, index) => (
-                    <BookingCard
-                      key={booking._id || index}
-                      booking={booking}
-                      index={index}
-                      onViewDetails={handleViewDetails}
-                      onCancel={openCancelDialog}
-                    />
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
+<div className="relative min-h-[300px]">
+  <AnimatePresence mode="wait">
+    {viewType === "hosted" ? (
+      <motion.div
+        key="hosted"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.25 }}
+      >
+        <UpcomingHostedGames />
+      </motion.div>
+    ) : (
+      <motion.div
+        key="normal"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.25 }}
+      >
+        {searchLoading && (
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
+            <div className="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3">
+              <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
+              <span className="text-gray-700 font-medium">
+                Searching bookings...
+              </span>
+            </div>
           </div>
+        )}
+
+        {bookings.length === 0 ? (
+          <EmptyState
+            title="No upcoming bookings"
+            description="You don't have any turf reservations scheduled yet."
+            actionLabel="Book a Turf"
+            onAction={() => navigate("/allturfdisplay")}
+          />
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <AnimatePresence>
+              {bookings.map((booking, index) => (
+                <BookingCard
+                  key={booking._id || index}
+                  booking={booking}
+                  index={index}
+                  onViewDetails={handleViewDetails}
+                  onCancel={openCancelDialog}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+
 
           {/* Pagination */}
           {totalPages > 1 && (
