@@ -27,8 +27,8 @@ import { useToaster } from "@/hooks/ui/useToaster"
 const UpcomingHostedGames = () => {
   const navigate = useNavigate()
   const [games, setGames] = useState<HostedGameDTO[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  // const [currentPage, setCurrentPage] = useState(1)
+  // const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -56,14 +56,14 @@ const { successToast, errorToast } = useToaster();
       setLoading(true)
 
       const res = await getUpcomingHostedGamesByUser({
-        page: currentPage,
+        page: 1,
         limit: pageSize,
         search: "",
       })
 
       if (res.success) {
         setGames(res.games)
-        setTotalPages(res.totalPages)
+        // setTotalPages(res.totalPages)
         setTotal(res.total)
         setError(null)
       } else {
@@ -74,7 +74,7 @@ const { successToast, errorToast } = useToaster();
     } finally {
       setLoading(false)
     }
-  }, [currentPage])
+  }, [])
 
   useEffect(() => {
     fetchHostedGames()

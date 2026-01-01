@@ -159,16 +159,16 @@ export const OwnerProfile = ({
     }
   };
 
-  const isProfileComplete =
-    formik.isValid &&
-    formik.values.ownerName &&
-    formik.values.email &&
-    formik.values.phoneNumber &&
-    formik.values.address &&
-    formik.values.city &&
-    formik.values.state &&
-    formik.values.pinCode &&
-    profileImagePreview;
+  // const isProfileComplete =
+  //   formik.isValid &&
+  //   formik.values.ownerName &&
+  //   formik.values.email &&
+  //   formik.values.phoneNumber &&
+  //   formik.values.address &&
+  //   formik.values.city &&
+  //   formik.values.state &&
+  //   formik.values.pinCode &&
+  //   profileImagePreview;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 p-4">

@@ -19,7 +19,7 @@ const AdminTurfReviews = () => {
 
   // confirmation modal states
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchReviews = async () => {
     if (!turfId) return;
@@ -43,14 +43,14 @@ const AdminTurfReviews = () => {
     if (!selectedReview) return;
 
     try {
-      setIsDeleting(true);
+      // setIsDeleting(true);
       await adminService.deleteReviewAdmin(selectedReview._id);
       setSelectedReview(null);
       fetchReviews();
     } catch (err) {
       console.error("Delete failed", err);
     } finally {
-      setIsDeleting(false);
+      // setIsDeleting(false);
     }
   };
 

@@ -23,7 +23,7 @@ export const refreshAdminSession = async (): Promise<IAuthResponse> => {
 };
 
 export const adminService = {
-  getAllUSers: async <T = any>({
+  getAllUSers: async({
     role,
     page = 1,
     limit = 5,
