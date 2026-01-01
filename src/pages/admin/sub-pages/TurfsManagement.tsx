@@ -230,7 +230,7 @@ export default function TurfManagement() {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [showImagesModal, setShowImagesModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [isProcessingAction, setIsProcessingAction] = useState(false);
+  // const [isProcessingAction, setIsProcessingAction] = useState(false);
 
   const [confirmationState, setConfirmationState] = useState<ConfirmationState>(
     {
@@ -334,7 +334,7 @@ export default function TurfManagement() {
     if (newStatus === "all") return;
 
     try {
-      setIsProcessingAction(true);
+      // setIsProcessingAction(true);
       const res = await adminService.updateEntityStatus(
         "turf",
         turfId,
@@ -353,7 +353,7 @@ export default function TurfManagement() {
       console.error("Error while updating turf status:", error);
       toast.error("Error updating turf status. Please try again later");
     } finally {
-      setIsProcessingAction(false);
+      // setIsProcessingAction(false);
       closeConfirmationModal();
     }
   };

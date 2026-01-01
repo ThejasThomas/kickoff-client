@@ -9,8 +9,6 @@ import {
   Mail,
   CornerUpRight,
   Trash2,
-  Smile,
-  Paperclip,
 } from "lucide-react";
 import { socket } from "@/socket";
 import { useSelector } from "react-redux";
@@ -402,7 +400,7 @@ export default function ChatPage() {
               <span>
                 {typingUsers
                   .map(
-                    (id, i) =>
+                    (id, ) =>
                       group.membersInfo.find((m) => m.userId === id)
                         ?.fullName || "Someone"
                   )

@@ -18,7 +18,7 @@ import { adminService } from "@/services/admin/adminService"
 import { useNavigate,  } from "react-router-dom"
 
 type TransactionType = "all" | "CREDIT" | "DEBIT"
-type TransactionStatus = "SUCCESS" | "FAILED" | "PENDING" | "all"
+// type TransactionStatus = "SUCCESS" | "FAILED" | "PENDING" | "all"
 
 const AdminOwnerWalletTransactions = () => {
   const [transactions, setTransactions] = useState<IAllOwnerWalletTransaction[]>([])
@@ -27,7 +27,7 @@ const AdminOwnerWalletTransactions = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [typeFilter, setTypeFilter] = useState<TransactionType>("all")
-  const [statusFilter, setStatusFilter] = useState<TransactionStatus>("all")
+  // const [statusFilter, setStatusFilter] = useState<TransactionStatus>("all")
   const navigate = useNavigate()
   useEffect(() => {
     fetchTransactions()
@@ -35,7 +35,7 @@ const AdminOwnerWalletTransactions = () => {
 
   useEffect(() => {
     filterTransactions()
-  }, [transactions, typeFilter, statusFilter])
+  }, [transactions, typeFilter,])
 
   const fetchTransactions = async () => {
     setLoading(true)
@@ -59,9 +59,9 @@ const AdminOwnerWalletTransactions = () => {
       filtered = filtered.filter((tx) => tx.type === typeFilter)
     }
 
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((tx) => tx.status === statusFilter)
-    }
+    // if (statusFilter !== "all") {
+    //   filtered = filtered.filter((tx) => tx.status === statusFilter)
+    // }
 
     setFilteredTransactions(filtered)
   }
@@ -103,25 +103,25 @@ const AdminOwnerWalletTransactions = () => {
 
   const stats = calculateStats()
 
-  const exportToCSV = () => {
-    const headers = ["Date", "Turf", "Type", "Amount", "Reason", "Status"]
-    const csvData = filteredTransactions.map((tx) => [
-      new Date(tx.transactionDate).toLocaleString(),
-      tx.turfId?.turfName || "-",
-      tx.type,
-      tx.amount,
-      tx.reason,
-      tx.status,
-    ])
+  // const exportToCSV = () => {
+  //   const headers = ["Date", "Turf", "Type", "Amount", "Reason", "Status"]
+  //   const csvData = filteredTransactions.map((tx) => [
+  //     new Date(tx.transactionDate).toLocaleString(),
+  //     tx.turfId?.turfName || "-",
+  //     tx.type,
+  //     tx.amount,
+  //     tx.reason,
+  //     tx.status,
+  //   ])
 
-    const csv = [headers, ...csvData].map((row) => row.join(",")).join("\n")
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `transactions-${new Date().toISOString()}.csv`
-    a.click()
-  }
+  //   const csv = [headers, ...csvData].map((row) => row.join(",")).join("\n")
+  //   const blob = new Blob([csv], { type: "text/csv" })
+  //   const url = window.URL.createObjectURL(blob)
+  //   const a = document.createElement("a")
+  //   a.href = url
+  //   a.download = `transactions-${new Date().toISOString()}.csv`
+  //   a.click()
+  // }
 
   const handleDownloadInvoice = () => {
     const invoiceData = {

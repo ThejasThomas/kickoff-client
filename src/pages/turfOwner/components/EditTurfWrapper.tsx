@@ -9,7 +9,7 @@ export const EditTurfWrapper: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: turf, error } = useGetTurfById(id!);
-  const { mutate: updateTurf, isPending: isUpdating } = useUpdateTurf();
+  const { mutate: updateTurf } = useUpdateTurf();
 
   const handleSubmit = (data: NewTurf) => {
     if (!id) return;
