@@ -13,3 +13,5 @@ type FormData = {
 };
 
 const [formData, setFormData] = useState<FormData>({});
+console.log(formData)
+console.log(setFormData)

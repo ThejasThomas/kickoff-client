@@ -296,11 +296,11 @@ const GenericTableInner = <T extends BaseItem>(
 
       {/* Table */}
       <motion.div
-        className="bg-gray-900 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(246,153,56,0.15)] min-h-[400px]"
+        className="bg-gray-900 rounded-xl overflow-visible shadow-[0_0_15px_rgba(246,153,56,0.15)] min-h-[400px]"
         variants={itemVariants}
       >
         {/* Table Header */}
-        <div className="grid grid-cols-12 bg-gray-800 p-4 font-medium text-sm text-gray-300">
+        <div className="grid grid-cols-13 bg-gray-800 p-4 font-medium text-sm text-gray-300">
           {columns.map((column) => (
             <div
               key={column.key}
@@ -331,14 +331,13 @@ const GenericTableInner = <T extends BaseItem>(
           data.map((item) => (
             <motion.div
               key={item._id}
-              className="grid grid-cols-12 p-4 border-b border-gray-800 items-center hover:bg-gray-800/50 transition-colors"
+              className="grid grid-cols-13 p-4 border-b border-gray-800 relative z-[1] hover:bg-gray-800/40 transition-colors"
               variants={itemVariants}
-              whileHover={{ scale: 1.002 }}
             >
               {columns.map((column) => (
                 <div
                   key={column.key}
-                  className={`${column.width} ${
+                  className={`${column.width} flex items-start ${
                     column.responsive === "hidden" ? "hidden md:block" : ""
                   }`}
                 >
@@ -347,8 +346,9 @@ const GenericTableInner = <T extends BaseItem>(
               ))}
 
               {/* Actions */}
+              {/* Actions */}
               {enableActions && actions.length > 0 && (
-                <div className="col-span-1 text-right relative">
+                <div className="col-span-1 relative flex justify-center items-center z-[50]">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -361,13 +361,13 @@ const GenericTableInner = <T extends BaseItem>(
                     <MoreVertical size={18} className="text-gray-400" />
                   </button>
 
-                  {/* Dropdown Menu */}
                   {activeDropdown === item._id && (
                     <motion.div
-                      className="absolute right-0 mt-2 w-56 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10"
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
+                      initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-2 w-56 bg-gray-800 rounded-lg shadow-2xl border border-gray-700 z-[9999] overflow-hidden"
                     >
                       {actions
                         .filter(
@@ -375,41 +375,34 @@ const GenericTableInner = <T extends BaseItem>(
                             !action.condition || action.condition(item)
                         )
                         .map((action, index) => (
-                          <div key={index}>
-                            {action.seperator && index > 0 && (
-                              <div className="border-t border-gray-700 my-1"></div>
-                            )}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleActionClick(action, item);
-                              }}
-                              className={`w-full text-left px-4 py-2 hover:bg-gray-700 text-sm flex items-center gap-2 transition-colors ${
-                                index === 0 ? "rounded-t-lg" : ""
-                              } ${
-                                index === actions.length - 1
-                                  ? "rounded-b-lg"
-                                  : ""
-                              } ${
-                                action.variant === "danger"
-                                  ? "text-red-400 hover:text-red-300"
-                                  : action.variant === "warning"
-                                  ? "text-yellow-400 hover:text-yellow-300"
-                                  : action.variant === "success"
-                                  ? "text-green-400 hover:text-green-300"
-                                  : "text-white"
-                              }`}
-                            >
-                              {typeof action.icon === "function"
-                                ? action.icon(item)
-                                : action.icon}
-                              <span>
-                                {typeof action.label === "function"
-                                  ? action.label(item)
-                                  : action.label}
-                              </span>
-                            </button>
-                          </div>
+                          <button
+                            key={index}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleActionClick(action, item);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors
+                ${
+                  action.variant === "danger"
+                    ? "text-red-400 hover:bg-red-500/10"
+                    : action.variant === "warning"
+                    ? "text-yellow-400 hover:bg-yellow-500/10"
+                    : action.variant === "success"
+                    ? "text-green-400 hover:bg-green-500/10"
+                    : "text-white hover:bg-gray-700"
+                }
+              `}
+                          >
+                            {typeof action.icon === "function"
+                              ? action.icon(item)
+                              : action.icon}
+
+                            <span>
+                              {typeof action.label === "function"
+                                ? action.label(item)
+                                : action.label}
+                            </span>
+                          </button>
                         ))}
                     </motion.div>
                   )}

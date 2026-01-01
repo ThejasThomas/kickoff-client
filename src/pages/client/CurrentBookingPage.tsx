@@ -1,4 +1,7 @@
-import { getupcomingBookings } from "@/services/client/clientService";
+import {
+  getupcomingBookings,
+  requestCancelBooking,
+} from "@/services/client/clientService";
 import type { IBookings } from "@/types/Booking_type";
 import type { IBookResponse } from "@/types/Response";
 import { useEffect, useState, useCallback } from "react";
@@ -30,6 +33,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { BookingCard } from "@/components/ui/booking-card";
 import { formatDate } from "@/components/ui/format-date";
 import { formatTime } from "@/components/ui/format-date";
+import UpcomingHostedGames from "./components/UpcomingHostedGameByUser";
 
 const CurrentBookingPage = () => {
   const navigate = useNavigate();
@@ -42,6 +46,11 @@ const CurrentBookingPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState<string>("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
+  const [cancelReason, setCancelReason] = useState("");
+const [viewType, setViewType] =
+  useState<"normal" | "hosted">("normal");
+
+
   const [cancelDialog, setCancelDialog] = useState<{
     isOpen: boolean;
     bookingIndex: number | null;
@@ -54,13 +63,12 @@ const CurrentBookingPage = () => {
   const [cancelLoading, setCancelLoading] = useState(false);
   const { errorToast, successToast } = useToaster();
 
-  const pageSize = 6;
+  const pageSize = 4;
 
-  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchInput);
-      setCurrentPage(1); // Reset to first page on search
+      setCurrentPage(1);
     }, 500);
 
     return () => clearTimeout(timer);
@@ -132,20 +140,32 @@ const CurrentBookingPage = () => {
   ) => {
     setCancelLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (!cancelReason.trim()) {
+        errorToast("Please enter a reason for cancellation.");
+        setCancelLoading(false);
+        return;
+      }
+      console.log("bookingIDDD", booking._id);
+
+      const res = await requestCancelBooking(booking._id!, cancelReason);
+      console.log(res)
+
+      successToast("Cancellation request submitted!");
 
       const updatedBookings = [...bookings];
       updatedBookings[bookingIndex] = {
         ...booking,
-        status: "cancelled",
+        status: "pending_cancel",
       };
       setBookings(updatedBookings);
-      successToast("Booking Cancelled");
 
       setCancelDialog({ isOpen: false, bookingIndex: null, booking: null });
-    } catch (error) {
-      errorToast("Cancellation Failed");
-      console.log(error);
+      setCancelReason("");
+    } catch (error: any) {
+      const msg =
+        error?.response?.data?.message || "Failed to send cancellation request";
+
+      errorToast(msg);
     } finally {
       setCancelLoading(false);
     }
@@ -224,6 +244,8 @@ const CurrentBookingPage = () => {
     );
   }
 
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50">
       {/* Background Pattern */}
@@ -235,6 +257,7 @@ const CurrentBookingPage = () => {
           }}
         />
       </div>
+      
 
       <div className="relative z-10 p-6">
         <div className="max-w-7xl mx-auto">
@@ -243,6 +266,23 @@ const CurrentBookingPage = () => {
             title="Upcoming Bookings"
             description={`Manage your turf reservations and track your ${totalBookings} upcoming games`}
           />
+          <motion.div
+            onClick={() => navigate("/home")}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            className="relative overflow-hidden px-6 py-2 w-fit cursor-pointer 
+             rounded-lg bg-slate-900 text-white font-medium 
+             shadow-md hover:shadow-lg transition-all group"
+          >
+            <span className="relative z-10">Back To Home</span>
+
+            {/* Hover highlight */}
+            <span
+              className="absolute inset-0 bg-slate-700 translate-x-[-100%] 
+               group-hover:translate-x-0 transition-transform duration-300"
+            ></span>
+          </motion.div>
+          
 
           {/* Search Bar */}
           <motion.div
@@ -272,6 +312,34 @@ const CurrentBookingPage = () => {
               </div>
             </div>
           </motion.div>
+     {/* Tabs */}
+<div className="flex justify-center mb-10">
+  <div className="inline-flex bg-white rounded-xl p-1 shadow-sm border">
+    <button
+      onClick={() => setViewType("normal")}
+      className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${
+        viewType === "normal"
+          ? "bg-emerald-600 text-white shadow"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      Normal Bookings
+    </button>
+
+    <button
+      onClick={() => setViewType("hosted")}
+      className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${
+        viewType === "hosted"
+          ? "bg-emerald-600 text-white shadow"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      Hosted Games
+    </button>
+  </div>
+</div>
+
+
 
           {/* Results Info */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -291,42 +359,64 @@ const CurrentBookingPage = () => {
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="relative">
-            {searchLoading && (
-              <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
-                <div className="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3">
-                  <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
-                  <span className="text-gray-700 font-medium">
-                    Searching bookings...
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {bookings.length === 0 ? (
-              <EmptyState
-                title="No upcoming bookings"
-                description="You don't have any turf reservations scheduled yet. Ready to book your next game?"
-                actionLabel="Book a Turf"
-                onAction={() => navigate("/allturfdisplay")}
-              />
-            ) : (
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                <AnimatePresence>
-                  {bookings.map((booking, index) => (
-                    <BookingCard
-                      key={booking._id || index}
-                      booking={booking}
-                      index={index}
-                      onViewDetails={handleViewDetails}
-                      onCancel={openCancelDialog}
-                    />
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
+<div className="relative min-h-[300px]">
+  <AnimatePresence mode="wait">
+    {viewType === "hosted" ? (
+      <motion.div
+        key="hosted"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.25 }}
+      >
+        <UpcomingHostedGames />
+      </motion.div>
+    ) : (
+      <motion.div
+        key="normal"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.25 }}
+      >
+        {searchLoading && (
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
+            <div className="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3">
+              <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
+              <span className="text-gray-700 font-medium">
+                Searching bookings...
+              </span>
+            </div>
           </div>
+        )}
+
+        {bookings.length === 0 ? (
+          <EmptyState
+            title="No upcoming bookings"
+            description="You don't have any turf reservations scheduled yet."
+            actionLabel="Book a Turf"
+            onAction={() => navigate("/allturfdisplay")}
+          />
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <AnimatePresence>
+              {bookings.map((booking, index) => (
+                <BookingCard
+                  key={booking._id || index}
+                  booking={booking}
+                  index={index}
+                  onViewDetails={handleViewDetails}
+                  onCancel={openCancelDialog}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -413,11 +503,11 @@ const CurrentBookingPage = () => {
               Cancel Booking
             </DialogTitle>
             <DialogDescription className="text-gray-600 text-lg">
-              Are you sure you want to cancel this turf booking? This action
-              cannot be undone.
+              Provide a cancellation reason and confirm your request.
             </DialogDescription>
           </DialogHeader>
 
+          {/* Booking Details */}
           {cancelDialog.booking && (
             <div className="py-6 space-y-4 border-y border-gray-100">
               <div className="bg-gray-50 rounded-xl p-4 space-y-3">
@@ -427,6 +517,7 @@ const CurrentBookingPage = () => {
                     {formatDate(cancelDialog.booking.date)}
                   </span>
                 </div>
+
                 <div className="flex items-center gap-3 text-sm">
                   <Clock className="h-4 w-4 text-gray-600" />
                   <span className="font-medium text-gray-900">
@@ -434,6 +525,7 @@ const CurrentBookingPage = () => {
                     {formatTime(cancelDialog.booking.endTime)}
                   </span>
                 </div>
+
                 <div className="flex items-center gap-3 text-sm">
                   <DollarSign className="h-4 w-4 text-gray-600" />
                   <span className="font-bold text-gray-900 text-lg">
@@ -444,7 +536,22 @@ const CurrentBookingPage = () => {
             </div>
           )}
 
-          <DialogFooter className="flex gap-3 pt-4">
+          {/* Reason Input */}
+          <div className="mt-6">
+            <label className="text-gray-700 font-medium">
+              Reason for Cancellation
+            </label>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Please explain why you want to cancel..."
+              className="w-full mt-2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:outline-none"
+              rows={3}
+            />
+          </div>
+
+          {/* Buttons */}
+          <DialogFooter className="flex gap-3 pt-6">
             <motion.button
               onClick={() =>
                 setCancelDialog({
@@ -460,6 +567,7 @@ const CurrentBookingPage = () => {
             >
               Keep Booking
             </motion.button>
+
             <motion.button
               onClick={() => {
                 if (
@@ -477,7 +585,7 @@ const CurrentBookingPage = () => {
               whileTap={{ scale: 0.98 }}
               className="flex-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-200 shadow-lg disabled:opacity-50"
             >
-              {cancelLoading ? "Cancelling..." : "Cancel Booking"}
+              {cancelLoading ? "Submitting..." : "Submit Request"}
             </motion.button>
           </DialogFooter>
         </DialogContent>

@@ -13,10 +13,20 @@ import { NoAuthRoute } from "@/utils/protected/PublicRoute";
 import { Route, Routes } from "react-router-dom";
 import ClientPastBookingsPage from "@/pages/client/ClientPastBookingsPage";
 import { ClientProfile } from "@/pages/client/components/ClientProfilePage";
+import WalletPage from "@/pages/client/Wallet";
+import HostGamePaymentPage from "@/pages/client/components/HostGamePaymentPage";
+import HostedGamesPage from "@/pages/client/components/HostedGamesPage";
+import JoinHostedGamePage from "@/pages/client/components/JoinHostedGamePage";
+import ChatGroup from "@/pages/client/components/ChatGroup";
+import ChatPage from "@/pages/client/components/ChatPage";
+import InvoiceUserBookingsPage from "@/pages/client/components/BookingsDownloadPage";
+import NotFound from "@/components/common/NotFound";
 
 const ClientRoutes = () => {
   return (
     <Routes>
+      <Route path="/paymentpage" element={<TurfPaymentPage />} />
+
       <Route index element={<NoAuthRoute element={<ClientAuth />} />} />
       <Route
         path="/"
@@ -36,12 +46,19 @@ const ClientRoutes = () => {
           }
         />{" "}
         <Route path="turfoverview/:id" element={<TurfOverview />} />
-        <Route path="paymentpage" element={<TurfPaymentPage />} />
+        {/* <Route path="paymentpage" element={<TurfPaymentPage />} /> */}
         <Route path="allturfdisplay" element={<AllTurfsPage />} />
         <Route path="bookinghistory" element={<ClientPastBookingsPage />} />
         <Route path="upcomingbookings" element={<CurrentBookingPage />} />
+        <Route path="wallet" element={<WalletPage />} />
+        <Route path="host-game-payment" element={<HostGamePaymentPage/>}/>
         <Route path="bookings/details" element={<BookingViewDetailsPage />} />
         <Route path="clientprofile" element={<ClientProfile />} />
+        <Route path="chatGroups" element={<ChatGroup/>}/>
+        <Route path="chats/:groupId" element={<ChatPage/>}/>
+        <Route path="invoiceuserbookings" element={<InvoiceUserBookingsPage/>}/>
+        <Route path="hosted-games" element={<HostedGamesPage/>}/>
+        <Route path="hosted-games/join-hosted-game/:id" element={<JoinHostedGamePage/>}/>
       </Route>
 
       <Route
@@ -61,6 +78,8 @@ const ClientRoutes = () => {
           />
         }
       ></Route>
+                <Route path="*" element={<NotFound />} />
+
     </Routes>
   );
 };

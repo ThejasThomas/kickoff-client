@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { GenericTable } from "@/components/ReusableComponents/GenericTable";
 import RejectionModal from "@/components/ReusableComponents/RejectionModal";
-import ConfirmationModal from "@/components/ReusableComponents/ConfirmationModal";
 import { adminService } from "@/services/admin/adminService";
 import type { ApiResponse, FetchParams } from "@/types/api.type";
 import type { TableAction, TableColumn } from "@/types/table_type";
@@ -22,6 +21,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { ConfirmationModal } from "@/components/ReusableComponents/ConfirmationModel";
 
 const AmenitiesModal = ({
   isOpen,
@@ -325,7 +325,12 @@ export default function TurfManagement() {
     }
   };
 
-  const handleStatusChange = async (turfId: string, newStatus: TurfStatus,ownerId:string,reason?:string) => {
+  const handleStatusChange = async (
+    turfId: string,
+    newStatus: TurfStatus,
+    ownerId: string,
+    reason?: string
+  ) => {
     if (newStatus === "all") return;
 
     try {
@@ -334,7 +339,7 @@ export default function TurfManagement() {
         "turf",
         turfId,
         newStatus,
-        reason||undefined,
+        reason || undefined,
         ownerId
       );
 
@@ -380,22 +385,26 @@ export default function TurfManagement() {
   };
 
   const handleApproveClick = (turf: ITurf) => {
-    console.log('ownerrrIdddd',turf.ownerId)
+    console.log("ownerrrIdddd", turf.ownerId);
     if (!turf._id) return;
     openConfirmationModal(
       "Approve Turf",
       "Are you sure you want to approve this turf? This will make it visible to all users and allow bookings.",
       "success",
       "Approve",
-      () => handleStatusChange(turf._id!, "approved",turf.ownerId||"","Turf has been approved"),
+      () =>
+        handleStatusChange(
+          turf._id!,
+          "approved",
+          turf.ownerId || "",
+          "Turf has been approved"
+        ),
       turf.turfName,
       <Check size={24} />
     );
   };
 
-
-    const [selectedOwnerId,setSelectedOwnerId] =useState<string | null>(null)
-
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
 
   const handleRejectClick = (turf: ITurf) => {
     if (!turf._id) return;
@@ -412,7 +421,13 @@ export default function TurfManagement() {
       "Are you sure you want to block this turf? This will immediately hide it from users and prevent new bookings.",
       "warning",
       "Block",
-      () => handleStatusChange(turf._id!, "blocked",turf.ownerId||"","Turf has been blocked"),
+      () =>
+        handleStatusChange(
+          turf._id!,
+          "blocked",
+          turf.ownerId || "",
+          "Turf has been blocked"
+        ),
       turf.turfName,
       <Ban size={24} />
     );
@@ -425,7 +440,13 @@ export default function TurfManagement() {
       "Are you sure you want to unblock this turf? This will approve it and make it visible to users again.",
       "info",
       "Unblock",
-      () => handleStatusChange(turf._id!, "approved",turf.ownerId||"","Turf has been unblocked"),
+      () =>
+        handleStatusChange(
+          turf._id!,
+          "approved",
+          turf.ownerId || "",
+          "Turf has been unblocked"
+        ),
       turf.turfName,
       <RotateCcw size={24} />
     );
@@ -441,7 +462,7 @@ export default function TurfManagement() {
         selectedTurfId,
         "rejected",
         reason,
-        selectedOwnerId ||undefined
+        selectedOwnerId || undefined
       );
 
       if (res.success) {
@@ -612,7 +633,8 @@ export default function TurfManagement() {
       label: "Reject",
       icon: <X size={12} />,
       onClick: handleRejectClick,
-      condition: (turf) => turf.status !== "rejected" && turf.status !== "approved",
+      condition: (turf) =>
+        turf.status !== "rejected" && turf.status !== "approved",
       variant: "danger",
       refreshAfter: true,
     },
@@ -620,7 +642,8 @@ export default function TurfManagement() {
       label: "Block",
       icon: <Ban size={12} />,
       onClick: handleBlockClick,
-      condition: (turf) => turf.status !== "blocked" && turf.status ==="approved",
+      condition: (turf) =>
+        turf.status !== "blocked" && turf.status === "approved",
       variant: "warning",
       refreshAfter: true,
     },
@@ -682,11 +705,7 @@ export default function TurfManagement() {
         onConfirm={confirmationState.onConfirm}
         title={confirmationState.title}
         message={confirmationState.message}
-        type={confirmationState.type}
         confirmText={confirmationState.confirmText}
-        entityName={confirmationState.entityName}
-        icon={confirmationState.icon}
-        isLoading={isProcessingAction}
       />
 
       {/* Rejection Modal */}

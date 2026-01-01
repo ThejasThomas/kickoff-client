@@ -27,13 +27,14 @@ const AddSlotsPage: React.FC = () => {
   const { mutate: getMyTurfs, isPending } = useGetMyTurf();
 
   const fetchTurfs = () => {
+    console.log('heyyyyyy brooooohhhh')
     setIsLoading(true);
     setError(null);
 
     getMyTurfs(
       {
         page: currentPage,
-        limit: 8,
+        limit: 4,
         search: searchTerm || undefined,
         status: statusFilter,
       },
@@ -297,6 +298,14 @@ const AddSlotsPage: React.FC = () => {
                         className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-sm hover:bg-gray-200 transition-colors"
                       >
                         View Slots
+                      </button>
+                      <button
+                        onClick={() =>
+                          navigate(`/turfOwner/slot-cancellation?turfId=${turf._id}`)
+                        }
+                        className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-red-700"
+                      >
+                        Cancel Slot
                       </button>
                     </div>
                   </div>

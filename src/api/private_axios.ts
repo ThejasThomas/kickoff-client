@@ -18,11 +18,13 @@ let isRefreshing = false;
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
-    console.log('originalReq',originalRequest)
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
+    console.log("originalReq", originalRequest);
 
     const urlPart = originalRequest?.url?.split("/")[1] || "";
-    console.log(urlPart)
+    console.log(urlPart);
     let role: "_cl" | "_ad" | "_ow" | "" = "";
 
     switch (urlPart) {
@@ -55,9 +57,12 @@ axiosInstance.interceptors.response.use(
             : "";
 
         try {
-          if (refreshEndpoint) {
-            await axiosInstance.post(refreshEndpoint);
+          if (!refreshEndpoint) {
+            handleLogout(role);
+            return Promise.reject(error);
           }
+          await axiosInstance.post(refreshEndpoint);
+
           isRefreshing = false;
           return axiosInstance(originalRequest);
         } catch (refreshError) {
@@ -68,25 +73,25 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    return Promise.reject(error); 
+    return Promise.reject(error);
   }
 );
 const handleLogout = (role: string) => {
-	switch (role) {
-		case "_cl":
-			store.dispatch(clientLogout());
-			window.location.href = "/";
-			break;
-		case "_ad":
-			store.dispatch(adminLogout());
-			window.location.href = "/admin";
-			break;
-		case "_ve":
-			store.dispatch(turfOwnerLogout());
-			window.location.href = "/turfOwner";
-			break;
-		default:
-			window.location.href = "/";
-	}
-	toast("Please login again");
+  switch (role) {
+    case "_cl":
+      store.dispatch(clientLogout());
+      window.location.href = "/";
+      break;
+    case "_ad":
+      store.dispatch(adminLogout());
+      window.location.href = "/admin";
+      break;
+    case "_ow":
+      store.dispatch(turfOwnerLogout());
+      window.location.href = "/turfOwner";
+      break;
+    default:
+      window.location.href = "/";
+  }
+  toast("Please login again");
 };

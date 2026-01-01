@@ -1,16 +1,24 @@
 import { axiosInstance } from "@/api/private_axios";
 import { OWNER_ROUTE } from "@/constants/owner_route";
+import type { IBookings } from "@/types/Booking_type";
 import type {
   GetMyTurfsParams,
   IAuthResponse,
   IBookResponse,
+  ICancelRequestResponse,
+  ICancelSlotResponse,
+  ICheckSlotAvailabilityResponse,
   IGenerateRulesResponse,
   IGenerateSlotsResponse,
+  IHandleCancelActionResponse,
+  IOwnerWalletTransactionResponse,
   ITurffResponse,
   ITurfOwnerDetailsResponse,
   ITurfResponse,
+  SlotResponse,
 } from "@/types/Response";
 import type { IRules } from "@/types/rules_type";
+import type { ISlot } from "@/types/Slot";
 import type { GenerateSlotsData } from "@/types/Slots";
 import type { ITurf, ITurfBase, NewTurf } from "@/types/Turf";
 import type {
@@ -51,6 +59,7 @@ export const updateTurf = async (
   );
   return response.data;
 };
+
 export const addTurf = async (
   turfData: Partial<ITurfBase>
 ): Promise<ITurfResponse> => {
@@ -128,6 +137,14 @@ export const getbookedUsersDetails = async (
   return response.data;
 };
 
+export const getHostedGamesByIdOwner = async (id: string) => {
+  console.log("Tomyyy iddd", id);
+  const response = await axiosInstance.get(
+    `${OWNER_ROUTE.GET_SINGLE_HOSTED_GAME}/${id}`
+  );
+  return response.data;
+};
+
 export const getusersBookings = async ({
   turfId,
   date,
@@ -147,6 +164,100 @@ export const getusersBookings = async ({
   return response.data;
 };
 
+export const getCancelRequests = async (): Promise<ICancelRequestResponse> => {
+  const response = await axiosInstance.get<ICancelRequestResponse>(
+    OWNER_ROUTE.GET_CANCEL_REQUESTS
+  );
+  return {
+    success: response.data.success,
+    data: response.data.data || [],
+  };
+};
+
+export const handleCancelRequestAction = async (
+  requestId: string,
+  action: "approved" | "rejected",
+  userId: string
+): Promise<IHandleCancelActionResponse> => {
+  const response = await axiosInstance.put<IHandleCancelActionResponse>(
+    `${OWNER_ROUTE.HANDLE_CANCEL_REQUEST}/${requestId}/${userId}`,
+    { action }
+  );
+  return response.data;
+};
+export const getOwnerWalletTransactions = async (
+  page = 1,
+  limit = 5
+): Promise<IOwnerWalletTransactionResponse> => {
+  const response = await axiosInstance.get<IOwnerWalletTransactionResponse>(
+    OWNER_ROUTE.GET_WALLET_TRANSACTION,
+    {
+      params: { page, limit },
+    }
+  );
+  return response.data;
+};
+export const checkSlotAvailability = async (
+  turfId: string,
+  date: string,
+  startTime: string,
+  endTime: string
+): Promise<ICheckSlotAvailabilityResponse> => {
+  const response = await axiosInstance.get<ICheckSlotAvailabilityResponse>(
+    OWNER_ROUTE.CHECK_SLOT_AVAILABILITY,
+    {
+      params: {
+        turfId,
+        date,
+        startTime,
+        endTime,
+      },
+    }
+  );
+  return response.data;
+};
+export const cancelSlot = async (data: {
+  turfId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}): Promise<ICancelSlotResponse> => {
+  const response = await axiosInstance.post<ICancelSlotResponse>(
+    OWNER_ROUTE.CANCEL_SLOT,
+    data
+  );
+  return response.data;
+};
+export const getSlots = async (
+  turfId: string,
+  date: string
+): Promise<ISlot[]> => {
+  const response = await axiosInstance.get<SlotResponse>(
+    `${OWNER_ROUTE.GET_SLOTS}/${turfId}?date=${date}`
+  );
+  return response.data.slots;
+};
+export const bookSlots = async (
+  bookData: Partial<IBookings>
+): Promise<IBookResponse> => {
+  console.log("bookiokkkktheee sloottt", bookData);
+  const response = await axiosInstance.post<IBookResponse>(
+    OWNER_ROUTE.BOOKSLOT,
+    bookData
+  );
+  return response.data;
+};
+export const getOwnerDashboard = async (days = 7) => {
+  const response = await axiosInstance.get(OWNER_ROUTE.GET_OWNER_DASHBOARD, {
+    params: { days },
+  });
+  return response.data;
+};
+
+export const getOwnerWallet = async () => {
+  const response = await axiosInstance.get(OWNER_ROUTE.GET_OWNER_WALLET);
+  return response.data;
+};
 export const retryAdminApproval = async (
   userId: string
 ): Promise<{ status: turfOwnerStatus }> => {

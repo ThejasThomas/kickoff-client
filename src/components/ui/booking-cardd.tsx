@@ -8,9 +8,11 @@ interface BookingCardProps {
   index: number;
   onViewDetails?: (turfId: string, booking: IBookings) => void;
   onCancel?: (index: number, booking: IBookings) => void;
+  onAddReview?: (booking: IBookings) => void;
+  onAddRating?: (booking: IBookings) => void;
 }
 
-export const BookingCard = ({ booking, index, onViewDetails, onCancel }: BookingCardProps) => {
+export const BookingCard = ({ booking, index, onViewDetails, onCancel,onAddReview,onAddRating }: BookingCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
@@ -81,6 +83,49 @@ export const BookingCard = ({ booking, index, onViewDetails, onCancel }: Booking
             </span>
           </div>
         </div>
+        {booking.status === "completed" && (
+  <button 
+    disabled={booking.hasReviewed}
+    onClick={() => {
+      if (!booking.hasReviewed) {
+        onAddReview?.(booking);
+      }
+    }}
+    className={`mt-4 w-full rounded-lg px-4 py-2 font-medium transition
+      ${
+        booking.hasReviewed
+          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+          : "bg-emerald-600 text-white hover:bg-emerald-700"
+      }
+    `}
+  >
+    {booking.hasReviewed ? "Reviewed" : "Add Review"}
+  </button>
+)}
+{booking.status === "completed" && (
+  <button
+    disabled={booking.hasRated}
+    onClick={() => {
+      if (!booking.hasRated) {
+        onAddRating?.(booking);
+      }
+    }}
+    className={`mt-4 w-full rounded-lg px-4 py-2 font-medium transition
+      ${
+        booking.hasRated
+          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+          : "bg-emerald-600 text-white hover:bg-emerald-700"
+      }
+    `}
+  >
+    {booking.hasRated ? "Rated" : "Add Rating"}
+  </button>
+)}
+
+
+
+
+        
 
         {onViewDetails && onCancel && (
           <div className="pt-6 mt-6 border-t border-gray-100 flex gap-3">

@@ -19,8 +19,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-
-console.log("heloo bro");
+import { LocationModal } from "@/components/ReusableComponents/LocationModal";
 
 const AmenitiesModal = ({
   isOpen,
@@ -207,6 +206,7 @@ const ImagesModal = ({
 
 type turfStatus = "approved" | "rejected" | "pending";
 
+
 export default function TurfVerification() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -215,6 +215,10 @@ export default function TurfVerification() {
   const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedTurfName, setSelectedTurfName] = useState<string>("");
+  const [showLocationModal, setShowLocationModal] = useState(false);
+const [selectedLocation, setSelectedLocation] = useState<
+  ITurf["location"] | null
+>(null);
   const turfRejectionReasons = [
     "Incomplete turf details",
     "Invalid location/address",
@@ -273,7 +277,7 @@ export default function TurfVerification() {
         message: response.message,
       };
     } catch (error) {
-      console.error("Failed to fetch turfs", error);
+      console.log(error)
       return {
         success: false,
         users: [],
@@ -282,6 +286,20 @@ export default function TurfVerification() {
         message: "Failed to fetch turfs",
       };
     }
+  };
+  const handleViewLocation = (
+    location: ITurf["location"],
+    turfName: string
+  ) => {
+    setSelectedLocation(location);
+    setSelectedTurfName(turfName);
+    setShowLocationModal(true);
+  };
+
+  const closeLocationModal = () => {
+    setShowLocationModal(false);
+    setSelectedLocation(null);
+    setSelectedTurfName("");
   };
 
   const getStatusColor = (status: string) => {
@@ -301,7 +319,6 @@ export default function TurfVerification() {
     ownerId: string,
     reason?: string
   ) => {
-    console.log("ownerrrrIdddddddds", ownerId);
     try {
       const res = await adminService.updateEntityStatus(
         "turf",
@@ -318,7 +335,6 @@ export default function TurfVerification() {
         toast.error(`Failed to update turf status: ${res.message}`);
       }
     } catch (error) {
-      console.error("Error while updating turf status:", error);
       toast.error("Error updating turf status. Please try again later");
     }
   };
@@ -356,7 +372,6 @@ export default function TurfVerification() {
         toast.error(`Failed to reject turf: ${res.message}`);
       }
     } catch (error) {
-      console.error("Error while rejecting turf:", error);
       toast.error("Error rejecting turf. Please try again later");
     } finally {
       setIsSubmittingReject(false);
@@ -434,13 +449,24 @@ export default function TurfVerification() {
     {
       key: "location",
       label: "Location",
-      width: "col-span-2", // 2
+      width: "col-span-3",
       render: (turf) => (
-        <span className="text-sm text-gray-300 truncate whitespace-nowrap">
-          {turf.location.city}
-        </span>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm text-gray-300 truncate">
+            {turf.location.city}, {turf.location.state}
+          </p>
+
+          <button
+            onClick={() => handleViewLocation(turf.location, turf.turfName)}
+            className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md w-fit flex items-center gap-1"
+          >
+            <Eye size={12} />
+            View
+          </button>
+        </div>
       ),
     },
+
     {
       key: "courtType",
       label: "Court Type",
@@ -597,6 +623,12 @@ export default function TurfVerification() {
         confirmText="Approve"
         cancelText="Cancel"
         variant="success"
+      />
+      <LocationModal
+        isOpen={showLocationModal}
+        onClose={closeLocationModal}
+        location={selectedLocation}
+        turfName={selectedTurfName}
       />
     </>
   );

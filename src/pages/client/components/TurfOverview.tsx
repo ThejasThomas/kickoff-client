@@ -10,28 +10,56 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
+  Star,
 } from "lucide-react";
 import type { ITurf } from "@/types/Turf";
 import type React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getTurfById, getSlots } from "@/services/client/clientService";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  getTurfById,
+  getSlots,
+  getTurfReviews,
+  holdSlot,
+  getTurfRatings,
+} from "@/services/client/clientService";
 import type { ISlot } from "@/types/Slot";
+import HostGameForm from "./HostGameForm";
+import type { ITurfReview } from "@/types/turfReview_type";
+import { useToaster } from "@/hooks/ui/useToaster";
+import type { ITurfRating } from "@/types/turf_rating_type";
 
 const TurfOverview: React.FC = () => {
   const [turf, setTurf] = useState<ITurf | null>(null);
   const [slots, setSlots] = useState<ISlot[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [hostingMode, setHostingMode] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toLocaleDateString("en-CA")
   );
+  const [reviews, setReviews] = useState<ITurfReview[]>([]);
+  const [reviewPage, setReviewPage] = useState(1);
+  const [reviewTotalPages, setReviewTotalPages] = useState(1);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [ratings, setRatings] = useState<ITurfRating[]>([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [ratingPage, setRatingPage] = useState(1);
+  const [ratingLoading, setRatingLoading] = useState(false);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const { errorToast } = useToaster();
 
-  const today = new Date().toLocaleDateString("en-CA"); // Local YYYY-MM-DD for min
+  const backPath = (location.state as any)?.from;
+  const backGame = (location.state as any)?.game;
+
+  const today = new Date().toLocaleDateString("en-CA");
 
   useEffect(() => {
     const fetchTurf = async () => {
@@ -56,34 +84,69 @@ const TurfOverview: React.FC = () => {
     fetchTurf();
   }, [id]);
 
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchReviews = async () => {
+      try {
+        setReviewLoading(true);
+        const res = await getTurfReviews(id, reviewPage, 5);
+
+        setReviews(res.reviews);
+        setReviewTotalPages(res.totalPages);
+      } catch (err) {
+        console.error("Failed to load reviews", err);
+      } finally {
+        setReviewLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [id, reviewPage]);
+
   useEffect(() => {
     const fetchSlots = async () => {
       if (!id || !selectedDate) return;
 
       try {
         const slotData = await getSlots(id, selectedDate);
-        console.log("SloootDaaaataaa", slotData);
+        console.log("Slots from backend:", slotData);
 
-        const slotsWithUniqueIds = Array.isArray(slotData)
-          ? slotData.map((slot, index) => ({
-              ...slot,
-              id:
-                slot.id ||
-                `slot-${index}-${Date.now()}-${Math.random()
-                  .toString(36)
-                  .substr(2, 9)}`,
-            }))
-          : [];
-
-        setSlots(slotsWithUniqueIds);
+        setSlots(Array.isArray(slotData) ? slotData : []);
       } catch (err) {
         console.error("Error fetching slots:", err);
-        setError("An error occurred while fetching slot details");
+        setError("Could not fetch slots");
       }
     };
 
     fetchSlots();
   }, [id, selectedDate]);
+
+    useEffect(() => {
+    if (!id) return;
+
+    const fetchRatings = async () => {
+      try {
+        setRatingLoading(true);
+
+        const res = await getTurfRatings(id, ratingPage, 5);
+        console.log('ress',res)
+
+        if (res.success) {
+          setRatings(res.ratings);
+          setAverageRating(res.averageRating);
+          setTotalRatings(res.totalRatings);
+        }
+      } catch (err) {
+        console.error("Failed to fetch turf ratings", err);
+      } finally {
+        setRatingLoading(false);
+      }
+    };
+
+    fetchRatings();
+  }, [id, ratingPage]);
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) =>
@@ -109,52 +172,65 @@ const TurfOverview: React.FC = () => {
   };
 
   const getTotalPrice = () => {
-    return selectedSlots.reduce((total, slotId) => {
-      const slot = slots.find((s) => s.id === slotId);
-      return total + (slot?.price || 0);
-    }, 0);
+    if (!turf) return 0;
+    return selectedSlots.length * turf.pricePerHour;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedSlots.length === 0) {
       return;
     }
+    try {
+      for (const slotId of selectedSlots) {
+        const slot = slots.find((s) => s.id === slotId);
+        if (!slot) continue;
 
-    const selectedSlotDetails = selectedSlots.map((slotId) => {
-      const slot = slots.find((s) => s.id === slotId);
-      return {
-        id: slotId,
-        startTime: slot?.startTime,
-        endTime: slot?.endTime,
-        price: slot?.price,
-        duration: slot?.duration,
+        await holdSlot({
+          turfId: id!,
+          date: selectedDate,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        });
+      }
+      const selectedSlotDetails = selectedSlots.map((slotId) => {
+        const slot = slots.find((s) => s.id === slotId);
+
+        return {
+          id: slotId,
+          startTime: slot?.startTime,
+          endTime: slot?.endTime,
+          price: turf?.pricePerHour,
+          duration: slot?.duration,
+        };
+      });
+
+      const formattedSlots = selectedSlotDetails.map(
+        (slot) => `${slot.startTime} - ${slot.endTime}`
+      );
+
+      const bookingData = {
+        turfId: id,
+        turfName: turf?.turfName || "",
+        location: `${turf?.location?.address}, ${turf?.location?.city}` || "",
+        date: new Date(selectedDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+        slots: formattedSlots,
+        selectedSlotIds: selectedSlots,
+        slotDetails: selectedSlotDetails,
+        totalAmount: getTotalPrice(),
+        contactNumber: turf?.contactNumber || "",
+        courtType: turf?.courtType || "",
       };
-    });
 
-    const formattedSlots = selectedSlotDetails.map(
-      (slot) => `${slot.startTime} - ${slot.endTime}`
-    );
-
-    const bookingData = {
-      turfId: id,
-      turfName: turf?.turfName || "",
-      location: `${turf?.location?.address}, ${turf?.location?.city}` || "",
-      date: new Date(selectedDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }),
-      slots: formattedSlots,
-      selectedSlotIds: selectedSlots,
-      slotDetails: selectedSlotDetails,
-      totalAmount: getTotalPrice(),
-      contactNumber: turf?.contactNumber || "",
-      courtType: turf?.courtType || "",
-    };
-
-    navigate("/paymentpage", {
-      state: { bookingData },
-    });
+      navigate("/paymentpage", {
+        state: { bookingData },
+      });
+    } catch (error: any) {
+      errorToast(error.response?.data?.message);
+    }
   };
 
   const isDefaultSlot = (slot: ISlot) => {
@@ -168,7 +244,35 @@ const TurfOverview: React.FC = () => {
   };
 
   const getAvailableSlots = () => {
-    return slots.filter((slot) => !isDefaultSlot(slot));
+    return slots.filter((slot) => !isDefaultSlot(slot) && !slot.isBooked);
+  };
+  const handleHostGameContinue = (formData: {
+    slotDate: string;
+    startTime: string;
+    endTime: string;
+    courtType: string;
+    pricePerPlayer: number;
+    slotId: string;
+  }) => {
+    if (!turf) return;
+
+    const hostGameData = {
+      turfId: turf._id,
+      turfName: turf.turfName,
+      location: `${turf.location.address}, ${turf.location.city}`,
+      courtType: formData.courtType,
+      slotDate: formData.slotDate,
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      pricePerPlayer: formData.pricePerPlayer,
+      slotId: formData.slotId,
+      totalAmount: formData.pricePerPlayer,
+      images: turf.images,
+    };
+
+    navigate("/host-game-payment", {
+      state: { hostGameData },
+    });
   };
 
   if (loading) {
@@ -230,6 +334,21 @@ const TurfOverview: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section with Image Carousel */}
+      {backPath && (
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() =>
+            navigate(backPath, {
+              state: { game: backGame },
+            })
+          }
+          className="absolute top-6 left-6 z-20 flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-2 rounded-lg font-semibold text-gray-800 shadow hover:bg-white transition"
+        >
+          ← Back to Hosted Game
+        </motion.button>
+      )}
+
       <div className="relative h-[60vh] overflow-hidden">
         <motion.img
           key={currentImageIndex}
@@ -281,6 +400,25 @@ const TurfOverview: React.FC = () => {
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 text-balance">
                 {turf.turfName}
               </h1>
+              <div className="flex items-center gap-3 mt-3">
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={18}
+                className={
+                  star <= Math.round(averageRating)
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-gray-300"
+                }
+              />
+            ))}
+          </div>
+
+          {/* <span className="text-white text-sm">
+            {averageRating.toFixed(1)}
+          </span> */}
+        </div>
               <div className="flex items-center gap-4 text-white/90 text-lg">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
@@ -292,6 +430,7 @@ const TurfOverview: React.FC = () => {
             </motion.div>
           </div>
         </div>
+        
 
         {/* Image Indicators */}
         {turf.images && turf.images.length > 1 && (
@@ -308,6 +447,7 @@ const TurfOverview: React.FC = () => {
           </div>
         )}
       </div>
+      
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -380,6 +520,136 @@ const TurfOverview: React.FC = () => {
                 </div>
               </motion.div>
             )}
+            {/* Reviews Section */}
+            <motion.div
+              className="bg-card rounded-xl p-6 border border-border"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <h2 className="text-2xl font-bold text-card-foreground mb-4">
+                User Reviews
+              </h2>
+
+              {reviewLoading ? (
+                <p className="text-muted-foreground">Loading reviews...</p>
+              ) : reviews.length === 0 ? (
+                <p className="text-muted-foreground">
+                  No reviews yet. Be the first to review this turf!
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div
+                      key={review._id}
+                      className="border border-border rounded-lg p-4"
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="font-semibold text-card-foreground">
+                          {review.userName}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      <p className="text-muted-foreground">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <motion.div className="bg-card rounded-xl p-6 border border-border mt-8">
+                <h2 className="text-2xl font-bold text-card-foreground mb-4">
+                  User Ratings
+                </h2>
+
+                {ratingLoading ? (
+                  <p className="text-muted-foreground">Loading ratings...</p>
+                ) : ratings.length === 0 ? (
+                  <p className="text-muted-foreground">No ratings yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {ratings.map((item, index) => (
+                      <div
+                        key={index}
+                        className="border border-border rounded-lg p-4"
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="font-semibold text-card-foreground">
+                            {item.userName}
+                          </p>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              size={16}
+                              className={
+                                star <= item.rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Pagination */}
+              {reviewTotalPages > 1 && (
+                <div className="flex justify-between items-center mt-6">
+                  <button
+                    disabled={reviewPage === 1}
+                    onClick={() => setReviewPage((p) => p - 1)}
+                    className="px-4 py-2 rounded-lg border disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+
+                  <span className="text-sm text-muted-foreground">
+                    Page {reviewPage} of {reviewTotalPages}
+                  </span>
+
+                  <button
+                    disabled={reviewPage === reviewTotalPages}
+                    onClick={() => setReviewPage((p) => p + 1)}
+                    className="px-4 py-2 rounded-lg border disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+              {totalRatings > 5 && (
+                <div className="flex justify-between items-center mt-4">
+                  <button
+                    disabled={ratingPage === 1}
+                    onClick={() => setRatingPage((p) => p - 1)}
+                    className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+
+                  <span className="text-sm text-muted-foreground">
+                    Page {ratingPage}
+                  </span>
+
+                  <button
+                    disabled={ratingPage * 5 >= totalRatings}
+                    onClick={() => setRatingPage((p) => p + 1)}
+                    className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </motion.div>
           </div>
 
           {/* Right Column - Booking Section */}
@@ -402,6 +672,12 @@ const TurfOverview: React.FC = () => {
                   Base price per hour
                 </p>
               </div>
+              <button
+                onClick={() => setHostingMode(true)}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg mb-4 font-semibold"
+              >
+                Host a Game
+              </button>
 
               {/* Date Selection */}
               <div className="p-6 border-b border-border">
@@ -421,84 +697,94 @@ const TurfOverview: React.FC = () => {
               </div>
 
               {/* Available Slots */}
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-4">
-                  Available Time Slots
-                </h3>
-                {slots.length === 0 || hasOnlyDefaultSlots() ? (
-                  <motion.div
-                    className="text-center py-12 px-4"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="relative mb-6">
-                      <div className="w-20 h-20 mx-auto bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full flex items-center justify-center">
-                        <XCircle className="w-10 h-10 text-orange-500" />
-                      </div>
-                    </div>
-                    <h4 className="text-xl font-bold text-card-foreground mb-2">
-                      {hasOnlyDefaultSlots()
-                        ? "Turf Unavailable"
-                        : "No Slots Available"}
-                    </h4>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                      {hasOnlyDefaultSlots()
-                        ? "This turf is closed on the selected date. Please choose another date to view available slots."
-                        : "No time slots are available for this date. Please select a different date."}
-                    </p>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted rounded-lg text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      <span>Try selecting another date</span>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {getAvailableSlots().map((slot, index) => (
-                      <motion.div
-                        key={`${slot.id}-${index}`}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                          slot.isBooked
-                            ? "bg-muted border-border opacity-50 cursor-not-allowed"
-                            : selectedSlots.includes(slot.id)
-                            ? "bg-primary/10 border-primary"
-                            : "bg-input border-border hover:border-primary/50"
-                        }`}
-                        onClick={() =>
-                          !slot.isBooked && handleSlotSelect(slot.id)
-                        }
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-semibold text-card-foreground">
-                              {slot.startTime} - {slot.endTime}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {slot.duration} hour • ₹{slot.price}
-                            </p>
-                          </div>
-                          <div className="flex items-center">
-                            {slot.isBooked ? (
-                              <span className="text-destructive font-medium">
-                                Booked
-                              </span>
-                            ) : selectedSlots.includes(slot.id) ? (
-                              <CheckCircle className="w-5 h-5 text-primary" />
-                            ) : (
-                              <div className="w-5 h-5 border-2 border-muted-foreground rounded-full" />
-                            )}
-                          </div>
+              {hostingMode ? (
+                <HostGameForm
+                  turf={turf}
+                  selectedDate={selectedDate}
+                  slots={slots}
+                  onCancel={() => setHostingMode(false)}
+                  onSubmit={(formData) => handleHostGameContinue(formData)}
+                />
+              ) : (
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-card-foreground mb-4">
+                    Available Time Slots
+                  </h3>
+                  {slots.length === 0 || hasOnlyDefaultSlots() ? (
+                    <motion.div
+                      className="text-center py-12 px-4"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="relative mb-6">
+                        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full flex items-center justify-center">
+                          <XCircle className="w-10 h-10 text-orange-500" />
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      </div>
+                      <h4 className="text-xl font-bold text-card-foreground mb-2">
+                        {hasOnlyDefaultSlots()
+                          ? "Turf Unavailable"
+                          : "No Slots Available"}
+                      </h4>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                        {hasOnlyDefaultSlots()
+                          ? "This turf is closed on the selected date. Please choose another date to view available slots."
+                          : "No time slots are available for this date. Please select a different date."}
+                      </p>
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted rounded-lg text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        <span>Try selecting another date</span>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {getAvailableSlots().map((slot, index) => (
+                        <motion.div
+                          key={`${slot.id}-${index}`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                            slot.isBooked
+                              ? "bg-muted border-border opacity-50 cursor-not-allowed"
+                              : selectedSlots.includes(slot.id)
+                              ? "bg-primary/10 border-primary"
+                              : "bg-input border-border hover:border-primary/50"
+                          }`}
+                          onClick={() =>
+                            !slot.isBooked && handleSlotSelect(slot.id)
+                          }
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-semibold text-card-foreground">
+                                {slot.startTime} - {slot.endTime}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {slot.duration} hour • ₹{turf.pricePerHour}
+                              </p>
+                            </div>
+                            <div className="flex items-center">
+                              {slot.isBooked ? (
+                                <span className="text-destructive font-medium">
+                                  Booked
+                                </span>
+                              ) : selectedSlots.includes(slot.id) ? (
+                                <CheckCircle className="w-5 h-5 text-primary" />
+                              ) : (
+                                <div className="w-5 h-5 border-2 border-muted-foreground rounded-full" />
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Total and Continue Button */}
-              {selectedSlots.length > 0 && (
+              {!hostingMode && selectedSlots.length > 0 && (
                 <motion.div
                   className="p-6 border-t border-border"
                   initial={{ opacity: 0, y: 10 }}

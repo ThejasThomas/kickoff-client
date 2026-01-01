@@ -210,7 +210,6 @@ const HomePage: React.FC<HomePageProps> = () => {
               </motion.div>
             )}
 
-            {/* Feature Cards - Removed Dummy Data */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

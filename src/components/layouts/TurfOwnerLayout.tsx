@@ -11,6 +11,7 @@ import { PrivateHeader } from "../mainComponents/PrivateHeader";
 import { Sidebar } from "../mainComponents/Sidebar";
 import { sidebarItems } from "../turfOwner/Sidebar/SidebarItems";
 import { logoutTurfOwner } from "@/services/auth/authService";
+import { Footer } from "../mainComponents/Footer";
 
 interface TurfOwnerLayoutProps {
   title?: string;
@@ -26,7 +27,7 @@ export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = (
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isHomePage = location.pathname === '/turfOwner/home';
+  const isHomePage = location.pathname === '/turfOwner/owner-earnings';
   const navbarBgClass = isHomePage ? 'bg-transparent' : 'bg-black';
   
   const handleLogout = () => {
@@ -74,6 +75,7 @@ export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = (
       <main className={sidebarOpen ? 'lg:ml-64' : ''}>
         <Outlet />
       </main>
+      <Footer role="turfOwner" />
     </div>
   );
 };

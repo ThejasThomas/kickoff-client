@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 import { useEffect, useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -19,6 +21,20 @@ import { getTurfs } from "@/services/client/clientService"
 import type { ITurffResponse } from "@/types/Response"
 import type { ITurf } from "@/types/Turf"
 import { useNavigate } from "react-router-dom"
+import LocationSearch from "@/components/ReusableComponents/LocationSearch"
+
+interface SelectedLocation {
+  display_name: string
+  lat: number
+  lon: number
+  city?: string
+  address?: {
+    city?: string
+    town?: string
+    village?: string
+    state?: string
+  }
+}
 
 const AllTurfsPage: React.FC = () => {
   const navigate = useNavigate()
@@ -32,22 +48,46 @@ const AllTurfsPage: React.FC = () => {
 
   const [searchInput, setSearchInput] = useState<string>("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("")
+  const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null)
+  const [cityFilter, setCityFilter] = useState<string>("")
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [sortBy, setSortBy] = useState<"name" | "price">("name")
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000])
   const [showFilters, setShowFilters] = useState(false)
 
-  const pageSize = 4
+  const pageSize = 12
+
+  const extractCityFromLocation = (location: SelectedLocation): string => {
+    if (location.city) return location.city
+
+    if (location.address) {
+      const cityName = location.address.city || location.address.town || location.address.village
+      if (cityName) return cityName
+    }
+
+    const parts = location.display_name.split(",")
+    return parts[0]?.trim() || ""
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchInput)
-      setCurrentPage(1)
+      if (searchInput !== debouncedSearchTerm) {
+        setCurrentPage(1)
+      }
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [searchInput])
+  }, [searchInput, debouncedSearchTerm])
+
+  useEffect(() => {
+    if (selectedLocation) {
+      const extractedCity = extractCityFromLocation(selectedLocation)
+      setCityFilter(extractedCity)
+      console.log("📍 Extracted city:", extractedCity)
+    }
+  }, [selectedLocation])
 
   const fetchAllTurfs = useCallback(async () => {
     try {
@@ -57,22 +97,22 @@ const AllTurfsPage: React.FC = () => {
         setSearchLoading(true)
       }
 
-      console.log("Fetching all approved turfs with params:", {
+      let searchQuery = debouncedSearchTerm
+
+      if (selectedLocation && cityFilter) {
+        searchQuery = cityFilter
+      }
+
+      const params = {
         page: currentPage,
         limit: pageSize,
         status: "approved",
-        search: debouncedSearchTerm,
-      })
+        search: searchQuery,
+      }
 
-      const response: ITurffResponse = await getTurfs({
-        page: currentPage,
-        limit: pageSize,
-        status: "approved",
-        search: debouncedSearchTerm,
-      })
-      console.log("responsee", response)
+      console.log("🔍 Fetching turfs with params:", params)
 
-      console.log("API response:", response)
+      const response: ITurffResponse = await getTurfs(params)
 
       if (response.success) {
         setTurfs(response.turfs || [])
@@ -83,13 +123,13 @@ const AllTurfsPage: React.FC = () => {
         setError(response.message || "Failed to fetch turfs.")
       }
     } catch (err) {
-      console.error("Error fetching turfs:", err)
+      console.error("❌ Error fetching turfs:", err)
       setError("An error occurred while fetching turfs. Please try again.")
     } finally {
       setInitialLoading(false)
       setSearchLoading(false)
     }
-  }, [currentPage, debouncedSearchTerm, initialLoading])
+  }, [currentPage, debouncedSearchTerm, cityFilter, selectedLocation, initialLoading])
 
   useEffect(() => {
     console.log("✅ AllTurfsPage mounted")
@@ -110,14 +150,43 @@ const AllTurfsPage: React.FC = () => {
     navigate(`/turfoverview/${turfId}`)
   }
 
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value)
+  const handleLocationSelect = (location: {
+    display_name: string
+    lat: number
+    lon: number
+    address?: {
+      city?: string
+      town?: string
+      village?: string
+      state?: string
+      country?: string
+    }
+  }) => {
+    console.log("📌 Location selected:", location)
+
+    const selectedWithCity: SelectedLocation = {
+      display_name: location.display_name,
+      lat: location.lat,
+      lon: location.lon,
+      address: location.address,
+      city: location.address?.city || location.address?.town || location.address?.village,
+    }
+
+    setSelectedLocation(selectedWithCity)
+    setSearchInput(location.display_name)
+    setDebouncedSearchTerm(location.display_name)
+    setCurrentPage(1)
   }
 
   const resetFilters = () => {
+    console.log("🔄 Resetting all filters")
     setPriceRange([0, 5000])
     setSearchInput("")
     setSortBy("name")
+    setSelectedLocation(null)
+    setCityFilter("")
+    setDebouncedSearchTerm("")
+    setCurrentPage(1)
   }
 
   const filteredAndSortedTurfs = useMemo(() => {
@@ -160,7 +229,13 @@ const AllTurfsPage: React.FC = () => {
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h2>
-          <p className="text-gray-600">{error}</p>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => fetchAllTurfs()}
+            className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     )
@@ -181,43 +256,54 @@ const AllTurfsPage: React.FC = () => {
 
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Discover {totalTurfs} premium football turfs ready for booking
+              {selectedLocation && cityFilter && (
+                <span className="block text-emerald-600 font-semibold mt-2">📍 in {cityFilter}</span>
+              )}
             </p>
 
-            {/* Search Bar */}
+            {/* Unified Search Bar with Location Auto-Suggestions */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="max-w-2xl mx-auto"
+              className="max-w-2xl mx-auto relative"
             >
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur-lg opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
                 <div className="relative bg-white rounded-2xl shadow-lg border border-gray-200 group-hover:border-emerald-200 transition-colors duration-300">
-                  <div className="flex items-center">
-                    <Search className="absolute left-6 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search by turf name or location..."
-                      value={searchInput}
-                      onChange={handleSearchInputChange}
-                      className="w-full pl-14 pr-32 py-4 bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none text-lg"
-                    />
-                    {(searchInput !== debouncedSearchTerm || searchLoading) && (
-                      <div className="absolute right-32 top-1/2 transform -translate-y-1/2">
-                        <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
-                      </div>
-                    )}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="absolute right-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors duration-200 flex items-center gap-2"
-                    >
-                      Search
-                      <ArrowRight className="w-4 h-4" />
-                    </motion.button>
-                  </div>
+                  {/* LocationSearch Integrated Here */}
+                  <LocationSearch
+                    onSelect={handleLocationSelect}
+                    placeholder="Search by location to find turfs..."
+                    value={searchInput}
+                    onChange={setSearchInput}
+                  />
+                  {/* Search Loading Spinner */}
+                  {(searchInput !== debouncedSearchTerm || searchLoading) && (
+                    <div className="absolute right-32 top-1/2 transform -translate-y-1/2 z-10">
+                      <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
+                    </div>
+                  )}
+                  {/* Search Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors duration-200 flex items-center gap-2 z-10"
+                    onClick={() => {
+                      setDebouncedSearchTerm(searchInput)
+                      setCurrentPage(1)
+                    }}
+                  >
+                    Search
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
                 </div>
               </div>
+              {selectedLocation && cityFilter && (
+                <p className="text-sm text-emerald-600 mt-3 text-center font-medium">
+                  ✅ Showing turfs in {cityFilter}
+                </p>
+              )}
             </motion.div>
           </motion.div>
         </div>
@@ -231,6 +317,7 @@ const AllTurfsPage: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="text-gray-900">
                 <span className="font-semibold text-emerald-600">{filteredAndSortedTurfs.length}</span> turfs found
+                {selectedLocation && cityFilter && <span className="text-gray-600 ml-1">in {cityFilter}</span>}
               </div>
               {totalPages > 1 && (
                 <>
@@ -337,7 +424,7 @@ const AllTurfsPage: React.FC = () => {
                           className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {[500, 1000, 2000, 3000].map((price) => (
                           <motion.button
                             key={price}
@@ -390,7 +477,19 @@ const AllTurfsPage: React.FC = () => {
                 <Search className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">No turfs found</h3>
-              <p className="text-gray-600 text-lg">Try adjusting your search terms or filters</p>
+              <p className="text-gray-600 text-lg mb-6">
+                {selectedLocation && cityFilter
+                  ? `No turfs available in ${cityFilter}. Try searching in a different location.`
+                  : "Try adjusting your search terms or filters"}
+              </p>
+              {selectedLocation && (
+                <button
+                  onClick={resetFilters}
+                  className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                >
+                  Clear Filters
+                </button>
+              )}
             </motion.div>
           ) : (
             <div

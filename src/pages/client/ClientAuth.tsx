@@ -8,7 +8,6 @@ import { clientLogin } from "@/store/slices/client_slice";
 import { useAppDispatch } from "@/store/store";
 import type { IClient, ILoginData, User } from "@/types/User";
 import type { CredentialResponse } from "@react-oauth/google";
-// import { error } from "console";
 import { AnimatePresence,motion } from "framer-motion";
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";

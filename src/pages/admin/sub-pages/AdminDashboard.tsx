@@ -1,174 +1,367 @@
 "use client"
-import { motion } from "framer-motion"
+
+import {
+  getUsersChartData,
+  getTurfsChartData,
+  getOwnersChartData,
+  getBookingsChartData,
+} from "@/lib/dashboardChartData"
+import { useEffect, useState } from "react"
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
+import { Users, Building2, UserCog, Calendar, Download } from "lucide-react"
+import { AnalyticsCard } from "@/components/ui/AnalyticsCard"
+import { OverviewCard } from "@/components/ui/OverViewCard"
+import { renderCustomLabel } from "@/components/ui/renderCustomLabel"
+import type { AdminDashboardEntity, RevenuePeriod } from "@/types/adminDashboard_type"
+import { adminService } from "@/services/admin/adminService"
+import { useNavigate } from "react-router-dom"
+
+const PERIODS: RevenuePeriod[] = ["daily", "weekly", "monthly", "yearly"]
 
 const AdminDashboard = () => {
+  const [data, setData] = useState<AdminDashboardEntity | null>(null)
+  const [period, setPeriod] = useState<RevenuePeriod>("monthly")
+  const [loading, setLoading] = useState(true)
+const navigate=useNavigate()
+  useEffect(() => {
+    fetchDashboard()
+  }, [period])
+
+  const fetchDashboard = async () => {
+    setLoading(true)
+    try {
+      const res = await adminService.getDashboard(period)
+      console.log("Dashboard data:", res)
+      setData(res.data)
+    } catch (err) {
+      console.error("Dashboard fetch failed", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDownloadInvoice = () => {
+    if (!data) return
+
+    const invoiceData = {
+      type: "dashboard",
+      date: new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }),
+      invoiceNumber: `INV-DASH-${Date.now()}`,
+      users: data.users,
+      turfs: data.turfs,
+      owners: data.owners,
+      bookings: data.bookings,
+      revenue: {
+        totalBalance: data.revenue.totalBalance,
+        period: period,
+      },
+    }
+
+    const encodedData = encodeURIComponent(JSON.stringify(invoiceData))
+   navigate(`/admin/invoice-download?data=${encodedData}`)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="text-slate-400 mt-4 text-lg">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!data) return null
+  const usersChartData = getUsersChartData(data)
+  const turfsChartData = getTurfsChartData(data)
+  const ownersChartData = getOwnersChartData(data)
+  const bookingsChartData = getBookingsChartData(data)
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 flex items-center justify-center relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-20 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-500/15 rounded-full blur-2xl animate-pulse delay-500"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-4 md:p-6 lg:p-8">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              Admin Dashboard
+            </h1>
+            <p className="text-slate-400 mt-2">Monitor your platform's performance and analytics</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDownloadInvoice}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-lg font-medium transition-all shadow-lg"
+            >
+              <Download className="w-4 h-4" />
+              Download Invoice
+            </button>
+
+            <label className="text-slate-400 text-sm font-medium">Revenue Period:</label>
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as RevenuePeriod)}
+              className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer hover:bg-slate-700"
+            >
+              {PERIODS.map((p) => (
+                <option key={p} value={p}>
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
-      {/* Floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full opacity-30"
-            initial={{
-              x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1200),
-              y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 800),
-            }}
-            animate={{
-              x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1200),
-              y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 800),
-            }}
-            transition={{
-              duration: Math.random() * 20 + 15,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "reverse",
-              ease: "linear",
-            }}
-          />
-        ))}
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+        <OverviewCard
+          title="Total Users"
+          value={data.users.total}
+          icon={<Users className="w-8 h-8" />}
+          gradient="from-blue-500 to-blue-600"
+          stats={[
+            { label: "Active", value: data.users.active, color: "text-green-400" },
+            { label: "Blocked", value: data.users.blocked, color: "text-red-400" },
+            // { label: "Pending", value: data.users.pending, color: "text-yellow-400" },
+          ]}
+        />
+
+        <OverviewCard
+          title="Total Turfs"
+          value={data.turfs.total}
+          icon={<Building2 className="w-8 h-8" />}
+          gradient="from-emerald-500 to-emerald-600"
+          stats={[
+            { label: "Approved", value: data.turfs.approved, color: "text-green-400" },
+            { label: "Pending", value: data.turfs.pending, color: "text-yellow-400" },
+            { label: "Rejected", value: data.turfs.rejected, color: "text-red-400" },
+          ]}
+        />
+
+        <OverviewCard
+          title="Total Owners"
+          value={data.owners.total}
+          icon={<UserCog className="w-8 h-8" />}
+          gradient="from-purple-500 to-purple-600"
+          stats={[
+            { label: "Active", value: data.owners.active, color: "text-green-400" },
+            { label: "Blocked", value: data.owners.blocked, color: "text-red-400" },
+            { label: "Pending", value: data.owners.pending, color: "text-yellow-400" },
+          ]}
+        />
+
+        <OverviewCard
+          title="Total Bookings"
+          value={data.bookings.total}
+          icon={<Calendar className="w-8 h-8" />}
+          gradient="from-cyan-500 to-cyan-600"
+          stats={[
+            { label: "Completed", value: data.bookings.completed, color: "text-green-400" },
+            { label: "Confirmed", value: data.bookings.confirmed, color: "text-blue-400" },
+          ]}
+        />
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 text-center">
-        <motion.div
-          initial={{ scale: 0.5, opacity: 0, y: 50 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{
-            duration: 1.2,
-            ease: "easeOut",
-            type: "spring",
-            stiffness: 100,
-          }}
-          className="space-y-6"
-        >
-          {/* Admin text */}
-          <motion.h1
-            className="text-7xl md:text-8xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent leading-tight"
-            initial={{ y: -30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-          >
-            Admin
-          </motion.h1>
+      {/* Revenue Section */}
+      <div className="mb-8">
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl border border-slate-700 shadow-2xl">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-green-500/10 rounded-xl">
+              <div className="w-6 h-6 text-green-400" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white">Revenue Overview</h2>
+              <p className="text-slate-400 text-sm">
+                {period.charAt(0).toUpperCase() + period.slice(1)} earnings breakdown
+              </p>
+            </div>
+          </div>
 
-          {/* Dashboard text */}
-          <motion.h2
-            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight"
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            Dashboard
-          </motion.h2>
+          <div className="mb-6">
+            <p className="text-sm text-slate-400 mb-2">Total Balance</p>
+            <p className="text-4xl font-bold text-green-400">₹ {data.revenue.totalBalance.toLocaleString("en-IN")}</p>
+          </div>
 
-          {/* Subtitle */}
-          <motion.p
-            className="text-xl md:text-2xl text-gray-300 font-medium tracking-wide"
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-          >
-            Control Center
-          </motion.p>
+          <ResponsiveContainer width="100%" height={350}>
+            <LineChart data={data.revenue.data}>
+              <defs>
+                <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <XAxis dataKey="label" stroke="#94a3b8" />
+              <YAxis stroke="#94a3b8" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#1e293b",
+                  border: "1px solid #475569",
+                  borderRadius: "8px",
+                }}
+                labelStyle={{ color: "#f1f5f9" }}
+              />
+              <Line
+                type="monotone"
+                dataKey="amount"
+                stroke="#10b981"
+                strokeWidth={3}
+                fill="url(#revenueGradient)"
+                dot={{ fill: "#10b981", r: 5 }}
+                activeDot={{ r: 7 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
-          {/* Decorative line */}
-          <motion.div
-            className="w-40 h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500 mx-auto rounded-full"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 160, opacity: 1 }}
-            transition={{ delay: 0.9, duration: 0.6 }}
-          />
+      {/* Analytics Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Users Analytics */}
+        <AnalyticsCard title="Users Distribution" icon={<Users className="w-5 h-5" />}>
+          <div className="flex items-center justify-center">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={usersChartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {usersChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1e293b",
+                    border: "1px solid #475569",
+                    borderRadius: "8px",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex justify-center gap-6 mt-4">
+            {usersChartData.map((item) => (
+              <div key={item.name} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                <span className="text-sm text-slate-300">
+                  {item.name}: {item.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </AnalyticsCard>
 
-          {/* Pulsing glow effect */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-blue-400/10 to-indigo-400/10 rounded-3xl blur-xl"
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-          />
-        </motion.div>
+        {/* Turfs Analytics */}
+        <AnalyticsCard title="Turfs Distribution" icon={<Building2 className="w-5 h-5" />}>
+          <div className="flex items-center justify-center">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={turfsChartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {turfsChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1e293b",
+                    border: "1px solid #475569",
+                    borderRadius: "8px",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex justify-center gap-6 mt-4">
+            {turfsChartData.map((item) => (
+              <div key={item.name} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                <span className="text-sm text-slate-300">
+                  {item.name}: {item.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </AnalyticsCard>
 
-        {/* Floating admin icons */}
-        <motion.div
-          className="absolute -top-16 -left-16 w-14 h-14 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg"
-          animate={{
-            y: [-10, 10, -10],
-            rotate: [0, 360],
-          }}
-          transition={{
-            y: { duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
-            rotate: { duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-          }}
-        >
-          <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-          </svg>
-        </motion.div>
+        {/* Owners Analytics */}
+        <AnalyticsCard title="Owners Distribution" icon={<UserCog className="w-5 h-5" />}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={ownersChartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <XAxis dataKey="name" stroke="#94a3b8" />
+              <YAxis stroke="#94a3b8" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#1e293b",
+                  border: "1px solid #475569",
+                  borderRadius: "8px",
+                }}
+              />
+              <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]}>
+                {ownersChartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </AnalyticsCard>
 
-        <motion.div
-          className="absolute -top-8 -right-20 w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg"
-          animate={{
-            y: [10, -10, 10],
-            rotate: [360, 0],
-          }}
-          transition={{
-            y: { duration: 2.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
-            rotate: { duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-          }}
-        >
-          <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
-          </svg>
-        </motion.div>
-
-        <motion.div
-          className="absolute -bottom-12 -left-12 w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg"
-          animate={{
-            y: [-5, 15, -5],
-            x: [-5, 5, -5],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-        >
-          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
-        </motion.div>
-
-        <motion.div
-          className="absolute -bottom-8 -right-16 w-11 h-11 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg"
-          animate={{
-            y: [8, -8, 8],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            y: { duration: 3.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
-            rotate: { duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-          }}
-        >
-          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-          </svg>
-        </motion.div>
+        {/* Bookings Analytics */}
+        <AnalyticsCard title="Bookings Analytics" icon={<Calendar className="w-5 h-5" />}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={bookingsChartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <XAxis dataKey="name" stroke="#94a3b8" />
+              <YAxis stroke="#94a3b8" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#1e293b",
+                  border: "1px solid #475569",
+                  borderRadius: "8px",
+                }}
+              />
+              <Bar dataKey="value" fill="#06b6d4" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </AnalyticsCard>
       </div>
     </div>
   )
 }
-
 export default AdminDashboard
