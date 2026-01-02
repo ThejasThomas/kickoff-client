@@ -28,10 +28,14 @@ interface Transaction {
 
 interface WalletTransactionsProps {
   transactions: Transaction[]
+  page?:number;
+  totalPages?:number;
+  onPrev?:()=>void;
+  onNext?:()=>void;
   onViewAll?: () => void
 }
 
-export const WalletTransactions = ({ transactions, onViewAll }: WalletTransactionsProps) => {
+export const WalletTransactions = ({ transactions,page,totalPages,onPrev,onNext, onViewAll }: WalletTransactionsProps) => {
   return (
     <Card>
       <CardHeader>
@@ -95,8 +99,38 @@ export const WalletTransactions = ({ transactions, onViewAll }: WalletTransactio
                 </TableRow>
               ))
             )}
+      
+
           </TableBody>
         </Table>
+    {page !== undefined &&
+ totalPages !== undefined &&
+ onPrev &&
+ onNext &&
+ totalPages > 1 && (
+  <div className="flex justify-between items-center mt-4">
+    <button
+      disabled={page === 1}
+      onClick={onPrev}
+      className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+    >
+      Prev
+    </button>
+
+    <span className="text-sm font-medium">
+      Page {page} of {totalPages}
+    </span>
+
+    <button
+      disabled={page === totalPages}
+      onClick={onNext}
+      className="px-3 py-1 rounded bg-blue-600 text-white disabled:opacity-50"
+    >
+      Next
+    </button>
+  </div>
+)}
+
       </CardContent>
     </Card>
   )

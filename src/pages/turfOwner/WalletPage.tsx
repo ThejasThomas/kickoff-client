@@ -34,7 +34,7 @@ const OwnerWalletPage = () => {
   const fetchTransactions = async () => {
     try {
       setTxLoading(true);
-      const res = await getOwnerWalletTransactions(page, 10);
+      const res = await getOwnerWalletTransactions(page, 6);
 
       if (res.success) {
         setTransactions(res.transactions);

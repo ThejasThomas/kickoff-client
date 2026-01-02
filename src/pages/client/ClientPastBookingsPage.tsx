@@ -26,17 +26,20 @@ const ClientPastBookingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [selectedBooking, setSelectedBooking] = useState<IBookings | null>(
     null
   );
   const { successToast, errorToast } = useToaster();
   const [selectedTurf, setSelectedTurf] = useState<ITurf | null>(null);
 
+  const LIMIT = 3;
   const fetchBookings = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response: IBookResponse = await getpastbookings();
+      const response: IBookResponse = await getpastbookings(page, LIMIT);
       console.log("response", response);
       if (response.success) {
         const pastBookings = response.bookings.map((booking) => ({
@@ -44,6 +47,7 @@ const ClientPastBookingsPage = () => {
           status: "completed" as const,
         }));
         setBookings(pastBookings);
+        setTotalPages(response.totalPages || 1);
         console.log("Past Bookings:", pastBookings);
       } else {
         setError(response.message);
@@ -60,7 +64,7 @@ const ClientPastBookingsPage = () => {
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [page]);
 
   const handleAddReview = async (booking: IBookings) => {
     try {
@@ -73,10 +77,9 @@ const ClientPastBookingsPage = () => {
     }
   };
   const handleAddRating = (booking: IBookings) => {
-  setSelectedBooking(booking);
-  setShowRatingModal(true);
-};
-
+    setSelectedBooking(booking);
+    setShowRatingModal(true);
+  };
 
   const handleDownloadReport = () => {
     if (bookings.length === 0) {
@@ -195,6 +198,29 @@ const ClientPastBookingsPage = () => {
               </AnimatePresence>
             </div>
           )}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-10">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+                className="px-4 py-2 rounded-lg bg-gray-200 disabled:opacity-50"
+              >
+                Prev
+              </button>
+
+              <span className="px-4 py-2 font-medium">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+                className="px-4 py-2 rounded-lg bg-emerald-600 text-white disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
       {selectedBooking && selectedTurf && (
@@ -224,32 +250,31 @@ const ClientPastBookingsPage = () => {
         />
       )}
       {showRatingModal && selectedBooking && (
-  <AddRatingModal
-    open={showRatingModal}
-    onClose={() => {
-      setShowRatingModal(false);
-      setSelectedBooking(null);
-    }}
-    onSubmit={async (rating) => {
-      try {
-        await addRating({
-          bookingId: selectedBooking._id,
-          turfId: selectedBooking.turfId,
-          rating,
-        });
+        <AddRatingModal
+          open={showRatingModal}
+          onClose={() => {
+            setShowRatingModal(false);
+            setSelectedBooking(null);
+          }}
+          onSubmit={async (rating) => {
+            try {
+              await addRating({
+                bookingId: selectedBooking._id,
+                turfId: selectedBooking.turfId,
+                rating,
+              });
 
-        successToast("Rating submitted successfully ⭐");
-        fetchBookings();
-      } catch {
-        errorToast("Failed to submit rating");
-      } finally {
-        setShowRatingModal(false);
-        setSelectedBooking(null);
-      }
-    }}
-  />
-)}
-
+              successToast("Rating submitted successfully ⭐");
+              fetchBookings();
+            } catch {
+              errorToast("Failed to submit rating");
+            } finally {
+              setShowRatingModal(false);
+              setSelectedBooking(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

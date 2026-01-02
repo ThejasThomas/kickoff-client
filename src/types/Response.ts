@@ -129,7 +129,11 @@ export interface IWalletBalanceResponse {
 }
 export interface ICancelRequestResponse {
   success: boolean;
-  data: ICancelRequestItem[];
+  requests:ICancelRequestItem[]
+  total:number;
+  page:number;
+  limit:number;
+  totalPages:number;
 }
 
 export interface IHandleCancelActionResponse {
