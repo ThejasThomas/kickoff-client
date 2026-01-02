@@ -22,10 +22,13 @@ const OwnerDashboardPage = () => {
   );
   const [loading, setLoading] = useState(false);
   const [days, setDays] = useState(7);
+  const [transactionPage,setTransactionPage]=useState(1)
+  const [transactionTotal,setTransactionTotal]=useState(1)
+
+  const limit=5;
   const navigate = useNavigate();
   useEffect(() => {
     fetchDashboard();
-    fetchTransactions();
   }, [days]);
 
   const fetchDashboard = async () => {
@@ -43,13 +46,17 @@ const OwnerDashboardPage = () => {
 
   const fetchTransactions = async () => {
     try {
-      const res = await getOwnerWalletTransactions(1, 5);
+      const res = await getOwnerWalletTransactions(transactionPage, limit);
       setTransactions(res.transactions);
+      setTransactionTotal(res.totalPages||1)
     } catch (err) {
       console.error("[v0] Failed to fetch wallet transactions", err);
     }
   };
 
+  useEffect(() => {
+  fetchTransactions();
+}, [transactionPage]);
   const getChartData = () => {
   if (!data) return [];
 
@@ -193,6 +200,10 @@ const OwnerDashboardPage = () => {
         {/* Recent Transactions */}
         <WalletTransactions
           transactions={transactions}
+          page ={transactionPage}
+          totalPages={transactionTotal}
+          onPrev={()=>setTransactionPage((p)=>Math.max(1,p-1))}
+          onNext={()=>setTransactionPage((p)=>Math.min(transactionTotal,p+1))}
           onViewAll={() => navigate("/turfOwner/transactions")}
         />
       </div>

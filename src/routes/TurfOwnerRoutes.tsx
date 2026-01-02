@@ -42,7 +42,7 @@ const TurfOwnerRoutes = () => {
           />
         }
       />
-        <Route path="/retryedit-turf/:id" element={<RetryUpdateTurfWrapper />} />
+      <Route path="/retryedit-turf/:id" element={<RetryUpdateTurfWrapper />} />
 
       <Route
         element={
@@ -65,22 +65,36 @@ const TurfOwnerRoutes = () => {
         ></Route>
         <Route path="/add-turf" element={<RegisterTurfPage />}></Route>
         <Route path="/my-turf" element={<MyTurfPage />}></Route>
-        <Route path="/add-slots" element={<AddSlotsPage/>}></Route>
-        <Route path="/generate-slots/:id" element={<GenerateSlotsPage/>}></Route>
+        <Route path="/add-slots" element={<AddSlotsPage />}></Route>
+        <Route
+          path="/generate-slots/:id"
+          element={<GenerateSlotsPage />}
+        ></Route>
         <Route path="/edit-turf/:id" element={<EditTurfWrapper />} />
-        <Route path="/view-slots/:id" element={<ViewSlotsPage/>} />
-        <Route path="/re-apply-turf" element={<TurfReApplyPage/>}/>
-        <Route path="/transactions" element={<WalletTransactionsPage/>}/>
-        <Route path="/owner-invoice-download" element={<OwnerInvoiceDownloadPage/>}/>
-        <Route path="/add-offline-booking/:turfId" element={<AddOfflineBooking/>}/>
-        <Route path="/slot-cancellation" element={<SlotCancellationPage/>}/>
-        <Route path="/invoice-owner-bookings" element={<InvoiceOwnerBookingsPage/>}/>
-        <Route path="/owner-earnings" element={<OwnerEarnings/>}/>
-        <Route path="/cancel-booking-requests" element={<CancelRequestsPage/>}/>
-        <Route path="/wallet" element={<OwnerWalletPage/>}/>
-        <Route path="/turfsbooking" element={<ApprovedTurfsPage/>} />
-        <Route path="/bookings/:turfId" element={<BookingsPage/>} />
-        
+        <Route path="/view-slots/:id" element={<ViewSlotsPage />} />
+        <Route path="/re-apply-turf" element={<TurfReApplyPage />} />
+        <Route path="/transactions" element={<WalletTransactionsPage />} />
+        <Route
+          path="/owner-invoice-download"
+          element={<OwnerInvoiceDownloadPage />}
+        />
+        <Route
+          path="/add-offline-booking/:turfId"
+          element={<AddOfflineBooking />}
+        />
+        <Route path="/slot-cancellation" element={<SlotCancellationPage />} />
+        <Route
+          path="/invoice-owner-bookings"
+          element={<InvoiceOwnerBookingsPage />}
+        />
+        <Route path="/owner-earnings" element={<OwnerEarnings />} />
+        <Route
+          path="/cancel-booking-requests"
+          element={<CancelRequestsPage />}
+        />
+        <Route path="/wallet" element={<OwnerWalletPage />} />
+        <Route path="/turfsbooking" element={<ApprovedTurfsPage />} />
+        <Route path="/bookings/:turfId" element={<BookingsPage />} />
       </Route>
 
       <Route
@@ -101,8 +115,7 @@ const TurfOwnerRoutes = () => {
           />
         }
       />
-                      <Route path="*" element={<NotFound />} />
-
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

@@ -12,17 +12,24 @@ const CancelRequestsPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [selected, setSelected] = useState<ICancelRequestItem | null>(null);
   const { successToast, errorToast } = useToaster();
+  const [page,setPage]=useState(1)
+  const [totalPages,setTotalPages]=useState(1)
+  const LIMIT=4;
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+  }, [page]);
 
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const res = await getCancelRequests();
+      const res = await getCancelRequests(page,LIMIT);
       console.log('res',res)
-      if (res.success) setRequests(res.data);
+      if (res.success) {
+        setRequests(res.requests);
+        setTotalPages(res.totalPages ||1)
+
+      }
     } catch {
       errorToast("Failed to fetch cancel requests");
     } finally {
@@ -206,6 +213,30 @@ const CancelRequestsPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {totalPages > 1 && (
+  <div className="flex justify-center gap-4 mt-10">
+    <button
+      disabled={page === 1}
+      onClick={() => setPage((p) => Math.max(1, p - 1))}
+      className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+    >
+      Prev
+    </button>
+
+    <span className="px-4 py-2 font-medium">
+      Page {page} of {totalPages}
+    </span>
+
+    <button
+      disabled={page === totalPages}
+      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+      className="px-4 py-2 bg-emerald-600 text-white rounded disabled:opacity-50"
+    >
+      Next
+    </button>
+  </div>
+)}
+
     </div>
   );
 };

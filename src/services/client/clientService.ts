@@ -119,9 +119,9 @@ export const getBookingDetails = async (
   );
   return response.data;
 };
-export const getpastbookings = async (): Promise<IBookResponse> => {
+export const getpastbookings = async (page=1,limit=3): Promise<IBookResponse> => {
   const response = await axiosInstance.get<IBookResponse>(
-    CLIENT_ROUTE.GET_PAST_BOOKINGS
+    `${CLIENT_ROUTE.GET_PAST_BOOKINGS}?page=${page}&limit=${limit}`
   );
   return response.data;
 };

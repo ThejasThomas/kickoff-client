@@ -164,14 +164,15 @@ export const getusersBookings = async ({
   return response.data;
 };
 
-export const getCancelRequests = async (): Promise<ICancelRequestResponse> => {
+export const getCancelRequests = async (
+  page = 1,
+  limit = 4
+): Promise<ICancelRequestResponse> => {
   const response = await axiosInstance.get<ICancelRequestResponse>(
-    OWNER_ROUTE.GET_CANCEL_REQUESTS
+    OWNER_ROUTE.GET_CANCEL_REQUESTS,
+    { params: { page, limit } }
   );
-  return {
-    success: response.data.success,
-    data: response.data.data || [],
-  };
+  return response.data;
 };
 
 export const handleCancelRequestAction = async (
