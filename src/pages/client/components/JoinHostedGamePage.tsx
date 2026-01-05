@@ -1,4 +1,9 @@
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { IndianRupee, MapPin, Clock, Users, Phone, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import type { IHostedGameItem } from "@/types/host_game_type";
@@ -6,107 +11,123 @@ import type { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getHostedGamesById, joinHostedGame } from "@/services/client/clientService";
+import {
+  getHostedGamesById,
+  joinHostedGame,
+} from "@/services/client/clientService";
 import JoinGameStripeModal from "@/components/Payments/JoinHostedGameStripeModal";
 
-
 const JoinHostedGamePage = () => {
-
-  
-const [showStripe, setShowStripe] = useState(false);
-const [isProcessing, setIsProcessing] = useState(false);
-const [hasHandledStripe, setHasHandledStripe] = useState(false);
-
+  const [showStripe, setShowStripe] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [hasHandledStripe, setHasHandledStripe] = useState(false);
+  const [loading,setLoading]=useState(true)
   const [searchParams] = useSearchParams();
-const status = searchParams.get("status");
-const sessionId = searchParams.get("session_id");
+  const status = searchParams.get("status");
+  const sessionId = searchParams.get("session_id");
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
-const [game, setGame] = useState<IHostedGameItem | null>(
-  location.state?.game || null
-);
-useEffect(() => {
-  if (game) return;      
-  if (!id) return;       
+  const [game, setGame] = useState<IHostedGameItem | null>(
+    location.state?.game || null
+  );
+  useEffect(() => {
+    if (game){
+      setLoading(false)
+      return
+    } 
+    if (!id) return;
 
-  const fetchGame = async () => {
-    try {
-      const res = await getHostedGamesById(id);
+    const fetchGame = async () => {
+      try {
+        setLoading(true)
+        const res = await getHostedGamesById(id);
 
-      if (!res?.success || !res?.game) {
-        toast.error("Game not found");
+        if (!res?.success || !res?.game) {
+          setLoading(false)
+          toast.error("Game not found");
+          navigate("/hosted-games");
+          return;
+        }
+
+        setGame(res.game);
+        setLoading(false)
+      } catch (err) {
+        setLoading(false)
+        console.log(err);
+        toast.error("Failed to load game");
         navigate("/hosted-games");
-        return;
       }
+    };
 
-      setGame(res.game);
-    } catch (err) {
-      console.log(err)
-      toast.error("Failed to load game");
-      navigate("/hosted-games");
+    fetchGame();
+  }, [id, game, navigate]);
+
+  useEffect(() => {
+    if (!game || hasHandledStripe) return;
+
+    if (status === "success" && sessionId) {
+      setHasHandledStripe(true);
+      handleStripeSuccess();
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
+    if (status === "cancelled") {
+      toast("Payment cancelled");
+      setHasHandledStripe(true);
+    }
+  }, [status, sessionId, game]);
+
+  const handleStripeSuccess = async () => {
+    if (!game) return;
+    try {
+      setIsProcessing(true);
+
+      const resp = await joinHostedGame(game._id);
+
+      if (!resp.success) throw new Error(resp.message);
+
+      toast("Joined Game Successfully ⚽");
+      setIsProcessing(false);
+
+      setTimeout(() => {
+        navigate("/hosted-games");
+      }, 2000);
+    } catch (err: any) {
+      toast(err.message || "Failed to join game");
+      setIsProcessing(false);
     }
   };
 
-  fetchGame();
-}, [id, game, navigate]);
+  const userId = useSelector((state: RootState) => state.client.client?.userId);
+  console.log("iddd", userId);
+
+  if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Loading game details...
+    </div>
+  );
+}
+
+if (!game) {
+  return (
+    <div className="min-h-screen flex items-center justify-center text-red-500">
+      Game not found. Please go back.
+    </div>
+  );
+}
 
 
-useEffect(() => {
-  if (!game || hasHandledStripe) return;
-
-  if (status === "success" && sessionId) {
-    setHasHandledStripe(true);
-    handleStripeSuccess();
-    window.history.replaceState({}, "", window.location.pathname);
-  }
-
-  if (status === "cancelled") {
-    toast("Payment cancelled");
-    setHasHandledStripe(true);
-  }
-}, [status, sessionId, game]);
-
-const handleStripeSuccess = async () => {
-  if(!game)return
-  try {
-    setIsProcessing(true);
-
-    const resp = await joinHostedGame(game._id);
-
-    if (!resp.success) throw new Error(resp.message);
-
-    toast("Joined Game Successfully ⚽");
-    setIsProcessing(false);
-
-    setTimeout(() => {
-      navigate("/hosted-games");
-    }, 2000);
-  } catch (err: any) {
-    toast(err.message || "Failed to join game");
-    setIsProcessing(false);
-  }
-};
-
-
-const userId = useSelector(
-  (state: RootState) => state.client.client?.userId
-);
-console.log('iddd',userId)
-
-
-  if (!game) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        Game not found. Please go back.
-      </div>
-    );
-  }
-
-const playersCount = game.players?.length || 0;
-const isFull = playersCount >= game.capacity;
+  const playersCount = game.players?.length || 0;
+  const isFull = playersCount >= game.capacity;
 
   const isHost = userId === game.hostUserId;
+  const isJoined = game.players.some(
+    (player) => player.userId === userId && player.status !== "cancelled"
+  );
+
+  const isParticipant = isHost || isJoined;
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
@@ -122,23 +143,22 @@ const isFull = playersCount >= game.capacity;
       </div>
 
       {/* ✅ TURF IMAGE */}
-     <img
-  src={
-    game.turf?.images?.[0] ||
-    "https://images.pexels.com/photos/274422/pexels-photo-274422.jpeg"
-  }
-  alt="turf"
-  onClick={() =>
-    navigate(`/turfoverview/${game.turfId}`, {
-      state: {
-        from: `/hosted-games/join-hosted-game/${game._id}`,
-        game // ✅ helps back navigation
-      },
-    })
-  }
-  className="w-full h-64 object-cover rounded-xl cursor-pointer hover:opacity-90 transition"
-/>
-
+      <img
+        src={
+          game.turf?.images?.[0] ||
+          "https://images.pexels.com/photos/274422/pexels-photo-274422.jpeg"
+        }
+        alt="turf"
+        onClick={() =>
+          navigate(`/turfoverview/${game.turfId}`, {
+            state: {
+              from: `/hosted-games/join-hosted-game/${game._id}`,
+              game, // ✅ helps back navigation
+            },
+          })
+        }
+        className="w-full h-64 object-cover rounded-xl cursor-pointer hover:opacity-90 transition"
+      />
 
       {/* ✅ GAME INFO */}
       <div className="bg-white shadow rounded-xl p-6 space-y-4">
@@ -192,8 +212,9 @@ const isFull = playersCount >= game.capacity;
 
       {/* ✅ PLAYERS LIST */}
       <div className="bg-white shadow rounded-xl p-6">
-        <h3 className="font-semibold text-lg mb-3">{playersCount} / {game.capacity} players joined
-</h3>
+        <h3 className="font-semibold text-lg mb-3">
+          {playersCount} / {game.capacity} players joined
+        </h3>
 
         {game.players.length === 0 ? (
           <p className="text-gray-500">No players joined yet</p>
@@ -228,33 +249,35 @@ const isFull = playersCount >= game.capacity;
 
       {/* ✅ JOIN & PAY BUTTON */}
       <motion.button
-  whileHover={{ scale: 1.02 }}
-  whileTap={{ scale: 0.97 }}
-  disabled={isFull || game.status !== "open" || isHost || isProcessing}
-  onClick={() => setShowStripe(true)}
-  className="w-full py-4 bg-primary text-white text-lg rounded-xl font-semibold disabled:bg-gray-300"
->
-  {isHost
-    ? "You Are the Host"
-    : isFull
-    ? "Game Full"
-    : isProcessing
-    ? "Processing..."
-    : `Join & Pay ₹${game.pricePerPlayer}`}
-</motion.button>
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        disabled={
+          isParticipant || isFull || game.status !== "open" || isProcessing
+        }
+        onClick={() => setShowStripe(true)}
+        className="w-full py-4 bg-primary text-white text-lg rounded-xl font-semibold disabled:bg-gray-300"
+      >
+        {isHost
+          ? "You Are the Host"
+          : isJoined
+          ? "Already Joined"
+          : isFull
+          ? "Game Full"
+          : isProcessing
+          ? "Processing..."
+          : `Join & Pay ₹${game.pricePerPlayer}`}
+      </motion.button>
 
-{showStripe && (
-  <JoinGameStripeModal
-    amount={game.pricePerPlayer}
-    gameId={game._id}
-    onError={(err) => {
-      setShowStripe(false);
-      toast(err.message);
-    }}
-  />
-)}
-
-
+      {showStripe && (
+        <JoinGameStripeModal
+          amount={game.pricePerPlayer}
+          gameId={game._id}
+          onError={(err) => {
+            setShowStripe(false);
+            toast(err.message);
+          }}
+        />
+      )}
     </div>
   );
 };

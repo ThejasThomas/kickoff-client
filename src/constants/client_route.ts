@@ -15,6 +15,7 @@ export const CLIENT_ROUTE ={
     GET_CHATS:`${BASE_URL.CLIENT}/get-chats`,
     ADDMONEY:`${BASE_URL.CLIENT}/add-money`,
     HOLD_SLOT:`${BASE_URL.CLIENT}/hold-slot`,
+    RELEASE_SLOT:`${BASE_URL.CLIENT}/release-slot`,
     CANCEL_HOSTED_GAME_REQUEST:`${BASE_URL.CLIENT}/cancel-hosted-game`,
     GET_TURF_RATINGS:`${BASE_URL.CLIENT}/get-ratings`,
     GETUPCOMIG_HOSTED_GAME_BY_USER:`${BASE_URL.CLIENT}/upcoming-hosted-gamesbyuser`,

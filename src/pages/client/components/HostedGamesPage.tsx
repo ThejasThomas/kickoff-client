@@ -1,57 +1,65 @@
-import { useEffect, useState, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { MapPin, Clock, Users, IndianRupee, Search, Filter } from "lucide-react"
-import { getHostedGames } from "@/services/client/clientService"
-import { useNavigate } from "react-router-dom"
-import { useToaster } from "@/hooks/ui/useToaster"
-import type { IHostedGameItem } from "@/types/host_game_type"
-import type { RootState } from "@/store/store"
-import { useSelector } from "react-redux"
+import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  MapPin,
+  Clock,
+  Users,
+  IndianRupee,
+  Search,
+  Filter,
+} from "lucide-react";
+import { getHostedGames } from "@/services/client/clientService";
+import { useNavigate } from "react-router-dom";
+import { useToaster } from "@/hooks/ui/useToaster";
+import type { IHostedGameItem } from "@/types/host_game_type";
+import type { RootState } from "@/store/store";
+import { useSelector } from "react-redux";
 
 const HostedGamesPage = () => {
-  const [games, setGames] = useState<IHostedGameItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [games, setGames] = useState<IHostedGameItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [page, setPage] = useState(1)
-  const [limit] = useState(6)
-  const [search, setSearch] = useState("")
-  const [minPrice, setMinPrice] = useState<number | undefined>()
-  const [maxPrice, setMaxPrice] = useState<number | undefined>()
-  const [initialLoading, setInitialLoading] = useState(true)
+  const [page, setPage] = useState(1);
+  const [limit] = useState(6);
+  const [search, setSearch] = useState("");
+  const [minPrice, setMinPrice] = useState<number | undefined>();
+  const [maxPrice, setMaxPrice] = useState<number | undefined>();
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const navigate = useNavigate()
-  const { errorToast } = useToaster()
-  const userId = useSelector((state: RootState) => state.client.client?.userId)
+  const navigate = useNavigate();
+  const { errorToast } = useToaster();
+  const userId = useSelector((state: RootState) => state.client.client?.userId);
 
   useEffect(() => {
-    const timer = setTimeout(fetchHostedGames, 400)
-    return () => clearTimeout(timer)
-  }, [page, search, minPrice, maxPrice])
+    const timer = setTimeout(fetchHostedGames, 400);
+    return () => clearTimeout(timer);
+  }, [page, search, minPrice, maxPrice]);
 
   const fetchHostedGames = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await getHostedGames({
         page,
         limit,
         search,
         minPrice,
         maxPrice,
-      })
+      });
+      console.log("resssss", res);
 
       if (res.success) {
-        setGames(res.games || [])
+        setGames(res.games || []);
       }
     } catch (err) {
-      console.log(err)
-      errorToast("Failed to load hosted games")
+      console.log(err);
+      errorToast("Failed to load hosted games");
     } finally {
-      setLoading(false)
-      setInitialLoading(false)
+      setLoading(false);
+      setInitialLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
@@ -72,8 +80,12 @@ const HostedGamesPage = () => {
 
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Hosted Games</h1>
-              <p className="text-slate-600">Find and join exciting games in your area</p>
+              <h1 className="text-4xl font-bold text-slate-900 mb-2">
+                Hosted Games
+              </h1>
+              <p className="text-slate-600">
+                Find and join exciting games in your area
+              </p>
             </div>
           </div>
         </div>
@@ -85,7 +97,9 @@ const HostedGamesPage = () => {
         >
           <div className="flex items-center gap-2 mb-4">
             <Filter className="w-5 h-5 text-slate-700" />
-            <h2 className="text-lg font-semibold text-slate-900">Search & Filters</h2>
+            <h2 className="text-lg font-semibold text-slate-900">
+              Search & Filters
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -98,8 +112,8 @@ const HostedGamesPage = () => {
                 placeholder="Search by turf or location..."
                 value={search}
                 onChange={(e) => {
-                  setPage(1)
-                  setSearch(e.target.value)
+                  setPage(1);
+                  setSearch(e.target.value);
                 }}
                 className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500
@@ -115,8 +129,8 @@ const HostedGamesPage = () => {
                 type=""
                 placeholder="Min Price"
                 onChange={(e) => {
-                  setPage(1)
-                  setMinPrice(Number(e.target.value) || undefined)
+                  setPage(1);
+                  setMinPrice(Number(e.target.value) || undefined);
                 }}
                 className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500
@@ -132,8 +146,8 @@ const HostedGamesPage = () => {
                 type=""
                 placeholder="Max Price"
                 onChange={(e) => {
-                  setPage(1)
-                  setMaxPrice(Number(e.target.value) || undefined)
+                  setPage(1);
+                  setMaxPrice(Number(e.target.value) || undefined);
                 }}
                 className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500
@@ -148,7 +162,11 @@ const HostedGamesPage = () => {
           <div className="flex justify-center items-center py-20">
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: "linear" }}
+              transition={{
+                repeat: Number.POSITIVE_INFINITY,
+                duration: 1,
+                ease: "linear",
+              }}
               className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
             />
           </div>
@@ -156,7 +174,11 @@ const HostedGamesPage = () => {
           <div className="flex justify-center items-center py-12">
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: "linear" }}
+              transition={{
+                repeat: Number.POSITIVE_INFINITY,
+                duration: 1,
+                ease: "linear",
+              }}
               className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full"
             />
           </div>
@@ -170,19 +192,36 @@ const HostedGamesPage = () => {
               <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-10 h-10 text-slate-400" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">No games found</h3>
-              <p className="text-slate-600">Try adjusting your search filters to find more games</p>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                No games found
+              </h3>
+              <p className="text-slate-600">
+                Try adjusting your search filters to find more games
+              </p>
             </div>
           </motion.div>
         ) : (
           <>
             {/* Games Grid */}
             <AnimatePresence mode="popLayout">
-              <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <motion.div
+                layout
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+              >
                 {games.map((game, index) => {
-                  const joined = game.players.length
-                  const isFull = joined >= game.capacity
-                  const isHost = userId === game.hostUserId
+                  const joinedCount = game.players.filter(
+                    (p) => p.status !== "cancelled"
+                  ).length;
+
+                  const isFull = joinedCount >= game.capacity;
+                  const isHost = userId === game.hostUserId;
+
+                  const isJoined = game.players.some(
+                    (player) =>
+                      player.userId === userId && player.status !== "cancelled"
+                  );
+
+                  const isParticipant = isHost || isJoined;
 
                   return (
                     <motion.div
@@ -211,13 +250,30 @@ const HostedGamesPage = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
                         {/* Status Badge */}
-                        <div className="absolute top-3 right-3">
+                        {/* Status Badge */}
+                        <div className="absolute top-3 right-3 flex flex-col gap-1">
                           <span
                             className={`px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm
-                              ${game.status === "open" ? "bg-green-500/90 text-white" : "bg-red-500/90 text-white"}`}
+        ${
+          game.status === "open"
+            ? "bg-green-500/90 text-white"
+            : "bg-red-500/90 text-white"
+        }`}
                           >
                             {game.status.toUpperCase()}
                           </span>
+
+                          {isHost && (
+                            <span className="px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm bg-blue-600 text-white">
+                              HOST
+                            </span>
+                          )}
+
+                          {!isHost && isJoined && (
+                            <span className="px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm bg-yellow-500 text-white">
+                              JOINED
+                            </span>
+                          )}
                         </div>
 
                         {/* Turf Name on Image */}
@@ -233,7 +289,9 @@ const HostedGamesPage = () => {
                         {/* Location */}
                         <div className="flex items-center gap-2 text-slate-600">
                           <MapPin className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm font-medium">{game.turf?.location?.city}</span>
+                          <span className="text-sm font-medium">
+                            {game.turf?.location?.city}
+                          </span>
                         </div>
 
                         {/* Time */}
@@ -252,7 +310,9 @@ const HostedGamesPage = () => {
                           >
                             <IndianRupee className="w-4 h-4" />
                             <span>{game.pricePerPlayer}</span>
-                            <span className="text-xs font-normal text-green-600">/player</span>
+                            <span className="text-xs font-normal text-green-600">
+                              /player
+                            </span>
                           </div>
                         </div>
 
@@ -262,20 +322,30 @@ const HostedGamesPage = () => {
                             <div className="flex items-center gap-2 text-slate-700 font-medium">
                               <Users className="w-4 h-4" />
                               <span>
-                                {joined} / {game.capacity} players
+                                {joinedCount} / {game.capacity} players
                               </span>
                             </div>
-                            <span className="text-slate-500">{Math.round((joined / game.capacity) * 100)}%</span>
+                            <span className="text-slate-500">
+                              {Math.round((joinedCount / game.capacity) * 100)}%
+                            </span>
                           </div>
 
                           {/* Progress Bar */}
                           <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                             <motion.div
                               initial={{ width: 0 }}
-                              animate={{ width: `${(joined / game.capacity) * 100}%` }}
+                              animate={{
+                                width: `${
+                                  (joinedCount / game.capacity) * 100
+                                }%`,
+                              }}
                               transition={{ duration: 0.5, delay: index * 0.1 }}
                               className={`h-full rounded-full ${
-                                isFull ? "bg-red-500" : joined / game.capacity > 0.7 ? "bg-orange-500" : "bg-blue-600"
+                                isFull
+                                  ? "bg-red-500"
+                                  : joinedCount / game.capacity > 0.7
+                                  ? "bg-orange-500"
+                                  : "bg-blue-600"
                               }`}
                             />
                           </div>
@@ -285,27 +355,33 @@ const HostedGamesPage = () => {
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          disabled={(!isHost && isFull) || (!isHost && game.status !== "open")}
+                          disabled={
+                            !isParticipant && (isFull || game.status !== "open")
+                          }
                           onClick={() =>
                             navigate(`join-hosted-game/${game._id}`, {
                               state: { game },
                             })
                           }
                           className={`w-full mt-3 py-3 rounded-lg font-semibold transition-all
-                            duration-200 shadow-md hover:shadow-lg
-                            ${
-                              isHost
-                                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
-                            }
-                            disabled:bg-slate-300 disabled:cursor-not-allowed disabled:shadow-none
-                            disabled:text-slate-500`}
+    duration-200 shadow-md hover:shadow-lg
+    ${
+      isParticipant
+        ? "bg-blue-600 hover:bg-blue-700 text-white"
+        : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+    }
+    disabled:bg-slate-300 disabled:cursor-not-allowed disabled:shadow-none
+    disabled:text-slate-500`}
                         >
-                          {isHost ? "View Details" : isFull ? "Game Full" : "Join Game"}
+                          {isParticipant
+                            ? "View Details"
+                            : isFull
+                            ? "Game Full"
+                            : "Join Game"}
                         </motion.button>
                       </div>
                     </motion.div>
-                  )
+                  );
                 })}
               </motion.div>
             </AnimatePresence>
@@ -327,7 +403,9 @@ const HostedGamesPage = () => {
                 Previous
               </motion.button>
 
-              <div className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow-md">Page {page}</div>
+              <div className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow-md">
+                Page {page}
+              </div>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -348,7 +426,7 @@ const HostedGamesPage = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default HostedGamesPage
+export default HostedGamesPage;

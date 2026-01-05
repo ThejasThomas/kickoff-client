@@ -43,8 +43,10 @@ export const OwnerProfile = ({
   isLoading = false,
 }: TurfOwnerProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [hasEdited, setHasEdited] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const {  errorToast } = useToaster();
+  const { errorToast } = useToaster();
   const { images, handleImageUpload, removeImage } = useImageUploader(
     "turfOwners",
     1
@@ -109,8 +111,6 @@ export const OwnerProfile = ({
 
   const formik = useFormik<ProfileFormData>({
     initialValues: {
-      // _id: profileData?._id || "",
-      // userId: profileData?.userId || "",
       ownerName: profileData?.ownerName || "",
       email: profileData?.email || "",
       phoneNumber: profileData?.phoneNumber || "",
@@ -137,12 +137,13 @@ export const OwnerProfile = ({
           profileImage: finalImage || undefined,
         };
         console.log("ownerDaaata", ownerData);
+        setHasEdited(false)
 
         const response = await updateTurfOwnerProfile(ownerData);
         onSave(response.user);
         setIsEditing(false);
       } catch (err) {
-        console.log(err)
+        console.log(err);
         errorToast("Failed to update profile");
       }
     },
@@ -151,24 +152,20 @@ export const OwnerProfile = ({
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
+const handleEditChange = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  formik.handleChange(e);
+  setHasEdited(true);
+};
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleImageUpload(e.target.files);
       formik.setFieldValue("profileImage", e.target.files[0]);
+      setHasEdited(true)
     }
   };
-
-  // const isProfileComplete =
-  //   formik.isValid &&
-  //   formik.values.ownerName &&
-  //   formik.values.email &&
-  //   formik.values.phoneNumber &&
-  //   formik.values.address &&
-  //   formik.values.city &&
-  //   formik.values.state &&
-  //   formik.values.pinCode &&
-  //   profileImagePreview;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 p-4">
@@ -291,7 +288,10 @@ export const OwnerProfile = ({
                     type="text"
                     name="ownerName"
                     value={formik.values.ownerName}
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      formik.handleChange(e);
+                      setHasEdited(true);
+                    }}
                     onBlur={formik.handleBlur}
                     disabled={!isEditing}
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
@@ -320,7 +320,7 @@ export const OwnerProfile = ({
                     type="email"
                     name="email"
                     value={formik.values.email}
-                    onChange={formik.handleChange}
+                    onChange={handleEditChange}
                     onBlur={formik.handleBlur}
                     disabled={!isEditing}
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
@@ -349,7 +349,7 @@ export const OwnerProfile = ({
                     type="tel"
                     name="phoneNumber"
                     value={formik.values.phoneNumber}
-                    onChange={formik.handleChange}
+                    onChange={handleEditChange}
                     onBlur={formik.handleBlur}
                     disabled={!isEditing}
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
@@ -392,7 +392,7 @@ export const OwnerProfile = ({
                     type="text"
                     name="address"
                     value={formik.values.address}
-                    onChange={formik.handleChange}
+                    onChange={handleEditChange}
                     onBlur={formik.handleBlur}
                     disabled={!isEditing}
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
@@ -420,7 +420,7 @@ export const OwnerProfile = ({
                   type="text"
                   name="city"
                   value={formik.values.city}
-                  onChange={formik.handleChange}
+                  onChange={handleEditChange}
                   onBlur={formik.handleBlur}
                   disabled={!isEditing}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
@@ -446,7 +446,7 @@ export const OwnerProfile = ({
                   type="text"
                   name="state"
                   value={formik.values.state}
-                  onChange={formik.handleChange}
+                  onChange={handleEditChange}
                   onBlur={formik.handleBlur}
                   disabled={!isEditing}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
@@ -472,7 +472,7 @@ export const OwnerProfile = ({
                   type="text"
                   name="pinCode"
                   value={formik.values.pinCode}
-                  onChange={formik.handleChange}
+                  onChange={handleEditChange}
                   onBlur={formik.handleBlur}
                   disabled={!isEditing}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
@@ -519,6 +519,7 @@ export const OwnerProfile = ({
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     setIsEditing(false);
+                    setHasEdited(false)
                     formik.resetForm();
                   }}
                   className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all"
@@ -528,7 +529,7 @@ export const OwnerProfile = ({
 
                 <motion.button
                   type="submit"
-                  disabled={isLoading || !(formik.isValid && formik.dirty)}
+                  disabled={isLoading || !formik.isValid || !hasEdited}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="px-6 py-3 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg hover:from-teal-600 hover:to-green-700 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"

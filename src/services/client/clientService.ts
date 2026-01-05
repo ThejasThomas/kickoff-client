@@ -54,6 +54,18 @@ export const holdSlot =async(data:{
   )
   return response.data;
 }
+export const releaseSlot =async (data:{
+  turfId:string;
+  date:string;
+  startTime:string;
+  endTime:string
+})=>{
+  const response =await axiosInstance.post(
+    CLIENT_ROUTE.RELEASE_SLOT,
+    data
+  );
+  return response.data;
+}
 
 export const getClientProfile = async (): Promise<IClient> => {
   console.log("GETPROFILE route:", CLIENT_ROUTE.GETPROFILE);

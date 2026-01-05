@@ -9,7 +9,6 @@ import { Alert, AlertTitle } from "@mui/material"
 import { Separator } from "@radix-ui/react-dropdown-menu"
 import { AlertDescription } from "@/components/ui/alert "
 
-// Types
 type FallbackRenderer = (error: Error, reset: () => void) => ReactNode
 
 export type ErrorBoundaryProps = {

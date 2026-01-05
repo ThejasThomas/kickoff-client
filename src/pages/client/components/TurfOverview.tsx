@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import type { ITurf } from "@/types/Turf";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   getTurfById,
@@ -22,6 +22,7 @@ import {
   getTurfReviews,
   holdSlot,
   getTurfRatings,
+  releaseSlot,
 } from "@/services/client/clientService";
 import type { ISlot } from "@/types/Slot";
 import HostGameForm from "./HostGameForm";
@@ -51,6 +52,8 @@ const TurfOverview: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const isNavigatingToPaymentRef = useRef(false);
+
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
@@ -83,7 +86,6 @@ const TurfOverview: React.FC = () => {
 
     fetchTurf();
   }, [id]);
-
 
   useEffect(() => {
     if (!id) return;
@@ -123,7 +125,7 @@ const TurfOverview: React.FC = () => {
     fetchSlots();
   }, [id, selectedDate]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!id) return;
 
     const fetchRatings = async () => {
@@ -131,7 +133,7 @@ const TurfOverview: React.FC = () => {
         setRatingLoading(true);
 
         const res = await getTurfRatings(id, ratingPage, 5);
-        console.log('ress',res)
+        console.log("ress", res);
 
         if (res.success) {
           setRatings(res.ratings);
@@ -147,6 +149,68 @@ const TurfOverview: React.FC = () => {
 
     fetchRatings();
   }, [id, ratingPage]);
+  useEffect(() => {
+    return () => {
+      if (isNavigatingToPaymentRef.current) return;
+
+      selectedSlots.forEach((slotId) => {
+        const slot = slots.find((s) => s.id === slotId);
+        if (!slot || !id) return;
+
+        releaseSlot({
+          turfId: id,
+          date: selectedDate,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        });
+      });
+    };
+  }, [selectedSlots, slots, id, selectedDate]);
+
+  useEffect(() => {
+    const handleUnload = () => {
+      if (isNavigatingToPaymentRef.current) return;
+
+      selectedSlots.forEach((slotId) => {
+        const slot = slots.find((s) => s.id === slotId);
+        if (!slot || !id) return;
+
+        navigator.sendBeacon(
+          "/client/release-slot",
+          JSON.stringify({
+            turfId: id,
+            date: selectedDate,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+          })
+        );
+      });
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, [selectedSlots, slots, id, selectedDate]);
+  useEffect(() => {
+    if (!id || slots.length === 0) return;
+
+    const heldSlots = JSON.parse(sessionStorage.getItem("heldSlots") || "[]");
+
+    if (heldSlots.length === 0) return;
+
+    heldSlots.forEach((slotId: string) => {
+      const slot = slots.find((s) => s.id === slotId);
+      if (!slot) return;
+
+      releaseSlot({
+        turfId: id,
+        date: selectedDate,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+      });
+    });
+
+    sessionStorage.removeItem("heldSlots");
+  }, [slots, id, selectedDate]);
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) =>
@@ -160,15 +224,34 @@ const TurfOverview: React.FC = () => {
     );
   };
 
-  const handleSlotSelect = (slotId: string) => {
-    setSelectedSlots((prev) => {
-      const isCurrentlySelected = prev.includes(slotId);
-      if (isCurrentlySelected) {
-        return prev.filter((id) => id !== slotId);
+  const handleSlotSelect = async (slotId: string) => {
+    const slot = slots.find((slot) => slot.id === slotId);
+    if (!slot || !id) return;
+    const isSelected = selectedSlots.includes(slotId);
+
+    try {
+      if (isSelected) {
+        await releaseSlot({
+          turfId: id,
+          date: selectedDate,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        });
+
+        setSelectedSlots((prev) => prev.filter((s) => s !== slotId));
       } else {
-        return [...prev, slotId];
+        await holdSlot({
+          turfId: id,
+          date: selectedDate,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        });
+
+        setSelectedSlots((prev) => [...prev, slotId]);
       }
-    });
+    } catch (error: any) {
+      errorToast(error.response?.data?.message || "Slot unavailable");
+    }
   };
 
   const getTotalPrice = () => {
@@ -177,60 +260,46 @@ const TurfOverview: React.FC = () => {
   };
 
   const handleContinue = async () => {
-    if (selectedSlots.length === 0) {
-      return;
-    }
-    try {
-      for (const slotId of selectedSlots) {
-        const slot = slots.find((s) => s.id === slotId);
-        if (!slot) continue;
+    if (selectedSlots.length === 0) return;
+    isNavigatingToPaymentRef.current = true;
 
-        await holdSlot({
-          turfId: id!,
-          date: selectedDate,
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-        });
-      }
-      const selectedSlotDetails = selectedSlots.map((slotId) => {
-        const slot = slots.find((s) => s.id === slotId);
+    const selectedSlotDetails = selectedSlots.map((slotId) => {
+      const slot = slots.find((s) => s.id === slotId);
 
-        return {
-          id: slotId,
-          startTime: slot?.startTime,
-          endTime: slot?.endTime,
-          price: turf?.pricePerHour,
-          duration: slot?.duration,
-        };
-      });
-
-      const formattedSlots = selectedSlotDetails.map(
-        (slot) => `${slot.startTime} - ${slot.endTime}`
-      );
-
-      const bookingData = {
-        turfId: id,
-        turfName: turf?.turfName || "",
-        location: `${turf?.location?.address}, ${turf?.location?.city}` || "",
-        date: new Date(selectedDate).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
-        slots: formattedSlots,
-        selectedSlotIds: selectedSlots,
-        slotDetails: selectedSlotDetails,
-        totalAmount: getTotalPrice(),
-        contactNumber: turf?.contactNumber || "",
-        courtType: turf?.courtType || "",
+      return {
+        id: slotId,
+        startTime: slot?.startTime,
+        endTime: slot?.endTime,
+        price: turf?.pricePerHour,
+        duration: slot?.duration,
       };
+    });
 
-      navigate("/paymentpage", {
-        state: { bookingData },
-      });
-    } catch (error: any) {
-      errorToast(error.response?.data?.message);
-    }
+    const formattedSlots = selectedSlotDetails.map(
+      (slot) => `${slot.startTime} - ${slot.endTime}`
+    );
+
+    const bookingData = {
+      turfId: id,
+      turfName: turf?.turfName || "",
+      location: `${turf?.location?.address}, ${turf?.location?.city}` || "",
+      date: new Date(selectedDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+      slots: formattedSlots,
+      selectedSlotIds: selectedSlots,
+      slotDetails: selectedSlotDetails,
+      totalAmount: getTotalPrice(),
+      contactNumber: turf?.contactNumber || "",
+      courtType: turf?.courtType || "",
+    };
+    sessionStorage.setItem("heldSlots", JSON.stringify(selectedSlots));
+
+    navigate("/paymentpage", {
+      state: { bookingData },
+    });
   };
 
   const isDefaultSlot = (slot: ISlot) => {
@@ -401,24 +470,24 @@ const TurfOverview: React.FC = () => {
                 {turf.turfName}
               </h1>
               <div className="flex items-center gap-3 mt-3">
-          <div className="flex gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                size={18}
-                className={
-                  star <= Math.round(averageRating)
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "text-gray-300"
-                }
-              />
-            ))}
-          </div>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={18}
+                      className={
+                        star <= Math.round(averageRating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
+                      }
+                    />
+                  ))}
+                </div>
 
-          {/* <span className="text-white text-sm">
+                {/* <span className="text-white text-sm">
             {averageRating.toFixed(1)}
           </span> */}
-        </div>
+              </div>
               <div className="flex items-center gap-4 text-white/90 text-lg">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
@@ -430,7 +499,6 @@ const TurfOverview: React.FC = () => {
             </motion.div>
           </div>
         </div>
-        
 
         {/* Image Indicators */}
         {turf.images && turf.images.length > 1 && (
@@ -447,7 +515,6 @@ const TurfOverview: React.FC = () => {
           </div>
         )}
       </div>
-      
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

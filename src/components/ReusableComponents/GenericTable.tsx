@@ -17,6 +17,7 @@ import {
   Plus,
 } from "lucide-react";
 import { TableLoadingSkeleton } from "../Skeletons/TableLoadingSkeleton";
+import { createPortal } from "react-dom";
 
 export interface TableRef<T extends BaseItem> {
   updateItemOptimistically: (id: string, updates: Partial<T>) => void;
@@ -78,6 +79,10 @@ const GenericTableInner = <T extends BaseItem>(
     totalItems: 0,
     itemsPerPage,
   });
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
 
   useImperativeHandle(ref, () => ({
     updateItemOptimistically: (id: string, updates: Partial<T>) => {
@@ -94,6 +99,9 @@ const GenericTableInner = <T extends BaseItem>(
       loadData(pagination.currentPage, searchQuery);
     },
   }));
+  const DropdownPortal = ({ children }: { children: React.ReactNode }) => {
+    return createPortal(children, document.body);
+  };
 
   const loadData = async (page: number = 1, search: string = "") => {
     setLoading(true);
@@ -352,59 +360,73 @@ const GenericTableInner = <T extends BaseItem>(
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+
+                      const rect = e.currentTarget.getBoundingClientRect();
+
+                      setDropdownPosition({
+                        top: rect.bottom + window.scrollY,
+                        left: rect.right + window.scrollX - 224, // dropdown width
+                      });
+
                       setActiveDropdown(
                         activeDropdown === item._id ? null : item._id
                       );
                     }}
-                    className="p-2 hover:bg-gray-700 rounded-full transition-colors"
+                    className="p-2 hover:bg-gray-700 rounded-full"
                   >
                     <MoreVertical size={18} className="text-gray-400" />
                   </button>
 
-                  {activeDropdown === item._id && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -5 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-56 bg-gray-800 rounded-lg shadow-2xl border border-gray-700 z-[9999] overflow-hidden"
-                    >
-                      {actions
-                        .filter(
-                          (action) =>
-                            !action.condition || action.condition(item)
-                        )
-                        .map((action, index) => (
-                          <button
-                            key={index}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleActionClick(action, item);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors
-                ${
-                  action.variant === "danger"
-                    ? "text-red-400 hover:bg-red-500/10"
-                    : action.variant === "warning"
-                    ? "text-yellow-400 hover:bg-yellow-500/10"
-                    : action.variant === "success"
-                    ? "text-green-400 hover:bg-green-500/10"
-                    : "text-white hover:bg-gray-700"
-                }
-              `}
-                          >
-                            {typeof action.icon === "function"
-                              ? action.icon(item)
-                              : action.icon}
-
-                            <span>
-                              {typeof action.label === "function"
-                                ? action.label(item)
-                                : action.label}
-                            </span>
-                          </button>
-                        ))}
-                    </motion.div>
+                  {activeDropdown === item._id && dropdownPosition && (
+                    <DropdownPortal>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        style={{
+                          position: "absolute",
+                          top: dropdownPosition.top,
+                          left: dropdownPosition.left,
+                          zIndex: 100000,
+                        }}
+                        className="w-56 bg-gray-800 rounded-lg shadow-2xl border border-gray-700 overflow-hidden"
+                      >
+                        {actions
+                          .filter(
+                            (action) =>
+                              !action.condition || action.condition(item)
+                          )
+                          .map((action, index) => (
+                            <button
+                              key={index}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleActionClick(action, item);
+                              }}
+                              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors
+              ${
+                action.variant === "danger"
+                  ? "text-red-400 hover:bg-red-500/10"
+                  : action.variant === "warning"
+                  ? "text-yellow-400 hover:bg-yellow-500/10"
+                  : action.variant === "success"
+                  ? "text-green-400 hover:bg-green-500/10"
+                  : "text-white hover:bg-gray-700"
+              }`}
+                            >
+                              {typeof action.icon === "function"
+                                ? action.icon(item)
+                                : action.icon}
+                              <span>
+                                {typeof action.label === "function"
+                                  ? action.label(item)
+                                  : action.label}
+                              </span>
+                            </button>
+                          ))}
+                      </motion.div>
+                    </DropdownPortal>
                   )}
                 </div>
               )}
