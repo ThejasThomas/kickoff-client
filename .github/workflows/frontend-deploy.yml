@@ -21,8 +21,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+
+
       - name: Build project
         run: npm run build
+        env:
+          VITE_FRONTEND_URL: ${{ secrets.VITE_FRONTEND_URL }}
+          VITE_AUTH_API_URI: ${{ secrets.VITE_AUTH_API_URI }}
+          VITE_PRIVATE_API_URL: ${{ secrets.VITE_PRIVATE_API_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_CLOUD_NAME: ${{ secrets.VITE_CLOUD_NAME }}
+          VITE_STRIPE_PUBLIC_KEY: ${{ secrets.VITE_STRIPE_PUBLIC_KEY }}
+
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
