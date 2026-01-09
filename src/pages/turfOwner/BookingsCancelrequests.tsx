@@ -12,22 +12,17 @@ const CancelRequestsPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [selected, setSelected] = useState<ICancelRequestItem | null>(null);
   const { successToast, errorToast } = useToaster();
-  const [page,setPage]=useState(1)
-  const [totalPages,setTotalPages]=useState(1)
-  const LIMIT=4;
-
   useEffect(() => {
     fetchRequests();
-  }, [page]);
+  }, []);
 
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const res = await getCancelRequests(page,LIMIT);
+      const res = await getCancelRequests();
       console.log('res',res)
       if (res.success) {
         setRequests(res.requests);
-        setTotalPages(res.totalPages ||1)
 
       }
     } catch {
@@ -60,21 +55,23 @@ const CancelRequestsPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center p-10">
-        <Loader2 className="animate-spin text-emerald-600 w-8 h-8" />
-      </div>
-    );
-  }
+
+
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Cancellation Requests</h1>
+  <div className="p-8 max-w-5xl mx-auto relative min-h-[500px]">
 
-      {!requests || requests.length === 0 ? (
-        <p className="text-gray-500 mt-10 text-center">No pending requests</p>
-      ) : (
+       {loading && (
+      <div className="absolute inset-0 bg-white/70 flex justify-center items-center z-50 rounded-xl">
+        <Loader2 className="animate-spin text-emerald-600 w-10 h-10" />
+      </div>
+    )}
+
+    <h1 className="text-3xl font-bold mb-6">Cancellation Requests</h1>
+
+    {!requests || requests.length === 0 ? (
+      <p className="text-gray-500 mt-10 text-center">No pending requests</p>
+    )  : (
         <div className="grid gap-6">
           {requests.map((req, index) => (
             <motion.div
@@ -213,7 +210,7 @@ const CancelRequestsPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {totalPages > 1 && (
+      {/* {totalPages > 1 && (
   <div className="flex justify-center gap-4 mt-10">
     <button
       disabled={page === 1}
@@ -235,10 +232,11 @@ const CancelRequestsPage = () => {
       Next
     </button>
   </div>
-)}
+)} */}
 
     </div>
   );
-};
+}
+
 
 export default CancelRequestsPage;
