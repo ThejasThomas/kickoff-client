@@ -1,10 +1,28 @@
 import { useEffect, useState } from "react";
-import { Loader2, Calendar, Clock, User, DollarSign, Phone, Mail } from "lucide-react";
+import {
+  Loader2,
+  Calendar,
+  Clock,
+  User,
+  DollarSign,
+  Phone,
+  Mail,
+} from "lucide-react";
 import { useToaster } from "@/hooks/ui/useToaster";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import type { ICancelRequestItem } from "@/types/cancel_requests_type";
-import { getCancelRequests, handleCancelRequestAction } from "@/services/TurfOwner/turfOwnerService";
+import {
+  getCancelRequests,
+  handleCancelRequestAction,
+} from "@/services/TurfOwner/turfOwnerService";
 
 const CancelRequestsPage = () => {
   const [requests, setRequests] = useState<ICancelRequestItem[]>([]);
@@ -12,6 +30,7 @@ const CancelRequestsPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [selected, setSelected] = useState<ICancelRequestItem | null>(null);
   const { successToast, errorToast } = useToaster();
+
   useEffect(() => {
     fetchRequests();
   }, []);
@@ -20,10 +39,9 @@ const CancelRequestsPage = () => {
     setLoading(true);
     try {
       const res = await getCancelRequests();
-      console.log('res',res)
+      console.log("res", res);
       if (res.success) {
         setRequests(res.requests);
-
       }
     } catch {
       errorToast("Failed to fetch cancel requests");
@@ -37,14 +55,16 @@ const CancelRequestsPage = () => {
     setActionLoading(true);
 
     try {
-      const res = await handleCancelRequestAction(selected._id,action,selected.userId);
+      const res = await handleCancelRequestAction(
+        selected._id,
+        action,
+        selected.userId
+      );
 
       successToast(res.message);
 
       setRequests((prev) =>
-        prev.map((r) =>
-          r._id === selected._id ? { ...r, status: action } : r
-        )
+        prev.map((r) => (r._id === selected._id ? { ...r, status: action } : r))
       );
 
       setSelected(null);
@@ -55,23 +75,19 @@ const CancelRequestsPage = () => {
     }
   };
 
-
-
-
   return (
-  <div className="p-8 max-w-5xl mx-auto relative min-h-[500px]">
+    <div className="p-8 max-w-5xl mx-auto relative min-h-[500px]">
+      {loading && (
+        <div className="absolute inset-0 bg-white/70 flex justify-center items-center z-50 rounded-xl">
+          <Loader2 className="animate-spin text-emerald-600 w-10 h-10" />
+        </div>
+      )}
 
-       {loading && (
-      <div className="absolute inset-0 bg-white/70 flex justify-center items-center z-50 rounded-xl">
-        <Loader2 className="animate-spin text-emerald-600 w-10 h-10" />
-      </div>
-    )}
+      <h1 className="text-3xl font-bold mb-6">Cancellation Requests</h1>
 
-    <h1 className="text-3xl font-bold mb-6">Cancellation Requests</h1>
-
-    {!requests || requests.length === 0 ? (
-      <p className="text-gray-500 mt-10 text-center">No pending requests</p>
-    )  : (
+      {!requests || requests.length === 0 ? (
+        <p className="text-gray-500 mt-10 text-center">No pending requests</p>
+      ) : (
         <div className="grid gap-6">
           {requests.map((req, index) => (
             <motion.div
@@ -169,7 +185,9 @@ const CancelRequestsPage = () => {
 
               {/* BOOKING SECTION */}
               <div className="border rounded-lg p-4 bg-gray-50">
-                <h3 className="font-semibold text-lg mb-2">Booking Information</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  Booking Information
+                </h3>
 
                 <p className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" /> {selected.booking?.date}
@@ -185,7 +203,9 @@ const CancelRequestsPage = () => {
 
               {/* REASON */}
               <div className="border rounded-lg p-4 bg-gray-50">
-                <h3 className="font-semibold text-lg mb-2">Reason for Cancellation</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  Reason for Cancellation
+                </h3>
                 <p className="text-gray-700">{selected.reason}</p>
               </div>
             </div>
@@ -210,33 +230,8 @@ const CancelRequestsPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* {totalPages > 1 && (
-  <div className="flex justify-center gap-4 mt-10">
-    <button
-      disabled={page === 1}
-      onClick={() => setPage((p) => Math.max(1, p - 1))}
-      className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-    >
-      Prev
-    </button>
-
-    <span className="px-4 py-2 font-medium">
-      Page {page} of {totalPages}
-    </span>
-
-    <button
-      disabled={page === totalPages}
-      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-      className="px-4 py-2 bg-emerald-600 text-white rounded disabled:opacity-50"
-    >
-      Next
-    </button>
-  </div>
-)} */}
-
     </div>
   );
-}
-
+};
 
 export default CancelRequestsPage;
