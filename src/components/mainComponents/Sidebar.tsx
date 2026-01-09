@@ -12,7 +12,6 @@ import {
   User,
   Trophy,
   Star,
-  Zap,
   X,
   Wallet,
   Footprints,
@@ -279,7 +278,7 @@ export function Sidebar({
             exit={{ x: "-100%" }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className={cn(
-              "fixed left-0 top-0 z-50 h-full w-80 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border-r border-gray-700/50 shadow-2xl",
+              "fixed left-0 top-0 z-50 h-full w-80 overflow-y-auto bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border-r border-gray-700/50 shadow-2xl",
               className
             )}
           >
@@ -345,12 +344,12 @@ export function Sidebar({
             {/* Navigation */}
             <nav className="flex-1 px-6 overflow-y-auto">
               <div className="space-y-2">
-                <div className="flex items-center gap-2 mb-4">
+                {/* <div className="flex items-center gap-2 mb-4">
                   <Zap className="w-4 h-4 text-emerald-400" />
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                     Navigation
                   </span>
-                </div>
+                </div> */}
 
                 {items.map((item, index) => (
                   <SidebarItem
