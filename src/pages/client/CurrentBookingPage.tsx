@@ -183,7 +183,7 @@ const [viewType, setViewType] =
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50">
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
+<div className="absolute inset-0 opacity-5 pointer-events-none">
           <div
             className="absolute inset-0"
             style={{
@@ -216,7 +216,7 @@ const [viewType, setViewType] =
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-red-50">
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
+<div className="absolute inset-0 opacity-5 pointer-events-none">
           <div
             className="absolute inset-0"
             style={{
@@ -249,7 +249,7 @@ const [viewType, setViewType] =
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
+<div className="absolute inset-0 opacity-5 pointer-events-none">
         <div
           className="absolute inset-0"
           style={{

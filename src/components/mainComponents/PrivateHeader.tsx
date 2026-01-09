@@ -29,7 +29,6 @@ interface HeaderProps {
   className?: string;
   backgroundClass?: string;
   
-  // New props for reusability
   customActions?: CustomAction[];
   showProfile?: boolean;
   showSettings?: boolean;

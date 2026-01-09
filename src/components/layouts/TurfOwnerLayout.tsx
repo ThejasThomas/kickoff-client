@@ -6,7 +6,7 @@ import type React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { PrivateHeader } from "../mainComponents/PrivateHeader";
 import { Sidebar } from "../mainComponents/Sidebar";
 import { sidebarItems } from "../turfOwner/Sidebar/SidebarItems";
@@ -25,10 +25,10 @@ export const TurfOwnerLayout: React.FC<TurfOwnerLayoutProps> = (
   const { mutate: logoutReq } = useLogout(logoutTurfOwner); 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
 
-  const isHomePage = location.pathname === '/turfOwner/owner-earnings';
-  const navbarBgClass = isHomePage ? 'bg-transparent' : 'bg-black';
+  // const isHomePage = location.pathname === '/turfOwner/owner-earnings';
+const navbarBgClass = 'bg-black';
   
   const handleLogout = () => {
     logoutReq(undefined, {
