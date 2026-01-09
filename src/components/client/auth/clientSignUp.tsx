@@ -120,7 +120,7 @@ const ClientSignUp = ({
     <>
       {/* <PublicHeader /> */}
       <div
-        className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+        className="fixed inset-0 w-screen h-screen flex items-center justify-center overflow-hidden"
         style={{
           backgroundImage: `url('${backgroundImageSrc}')`,
           backgroundSize: "cover",
