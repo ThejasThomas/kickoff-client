@@ -19,6 +19,9 @@ import { getChatPageData } from "@/services/client/clientService";
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
 
@@ -33,6 +36,8 @@ export default function ChatPage() {
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
 
   const userId = useSelector((state: RootState) => state.client.client?.userId);
+  const firstLoadRef = useRef(true);
+
   useEffect(() => {
     const loadChatPage = async () => {
       if (!groupId) return;
@@ -143,11 +148,24 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    if (firstLoadRef.current) {
+      container.scrollTop = container.scrollHeight;
+      firstLoadRef.current = false;
+    } else {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, [messages]);
 
   const sendMessage = () => {
     if (!input.trim() || !groupId || !userId) return;
+
+    socket.emit("stopTyping", { groupId, userId });
 
     socket.emit("sendMessage", {
       groupId,
@@ -251,7 +269,10 @@ export default function ChatPage() {
       </header>
 
       {/* Messages */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+      <main
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6"
+      >
         <div className="mx-auto max-w-4xl space-y-6">
           {messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center py-20 text-center">
@@ -400,7 +421,7 @@ export default function ChatPage() {
               <span>
                 {typingUsers
                   .map(
-                    (id, ) =>
+                    (id) =>
                       group.membersInfo.find((m) => m.userId === id)
                         ?.fullName || "Someone"
                   )
@@ -437,25 +458,29 @@ export default function ChatPage() {
 
           <div className="flex items-end gap-3">
             <div className="flex flex-1 items-center gap-2 rounded-2xl bg-secondary border border-transparent focus-within:border-primary/20 focus-within:bg-background transition-all px-4 py-2.5 shadow-xs">
-     
               <textarea
                 rows={1}
                 placeholder="Message..."
                 className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1.5 resize-none placeholder:text-muted-foreground/60"
                 value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
+                onBlur={() => {
                   if (groupId && userId) {
-                    if (e.target.value.trim())
-                      socket.emit("typing", { groupId, userId });
-                    else socket.emit("stopTyping", { groupId, userId });
+                    socket.emit("stopTyping", { groupId, userId });
                   }
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  if (!groupId || !userId) return;
+
+                  socket.emit("typing", { groupId, userId });
+
+                  if (typingTimeoutRef.current) {
+                    clearTimeout(typingTimeoutRef.current);
                   }
+
+                  typingTimeoutRef.current = setTimeout(() => {
+                    socket.emit("stopTyping", { groupId, userId });
+                  }, 1200);
                 }}
               />
             </div>

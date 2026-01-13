@@ -31,6 +31,7 @@ export interface AdminDashboardEntity {
     total: number;
     completed: number;
     confirmed: number;
+    cancelled:number;
   };
 
   revenue: {

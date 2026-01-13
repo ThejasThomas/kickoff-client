@@ -22,4 +22,6 @@ export const getOwnersChartData = (data: AdminDashboardEntity) => [
 export const getBookingsChartData = (data: AdminDashboardEntity) => [
   { name: "Completed", value: data.bookings.completed },
   { name: "Confirmed", value: data.bookings.confirmed },
+  { name: "Cancelled", value: data.bookings.cancelled },
+
 ];
