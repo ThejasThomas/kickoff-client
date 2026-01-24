@@ -101,7 +101,7 @@ const LandingPage: React.FC = () => {
     }
   }
 
-  const handleViewDetails = (turfId: string) => {
+  const handleViewDetails = () => {
     navigate("/")
   }
 

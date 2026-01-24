@@ -13,7 +13,6 @@ import {
   Globe,
 } from "lucide-react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import type { IBookings } from "@/types/Booking_type";
 import { useToaster } from "@/hooks/ui/useToaster";
 import { 
   createTurfPaymentSession, 
@@ -133,6 +132,7 @@ const TurfPaymentPage = () => {
   };
 
   const handleOtherPayment = async (paymentMethod: PaymentMethod) => {
+    console.log(paymentMethod)
     if (!bookingData) {
       errorToast("No booking data to process payment.");
       return;
@@ -141,9 +141,6 @@ const TurfPaymentPage = () => {
     try {
       setIsProcessing(true);
 
-      // For non-Stripe payments, handle booking creation here
-      // You might want to create a separate backend endpoint for this
-      // For now, keeping the original logic
       
       await new Promise((resolve) => setTimeout(resolve, 2000));
 

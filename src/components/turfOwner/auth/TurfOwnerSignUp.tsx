@@ -55,7 +55,7 @@ export const TurfOwnerSignUp = ({
 
   const handleSendOTP = (email?: string) => {
     setIsSending(() => true);
-    sendVerificationOTP(email ?? userData.email, {
+    sendVerificationOTP({ email: email ?? userData.email }, {
       onSuccess(data) {
         successToast(data.message);
         setIsSending(false);
