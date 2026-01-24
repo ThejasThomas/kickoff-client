@@ -48,10 +48,17 @@ const ClientSignUp = ({
   const { mutate: verifyOTP, isPending: isVerifyOtpPending } =
     useVerifyOTPMutation();
 
-  const handleSendOTP = (email?: string) => {
-    if (!email && !userData.email) return;
-    setIsSending(true);
-    sendVerificationOTP(email ?? userData.email!, {
+ const handleSendOTP = (email?: string) => {
+  if (!email && !userData.email) return;
+
+  setIsSending(true);
+
+  sendVerificationOTP(
+    {
+      email: email ?? userData.email!,
+      phoneNumber: userData.phoneNumber,
+    },
+    {
       onSuccess: (data) => {
         successToast(data.message);
         setIsSending(false);
@@ -61,8 +68,10 @@ const ClientSignUp = ({
         errorToast(error.response?.data?.message || "Failed to send OTP");
         setIsSending(false);
       },
-    });
-  };
+    }
+  );
+};
+
 
   const handleVerifyOTP = async (otp: string): Promise<boolean> => {
     if (!userData.email) {
@@ -70,7 +79,7 @@ const ClientSignUp = ({
       return false;
     }
 
-    const email = userData.email as string; // Type assertion since we've checked it's not undefined
+    const email = userData.email as string;
 
     return new Promise((resolve) => {
       verifyOTP(

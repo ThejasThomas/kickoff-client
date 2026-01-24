@@ -27,8 +27,7 @@ import { useToaster } from "@/hooks/ui/useToaster"
 const UpcomingHostedGames = () => {
   const navigate = useNavigate()
   const [games, setGames] = useState<HostedGameDTO[]>([])
-  // const [currentPage, setCurrentPage] = useState(1)
-  // const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,7 +45,7 @@ const [cancelLoading, setCancelLoading] = useState(false);
 const { successToast, errorToast } = useToaster();
 
 
-  const pageSize = 4
+  const pageSize = 3
   const currentUserId = useSelector(
   (state: RootState) => state.client.client?.userId
 )
@@ -56,14 +55,13 @@ const { successToast, errorToast } = useToaster();
       setLoading(true)
 
       const res = await getUpcomingHostedGamesByUser({
-        page: 1,
+        page: currentPage,
         limit: pageSize,
         search: "",
       })
 
       if (res.success) {
         setGames(res.games)
-        // setTotalPages(res.totalPages)
         setTotal(res.total)
         setError(null)
       } else {
@@ -74,11 +72,14 @@ const { successToast, errorToast } = useToaster();
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [currentPage])
 
   useEffect(() => {
     fetchHostedGames()
   }, [fetchHostedGames])
+
+  const totalPages = Math.ceil(total / pageSize);
+
   const handleCancelHostedGame = async () => {
   if (!cancelDialog.game) return;
 
@@ -120,7 +121,7 @@ const openCancelDialog = (game: HostedGameDTO) => {
     return <ErrorState title="Error" message={error} onRetry={fetchHostedGames} />
   }
 
-  if (games.length === 0) {
+  if (total === 0) {
     return (
       <EmptyState
         title="No Hosted Games"
@@ -141,11 +142,50 @@ const openCancelDialog = (game: HostedGameDTO) => {
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence>
-          {games.map((game, index) => (
-            <HostedGameCard key={game._id} game={game} index={index} currentUserId={currentUserId!} onCancelGame={()=>openCancelDialog(game)} />
-          ))}
+          {games.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-muted-foreground">
+              No games found on this page.
+            </div>
+          ) : (
+            games.map((game, index) => (
+              <HostedGameCard key={game._id} game={game} index={index} currentUserId={currentUserId!} onCancelGame={()=>openCancelDialog(game)} />
+            ))
+          )}
         </AnimatePresence>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            className={`px-4 py-2 rounded-lg border ${
+              currentPage === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-muted"
+            }`}
+          >
+            Previous
+          </button>
+
+          <p className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </p>
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            className={`px-4 py-2 rounded-lg border ${
+              currentPage === totalPages
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-muted"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
+
       <Dialog
   open={cancelDialog.isOpen}
   onOpenChange={(open) => {

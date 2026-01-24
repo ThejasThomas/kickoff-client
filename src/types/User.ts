@@ -68,6 +68,10 @@ export interface ITurfOwnerDetails extends Omit<User, "fullName" | "userId"  > {
   googleId?: string;
   rejectionReason?: string;
 }
+export interface SendOtpPayload {
+  email: string;
+  phoneNumber?: string;
+}
 
 
 export interface GetUsersParams {

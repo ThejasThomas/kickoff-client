@@ -1,5 +1,7 @@
+"use client"
+
 import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Search,
@@ -14,20 +16,16 @@ import {
   Grid3X3,
   CheckCircle,
 } from "lucide-react"
-import LocationModal from "./components/LocationModal"
-import TurfCard from "./components/TurfCard"
 import { useGeolocation } from "@/hooks/common/useGeoLocation"
 import { getTurfsByLocation } from "@/services/client/clientService"
 import { useToaster } from "@/hooks/ui/useToaster"
 import type { ITurf } from "@/types/Turf"
 import type { ITurffResponse } from "@/types/Response"
 import { useNavigate } from "react-router-dom"
+import TurfCard from "../client/components/TurfCard"
+import LocationModal from "../client/components/LocationModal"
 
-interface HomePageProps {
-  onTurfSelect: (turfId: string) => void
-}
-
-const HomePage: React.FC<HomePageProps> = () => {
+const LandingPage: React.FC = () => {
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [turfs, setTurfs] = useState<ITurf[]>([])
   const [loading, setLoading] = useState(false)
@@ -35,7 +33,6 @@ const HomePage: React.FC<HomePageProps> = () => {
   const { successToast, errorToast } = useToaster()
   const navigate = useNavigate()
   const { latitude, longitude, error, loading: locationLoading, getCurrentPosition } = useGeolocation()
-  const turfsSectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const hasShownLocationModal = localStorage.getItem("hasShownLocationModal")
@@ -67,7 +64,12 @@ const HomePage: React.FC<HomePageProps> = () => {
           setShowLocationModal(false)
         },
         onError: (error) => {
-          errorToast(error.response?.data?.message || "Failed to fetch the nearby turfs")
+          // If auth error (e.g., 401), redirect to login; otherwise show toast
+          if (error.response?.status === 401 || error.response?.status === 403) {
+            navigate("/")
+          } else {
+            errorToast(error.response?.data?.message || "Failed to fetch the nearby turfs")
+          }
         },
       })
     }
@@ -100,38 +102,11 @@ const HomePage: React.FC<HomePageProps> = () => {
   }
 
   const handleViewDetails = (turfId: string) => {
-    navigate(`/turfoverview/${turfId}`)
+    navigate("/")
   }
 
   const handleLocationAccess = () => {
     getCurrentPosition()
-  }
-
-  const handleSearch = () => {
-    // Refetch turfs with current search query if location is available
-    if (latitude && longitude) {
-      fetchNearbyTurfs({
-        onSuccess: (data) => {
-          successToast("Search results loaded successfully")
-          setTurfs(data.turfs)
-        },
-        onError: (error) => {
-          errorToast(error.response?.data?.message || "Failed to search turfs")
-        },
-      })
-    }
-
-    // Scroll to turfs section if there are filtered results
-    const filteredTurfs = turfs.filter((turf) => {
-      const matchesSearch =
-        turf.turfName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        turf.location.city.toLowerCase().includes(searchQuery.toLowerCase())
-      return matchesSearch
-    })
-
-    if (filteredTurfs.length > 0) {
-      turfsSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }
   }
 
   const filteredTurfs = turfs.filter((turf) => {
@@ -209,7 +184,6 @@ const HomePage: React.FC<HomePageProps> = () => {
                       className="w-full pl-14 pr-32 py-4 bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none text-lg"
                     />
                     <motion.button
-                      onClick={handleSearch}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="absolute right-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors duration-200 flex items-center gap-2"
@@ -272,7 +246,7 @@ const HomePage: React.FC<HomePageProps> = () => {
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <div className="flex items-center justify-center"> {/* Center horizontally */}
       <motion.button
-        onClick={() => navigate("/allturfdisplay")}
+        onClick={() => navigate("/")}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
@@ -286,7 +260,7 @@ const HomePage: React.FC<HomePageProps> = () => {
 
 
       {/* Main Content */}
-      <div ref={turfsSectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Section Header */}
         {!loading && filteredTurfs.length > 0 && (
           <motion.div
@@ -415,7 +389,7 @@ const HomePage: React.FC<HomePageProps> = () => {
             className="text-center mt-12 pt-8 border-t border-gray-200"
           >
             <motion.button
-              onClick={() => navigate("/allturfdisplay")}
+              onClick={() => navigate("/")}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center gap-3 bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-xl font-medium transition-colors duration-200"
@@ -440,4 +414,4 @@ const HomePage: React.FC<HomePageProps> = () => {
   )
 }
 
-export default HomePage
+export default LandingPage

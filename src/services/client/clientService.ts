@@ -74,6 +74,25 @@ export const getClientProfile = async (): Promise<IClient> => {
 
   return response.data;
 };
+export const createGamePaymentSession = async (data: {
+  
+  amount: number;
+  gameData: any;
+}) => {
+  const response = await axiosInstance.post(
+    CLIENT_ROUTE.CREATE_GAME_PAYMENT_SESSION,
+    data
+  );
+  return response.data;
+};
+export const verifyGamePayment = async (sessionId: string) => {
+  const response = await axiosInstance.get(
+    `${CLIENT_ROUTE.VERIFY_GAME}/${sessionId}`
+  );
+  return response.data;
+};
+
+
 
 
 export const updateClientProfile = async (
@@ -106,7 +125,25 @@ export const bookSlots = async (
   );
   return response.data;
 };
-
+export const createTurfPaymentSession = async (data: {
+  turfId: string;
+  date: string;
+  slotDetails: any[];
+  totalAmount: number;
+}) => {
+  const response = await axiosInstance.post(
+    CLIENT_ROUTE.CREATE_TURF_PAYMENT_SESSION,
+    data
+  );
+  return response.data; 
+};
+export const verifyTurfPayment = async (sessionId: string) => {
+  console.log('session',sessionId)
+  const response = await axiosInstance.get(
+    `${CLIENT_ROUTE.VERIFY_TURF_PAYMENT}/${sessionId}`
+  );
+  return response.data; 
+};
 export const getupcomingBookings = async (
   params: GetUpcomingBookings = {}
 ): Promise<IBookResponse> => {

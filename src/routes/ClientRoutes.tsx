@@ -21,11 +21,13 @@ import ChatGroup from "@/pages/client/components/ChatGroup";
 import ChatPage from "@/pages/client/components/ChatPage";
 import InvoiceUserBookingsPage from "@/pages/client/components/BookingsDownloadPage";
 import NotFound from "@/components/common/NotFound";
+import LandingPage from "@/pages/common/Landing_page";
 
 const ClientRoutes = () => {
   return (
     <Routes>
       <Route path="/paymentpage" element={<TurfPaymentPage />} />
+      <Route path="/landingpage" element={<LandingPage/>}/>
 
       <Route index element={<NoAuthRoute element={<ClientAuth />} />} />
       <Route

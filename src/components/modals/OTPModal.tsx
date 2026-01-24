@@ -78,8 +78,10 @@ export default function OTPModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md z-50 bg-white rounded-lg shadow-lg">
+    <Dialog open={isOpen} onOpenChange={(open)=>{if(!open) onClose()}}>
+      <DialogContent className="sm:max-w-md z-50 bg-white rounded-lg shadow-lg"
+      onInteractOutside={(e) => e.preventDefault()}
+    onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
             Verification Code

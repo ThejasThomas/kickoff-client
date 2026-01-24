@@ -4,7 +4,7 @@ import { ADMIN_ROUTES } from "@/constants/admin_route";
 import { CLIENT_ROUTE } from "@/constants/client_route";
 import { OWNER_ROUTE } from "@/constants/owner_route";
 import type { IAuthResponse, IAxiosResponse } from "@/types/Response";
-import type { ILoginData, UserDTO } from "@/types/User";
+import type { ILoginData, SendOtpPayload, UserDTO } from "@/types/User";
 
 export const signup =async (user:UserDTO):Promise<IAxiosResponse> =>{
     const response =await authAxiosInstance.post<IAxiosResponse>(
@@ -37,10 +37,10 @@ export const logoutAdmin =async ():Promise<IAxiosResponse>=>{
 	return response.data;
 }
 
-export const sendOtp = async (email: string): Promise<IAxiosResponse> => {
-	const response = await authAxiosInstance.post<IAxiosResponse>("/send-otp", {
-		email,
-	});
+export const sendOtp = async (payload:SendOtpPayload): Promise<IAxiosResponse> => {
+	const response = await authAxiosInstance.post<IAxiosResponse>("/send-otp",
+		payload
+	);
 	return response.data;
 };
 

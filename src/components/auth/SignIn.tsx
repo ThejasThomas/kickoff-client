@@ -1,3 +1,5 @@
+'use client';
+
 
 import type { UserRoles } from "@/types/UserRoles"
 import { signInSchema } from "@/utils/validations/signin_validator"
@@ -21,6 +23,7 @@ interface SignInProps {
 const SignIn = ({ userType, onSubmit, setRegister, isLoading, handleGoogleAuth }: SignInProps) => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [expandNav, setExpandNav] = useState(false)
 
   const formik = useFormik({
     initialValues: {
@@ -86,6 +89,54 @@ const SignIn = ({ userType, onSubmit, setRegister, isLoading, handleGoogleAuth }
             />
           ))}
         </div>
+
+        {/* Premium Arrow Navigation */}
+        <motion.div
+          className="absolute top-8 left-8 z-20"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <motion.button
+            onClick={() => setExpandNav(!expandNav)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="group relative w-12 h-12 rounded-full bg-gradient-to-br from-teal-400/90 to-cyan-400/90 backdrop-blur-md border border-white/30 shadow-xl flex items-center justify-center hover:shadow-2xl transition-all duration-300"
+          >
+            <motion.svg
+              className="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              animate={{ rotate: expandNav ? 180 : 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </motion.svg>
+          </motion.button>
+
+          {/* Expanded Navigation Menu */}
+          <motion.div
+            initial={{ opacity: 0, y: -20, pointerEvents: "none" }}
+            animate={expandNav ? { opacity: 1, y: 10, pointerEvents: "auto" } : { opacity: 0, y: -20, pointerEvents: "none" }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-16 left-0"
+          >
+            <motion.button
+              onClick={() => {
+                navigate("/landingpage")
+                setExpandNav(false)
+              }}
+              whileHover={{ scale: 1.05, x: 10 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-semibold rounded-xl shadow-xl border border-white/30 hover:shadow-2xl transition-all duration-300 whitespace-nowrap block"
+            >
+              Visit Turfs
+            </motion.button>
+          </motion.div>
+        </motion.div>
+
+
 
         <motion.div
           initial={{ scale: 0.9, opacity: 0, y: 20 }}

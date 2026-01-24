@@ -1,24 +1,27 @@
 import React, { useEffect, useState } from "react";
 
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, AlertCircle, ChevronLeft } from "lucide-react";
 import {
   addMoney,
   getTransactionHistory,
   getWalletBalance,
 } from "@/services/client/clientService";
 import WalletStripeModal from "@/components/Payments/WalletStripeModal";
+import { useNavigate } from "react-router-dom";
 
 const WalletPage: React.FC = () => {
   const [balance, setBalance] = useState<number>(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
   const [amount, setAmount] = useState<number>(0);
+  const [error, setError] = useState<string>('');
   const [triggerStripe, setTriggerStripe] = useState(false);
   const [transactionPayload, setTransactionPayload] = useState<any>(null);
 
   const [page, setPage] = useState(1);
   const [limit] = useState(2);
   const [total, setTotal] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadWalletData();
@@ -49,11 +52,22 @@ const WalletPage: React.FC = () => {
   };
 
   const handleAddMoney = async () => {
-    if (!amount || amount <= 0) return alert("Enter a valid amount");
-
-    setTransactionPayload({ amount });
+    setError('');
+    const parsedAmount = parseFloat(amount.toString());
+    if (!amount || parsedAmount <= 0) {
+      setError("Please enter a valid amount greater than 0");
+      return;
+    }
+    setTransactionPayload({ amount: parsedAmount });
     setTriggerStripe(true);
     setShowAddMoneyModal(false);
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9.]/g, '');
+    const parsed = parseFloat(value) || 0;
+    setAmount(parsed);
+    if (error) setError('');
   };
 
   const handleWalletCredit = async (amount: number) => {
@@ -71,6 +85,15 @@ const WalletPage: React.FC = () => {
 
         {/* Header */}
         <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+          <div className="flex items-center gap-4 mb-4">
+            <button
+              onClick={() => navigate("/home")}
+              className="inline-flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+            >
+              <ChevronLeft size={20} />
+              Back to Home
+            </button>
+          </div>
           <h1 className="text-3xl font-bold">My Wallet</h1>
           <p className="text-muted-foreground">Manage your balance & transactions</p>
         </div>
@@ -155,28 +178,48 @@ const WalletPage: React.FC = () => {
 
       {/* Add Money Modal */}
       {showAddMoneyModal && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-sm space-y-4 shadow-xl">
-            <h2 className="text-xl font-bold">Add Money</h2>
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-2xl p-8 w-full max-w-md space-y-6 shadow-2xl backdrop-blur-sm">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">Add Funds</h2>
+              <p className="text-sm text-gray-600">Securely top up your wallet balance</p>
+            </div>
 
-            <input
-              type="number"
-              className="w-full p-3 rounded-lg bg-input border border-border"
-              placeholder="Enter amount"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-gray-500 text-lg">₹</span>
+              </div>
+              <input
+                type="text"
+                className="w-full pl-8 pr-4 py-4 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:outline-none transition-all duration-200 text-lg font-medium text-gray-900 placeholder-gray-400 shadow-sm hover:shadow-md"
+                placeholder="0.00"
+                value={amount}
+                onChange={handleAmountChange}
+              />
+            </div>
 
-            <div className="flex gap-3 justify-end">
+            {error && (
+              <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-3">
+                <AlertCircle size={16} />
+                {error}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-2">
               <button
-                onClick={() => setShowAddMoneyModal(false)}
-                className="px-4 py-2 bg-muted text-muted-foreground rounded-lg"
+                onClick={() => {
+                  setShowAddMoneyModal(false);
+                  setAmount(0);
+                  setError('');
+                }}
+                className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-200 shadow-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddMoney}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg"
+                disabled={!amount || parseFloat(amount.toString()) <= 0}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl font-semibold hover:from-primary/90 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue to Pay
               </button>

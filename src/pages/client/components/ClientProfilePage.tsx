@@ -4,6 +4,7 @@ import { User, Mail, Phone, X, Save, Edit } from "lucide-react";
 import { useToaster } from "@/hooks/ui/useToaster";
 import type { IClient, IUpdateClient } from "@/types/User";
 import { getClientProfile, updateClientProfile } from "@/services/client/clientService";
+import { validateClientProfile, type ValidationErrors } from "@/utils/validations/client_profile_validation";
 
 interface ClientProfileProps {
   initialData?: Partial<IClient>;
@@ -15,6 +16,7 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
   const [originalData, setOriginalData] = useState<Partial<IUpdateClient>>({});
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   useEffect(() => {
     console.log('page mountedd')
@@ -22,7 +24,6 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
       try {
         const data = await getClientProfile();
         console.log('api called')
-        // Assuming data has the required fields, cast to IUpdateClient
         const updateData: IUpdateClient = {
           fullName: data.fullName,
           email: data.email,
@@ -49,25 +50,33 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
     setClientData({ ...originalData });
     setIsEditing(false);
   }
+const handleSave = async () => {
+  setIsLoading(true);
 
-  const handleSave = async () => {
-    setIsLoading(true);
-    try {
-      if (!clientData.fullName || !clientData.email || !clientData.phoneNumber) {
-        throw new Error("All fields are required");
-      }
-      const payload: IUpdateClient = clientData as IUpdateClient;
-      await updateClientProfile(payload)
-      setOriginalData({ ...payload });
-      setIsEditing(false)
-      successToast("Profile updated Successfully");
-    } catch (err) {
-      errorToast("Failed to update profile")
-      console.log(err);
-    } finally {
-      setIsLoading(false)
-    }
+  const validationErrors = validateClientProfile(clientData);
+
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    setIsLoading(false);
+    return;
   }
+
+  try {
+    const payload: IUpdateClient = clientData as IUpdateClient;
+    await updateClientProfile(payload);
+
+    setOriginalData({ ...payload });
+    setIsEditing(false);
+    setErrors({});
+    successToast("Profile updated successfully");
+  } catch (err) {
+    errorToast("Failed to update profile");
+    console.log(err);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleInputChange = (field: keyof IUpdateClient, value: string) => {
     setClientData(prev => ({ ...prev, [field]: value }));
@@ -125,6 +134,9 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
                   }`}
                   placeholder="No name provided"
                 />
+                {errors.fullName && (
+                  <p className="text-sm text-red-500 mt-1">{errors.fullName}</p>
+                )}
                 <User className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
               </div>
             </div>
@@ -143,6 +155,7 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
                   }`}
                   placeholder="No email provided"
                 />
+                {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                 <Mail className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
               </div>
             </div>
@@ -161,6 +174,9 @@ export const ClientProfile = ({ initialData }: ClientProfileProps) => {
                   }`}
                   placeholder="No phone number provided"
                 />
+                {errors.phoneNumber && (
+                  <p className="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>
+                )}
                 <Phone className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
               </div>
             </div>
