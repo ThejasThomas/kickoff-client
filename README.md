@@ -1,70 +1,149 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🏆 Kickoff – Football Turf Booking Application
 
-Currently, two official plugins are available:
+Kickoff is a full-stack football turf booking platform where users can book turfs, host games, manage wallets, and chat in groups without any physical visit.
+It supports User, Vendor (Owner), and Admin roles with a clean architecture backend and a modern React frontend.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
- 
-## Expanding the ESLint configuration
- 
+🌐 Hosted on AWS S3 + CloudFront
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+🚀 Features
+👤 User Side
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+🔐 Authentication (Login / Signup/ Google)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+📅 Turf booking system
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+📜 Booking history
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Completed bookings
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Upcoming bookings
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+🏟️ Hosted games list
+
+💬 Chat groups
+
+💰 Wallet system
+
+🏢 Vendor (Turf Owner)
+
+📊 Owner dashboard
+
+➕ Add turf
+
+♻️ Re-apply turf (if rejected)
+
+✏️ Edit turf details
+
+⏰ Add & manage slots
+
+📖 View bookings
+
+❌ Handle cancel requests
+
+💰 Wallet management
+
+🛠️ Admin
+
+📊 Admin dashboard
+
+🏟️ Turf management
+
+👤 User management
+
+🏢 Vendor management
+
+⭐ Review management
+
+💳 Transaction history
+
+💰 Wallet & revenue monitoring
+
+🧱 Architecture
+
+The backend follows Clean Architecture, ensuring:
+
+Clear separation of concerns
+
+High scalability
+
+Easy testing & maintenance
+
+Independent business logic
+
+Layers include:
+
+Domain
+
+Application / Use cases
+
+Infrastructure
+
+Interfaces (Controllers / Routes)
+
+🖥️ Tech Stack
+Frontend
+
+⚛️ React
+
+🟦 TypeScript
+
+✅ Zod (validation)
+
+🎨 Tailwind CSS
+
+🎞️ Framer Motion
+
+Backend
+
+🟢 Node.js
+
+🚂 Express.js
+
+🟦 TypeScript
+
+🍃 MongoDB
+
+🧩 Clean Architecture pattern
+
+☁️ Hosting & Deployment
+
+Frontend
+
+AWS S3 
+
+AWS CloudFront
+
+Backend
+
+AWS EC2
+
+Nginx (Reverse proxy)
+
+PM2 (Process manager)
+
+CI/CD enabled for automated deployment 🚀
+
+🎯 Project Goal
+
+Kickoff aims to digitize football turf booking and game hosting, allowing:
+
+Users to book turfs easily
+
+Players to host and join games
+
+Turf owners to manage business digitally
+
+Admins to monitor the whole ecosystem
+
+All without any physical visit.
+
+🤝 Contribution
+
+Contributions, issues, and feature requests are welcome.
+
+👨‍💻 Author
+
+Tejas Thomas
+Full Stack Developer
+Project: Kickoff – Football Turf Booking Application
